@@ -6,7 +6,6 @@ namespace Horae;
 /// </summary>
 public static class RegionExtensions
 {
-    // ── Generic helper ────────────────────────────────────────────────────────
 
     /// <summary>
     ///     Converts a <see cref="DateTimeOffset"/> value to UTC.
@@ -21,7 +20,6 @@ public static class RegionExtensions
     public static DateTimeOffset ToUtc(this DateTimeOffset dto, TimeZoneInfo sourceTimeZone) =>
         TimeZoneInfo.ConvertTime(dto, TimeZoneInfo.Utc);
 
-    // ── Europe ───────────────────────────────────────────────────────────────
 
     /// <summary>Converts from Central European Time (CET/CEST) to UTC.</summary>
     public static DateTimeOffset CentralEuropeanToUtc(this DateTimeOffset dto) =>
@@ -47,7 +45,6 @@ public static class RegionExtensions
     public static DateTimeOffset IstanbulToUtc(this DateTimeOffset dto) =>
         dto.ToUtc(TimeZones.Istanbul);
 
-    // ── Americas ─────────────────────────────────────────────────────────────
 
     /// <summary>Converts from US Eastern Time (EST/EDT) to UTC.</summary>
     public static DateTimeOffset EasternUsToUtc(this DateTimeOffset dto) =>
@@ -57,7 +54,6 @@ public static class RegionExtensions
     public static DateTimeOffset PacificUsToUtc(this DateTimeOffset dto) =>
         dto.ToUtc(TimeZones.PacificUs);
 
-    // ── Asia ─────────────────────────────────────────────────────────────────
 
     /// <summary>Converts from Gulf Standard Time / Dubai (GST) to UTC.</summary>
     public static DateTimeOffset DubaiToUtc(this DateTimeOffset dto) =>
@@ -71,7 +67,6 @@ public static class RegionExtensions
     public static DateTimeOffset JapanToUtc(this DateTimeOffset dto) =>
         dto.ToUtc(TimeZones.Japan);
 
-    // ── Pacific ──────────────────────────────────────────────────────────────
 
     /// <summary>Converts from Australian Eastern Time (AEST/AEDT) to UTC.</summary>
     public static DateTimeOffset AustraliaEasternToUtc(this DateTimeOffset dto) =>

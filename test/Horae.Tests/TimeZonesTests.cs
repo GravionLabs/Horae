@@ -5,7 +5,6 @@ namespace Horae.Tests;
 [TestFixture, Category("UnitTest")]
 public class TimeZonesTests
 {
-    // ── UTC ──────────────────────────────────────────────────────────────────
 
     [Test]
     public void Utc_ShouldNotBeNull() => TimeZones.Utc.ShouldNotBeNull();
@@ -13,7 +12,6 @@ public class TimeZonesTests
     [Test]
     public void Utc_ShouldHaveCorrectId() => TimeZones.Utc.Id.ShouldBe("UTC");
 
-    // ── Europe ───────────────────────────────────────────────────────────────
 
     [Test]
     public void CentralEuropean_ShouldNotBeNull() => TimeZones.CentralEuropean.ShouldNotBeNull();
@@ -51,7 +49,6 @@ public class TimeZonesTests
     [Test]
     public void Istanbul_ShouldHaveCorrectId() => TimeZones.Istanbul.Id.ShouldBe("Europe/Istanbul");
 
-    // ── Americas ─────────────────────────────────────────────────────────────
 
     [Test]
     public void EasternUs_ShouldNotBeNull() => TimeZones.EasternUs.ShouldNotBeNull();
@@ -65,7 +62,6 @@ public class TimeZonesTests
     [Test]
     public void PacificUs_ShouldHaveCorrectId() => TimeZones.PacificUs.Id.ShouldBe("America/Los_Angeles");
 
-    // ── Asia ─────────────────────────────────────────────────────────────────
 
     [Test]
     public void Dubai_ShouldNotBeNull() => TimeZones.Dubai.ShouldNotBeNull();
@@ -85,7 +81,6 @@ public class TimeZonesTests
     [Test]
     public void Japan_ShouldHaveCorrectId() => TimeZones.Japan.Id.ShouldBe("Asia/Tokyo");
 
-    // ── Pacific ──────────────────────────────────────────────────────────────
 
     [Test]
     public void AustraliaEastern_ShouldNotBeNull() => TimeZones.AustraliaEastern.ShouldNotBeNull();

@@ -6,7 +6,6 @@ namespace Horae;
 /// </summary>
 public static class TimeZones
 {
-    // ── UTC ──────────────────────────────────────────────────────────────────
 
     /// <summary>
     ///     Gets the Coordinated Universal Time (UTC) time zone.
@@ -14,7 +13,6 @@ public static class TimeZones
     /// </summary>
     public static readonly TimeZoneInfo Utc = TimeZoneInfo.Utc;
 
-    // ── Europe ───────────────────────────────────────────────────────────────
 
     /// <summary>
     ///     Gets the Central European time zone (CET/CEST, UTC+1/UTC+2).
@@ -48,7 +46,6 @@ public static class TimeZones
     /// </summary>
     public static readonly TimeZoneInfo Istanbul = TimeZoneInfo.FindSystemTimeZoneById("Europe/Istanbul");
 
-    // ── Americas ─────────────────────────────────────────────────────────────
 
     /// <summary>
     ///     Gets the Eastern Time zone for the US and Canada (EST/EDT, UTC-5/UTC-4).
@@ -62,7 +59,6 @@ public static class TimeZones
     /// </summary>
     public static readonly TimeZoneInfo PacificUs = TimeZoneInfo.FindSystemTimeZoneById("America/Los_Angeles");
 
-    // ── Asia ─────────────────────────────────────────────────────────────────
 
     /// <summary>
     ///     Gets the Gulf Standard Time for Dubai (GST, UTC+4, no DST).
@@ -79,7 +75,6 @@ public static class TimeZones
     /// </summary>
     public static readonly TimeZoneInfo Japan = TimeZoneInfo.FindSystemTimeZoneById("Asia/Tokyo");
 
-    // ── Pacific ──────────────────────────────────────────────────────────────
 
     /// <summary>
     ///     Gets the Australian Eastern Time zone (AEST/AEDT, UTC+10/UTC+11).
