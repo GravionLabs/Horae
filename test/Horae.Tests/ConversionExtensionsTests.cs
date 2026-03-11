@@ -130,4 +130,3 @@ public class ConversionExtensionsTests
         date.AsUtcDateTimeOffset().Offset.ShouldBe(TimeSpan.Zero);
     }
 }
-

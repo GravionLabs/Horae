@@ -2,10 +2,9 @@ using Shouldly;
 
 namespace Horae.Tests;
 
-[TestFixture, Category("UnitTest")]
+[TestFixture] [Category("UnitTest")]
 public class TimeZonesTests
 {
-
     [Test]
     public void Utc_ShouldNotBeNull() => TimeZones.Utc.ShouldNotBeNull();
 

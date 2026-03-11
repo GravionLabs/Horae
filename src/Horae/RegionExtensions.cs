@@ -1,22 +1,21 @@
 namespace Horae;
 
 /// <summary>
-///     Extension methods for converting <see cref="DateTimeOffset"/> values between regional
+///     Extension methods for converting <see cref="DateTimeOffset" /> values between regional
 ///     time zones and UTC.
 /// </summary>
 public static class RegionExtensions
 {
-
     /// <summary>
-    ///     Converts a <see cref="DateTimeOffset"/> value to UTC.
+    ///     Converts a <see cref="DateTimeOffset" /> value to UTC.
     /// </summary>
     /// <param name="dto">The value to convert.</param>
     /// <param name="sourceTimeZone">
-    ///     The time zone that <paramref name="dto"/> is semantically expressed in.
-    ///     For <see cref="DateTimeOffset"/> values, the UTC equivalent is already unambiguously
+    ///     The time zone that <paramref name="dto" /> is semantically expressed in.
+    ///     For <see cref="DateTimeOffset" /> values, the UTC equivalent is already unambiguously
     ///     determined by the embedded offset; this parameter serves as documentation of intent.
     /// </param>
-    /// <returns>The equivalent instant expressed as UTC (<see cref="TimeSpan.Zero"/> offset).</returns>
+    /// <returns>The equivalent instant expressed as UTC (<see cref="TimeSpan.Zero" /> offset).</returns>
     public static DateTimeOffset ToUtc(this DateTimeOffset dto, TimeZoneInfo sourceTimeZone) =>
         TimeZoneInfo.ConvertTime(dto, TimeZoneInfo.Utc);
 
@@ -72,4 +71,3 @@ public static class RegionExtensions
     public static DateTimeOffset AustraliaEasternToUtc(this DateTimeOffset dto) =>
         dto.ToUtc(TimeZones.AustraliaEastern);
 }
-

@@ -2,7 +2,7 @@ using Shouldly;
 
 namespace Horae.Tests;
 
-[TestFixture, Category("UnitTest")]
+[TestFixture] [Category("UnitTest")]
 public class HoareSettingsTests
 {
     // Store the original value so each test starts clean and does not affect others.

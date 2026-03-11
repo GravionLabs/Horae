@@ -5,7 +5,6 @@ namespace Horae.Tests;
 [TestFixture(Category = "UnitTest")]
 public class TimeSpanExtensionsTests
 {
-
     [Test]
     public void TicksPerMicrosecond_ShouldBe10() =>
         TimeSpanExtensions.TicksPerMicrosecond.ShouldBe(10L);
@@ -25,39 +24,28 @@ public class TimeSpanExtensionsTests
 
 
     [Test]
-    public void Nanoseconds_Int_100_ShouldEqual1Tick()
-    {
+    public void Nanoseconds_Int_100_ShouldEqual1Tick() =>
         // 100 ns = 1 tick (1 tick = 100 ns)
         100.Nanoseconds().Ticks.ShouldBe(1L);
-    }
 
     [Test]
-    public void Nanoseconds_Long_1000_ShouldEqual10Ticks()
-    {
-        1000L.Nanoseconds().Ticks.ShouldBe(10L);
-    }
+    public void Nanoseconds_Long_1000_ShouldEqual10Ticks() => 1000L.Nanoseconds().Ticks.ShouldBe(10L);
 
     [Test]
-    public void Nanoseconds_Int_SubResolution_ShouldRound()
-    {
+    public void Nanoseconds_Int_SubResolution_ShouldRound() =>
         // 50 ns → 0.5 ticks → rounds to 1 tick (Math.Round default = round-half-to-even, but 0.5 rounds to 0 here)
         // 150 ns → 1.5 ticks → rounds to 2 ticks
         150.Nanoseconds().Ticks.ShouldBe(2L);
-    }
 
 
     [Test]
-    public void Microseconds_Int_ShouldReturn10TicksPerMicrosecond()
-    {
+    public void Microseconds_Int_ShouldReturn10TicksPerMicrosecond() =>
         // 1 µs = 10 ticks
         1.Microseconds().Ticks.ShouldBe(10L);
-    }
 
     [Test]
-    public void Microseconds_Long_ShouldReturnCorrectTimeSpan()
-    {
+    public void Microseconds_Long_ShouldReturnCorrectTimeSpan() =>
         500L.Microseconds().ShouldBe(TimeSpan.FromTicks(5000));
-    }
 
 
     [Test]
@@ -150,6 +138,7 @@ public class TimeSpanExtensionsTests
     {
         var result = 1.Days().And(2.Hours()).And(30.Minutes()).And(15.Seconds());
 
-        result.ShouldBe(TimeSpan.FromDays(1) + TimeSpan.FromHours(2) + TimeSpan.FromMinutes(30) + TimeSpan.FromSeconds(15));
+        result.ShouldBe(TimeSpan.FromDays(1) + TimeSpan.FromHours(2) + TimeSpan.FromMinutes(30) +
+                        TimeSpan.FromSeconds(15));
     }
 }

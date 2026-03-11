@@ -2,7 +2,7 @@ using Shouldly;
 
 namespace Horae.Tests;
 
-[TestFixture, Category("UnitTest")]
+[TestFixture] [Category("UnitTest")]
 public class RegionExtensionsTests
 {
     // A fixed UTC reference instant used across all tests.
@@ -103,4 +103,3 @@ public class RegionExtensionsTests
         utc.Hour.ShouldBe(3);
     }
 }
-

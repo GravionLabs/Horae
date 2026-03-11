@@ -5,36 +5,35 @@ namespace Horae.Tests;
 [TestFixture(Category = "UnitTest")]
 public class DateExtensionsTests
 {
-
-    [TestCase(1,  1, Description = "January")]
-    [TestCase(2,  2, Description = "February")]
-    [TestCase(3,  3, Description = "March")]
-    [TestCase(4,  4, Description = "April")]
-    [TestCase(5,  5, Description = "May")]
-    [TestCase(6,  6, Description = "June")]
-    [TestCase(7,  7, Description = "July")]
-    [TestCase(8,  8, Description = "August")]
-    [TestCase(9,  9, Description = "September")]
+    [TestCase(1, 1, Description = "January")]
+    [TestCase(2, 2, Description = "February")]
+    [TestCase(3, 3, Description = "March")]
+    [TestCase(4, 4, Description = "April")]
+    [TestCase(5, 5, Description = "May")]
+    [TestCase(6, 6, Description = "June")]
+    [TestCase(7, 7, Description = "July")]
+    [TestCase(8, 8, Description = "August")]
+    [TestCase(9, 9, Description = "September")]
     [TestCase(10, 10, Description = "October")]
     [TestCase(11, 11, Description = "November")]
     [TestCase(12, 12, Description = "December")]
     public void MonthMethod_ShouldReturnMidnightUtc(int month, int expectedMonth)
     {
-        DateTimeOffset result = month switch
+        var result = month switch
         {
-            1  => 15.January(2026),
-            2  => 15.February(2026),
-            3  => 15.March(2026),
-            4  => 15.April(2026),
-            5  => 15.May(2026),
-            6  => 15.June(2026),
-            7  => 15.July(2026),
-            8  => 15.August(2026),
-            9  => 15.September(2026),
+            1 => 15.January(2026),
+            2 => 15.February(2026),
+            3 => 15.March(2026),
+            4 => 15.April(2026),
+            5 => 15.May(2026),
+            6 => 15.June(2026),
+            7 => 15.July(2026),
+            8 => 15.August(2026),
+            9 => 15.September(2026),
             10 => 15.October(2026),
             11 => 15.November(2026),
             12 => 15.December(2026),
-            _  => throw new InvalidOperationException()
+            _ => throw new InvalidOperationException()
         };
 
         result.Month.ShouldBe(expectedMonth);
@@ -80,7 +79,7 @@ public class DateExtensionsTests
     [Test]
     public void At_WithMicroseconds_ShouldIncludeMicroseconds()
     {
-        var result = 15.March(2026).At(10, 0, 0, 0, microseconds: 500);
+        var result = 15.March(2026).At(10, 0, 0, 0, 500);
 
         result.Microsecond.ShouldBe(500);
     }
@@ -88,10 +87,10 @@ public class DateExtensionsTests
     [Test]
     public void At_WithNanoseconds_ShouldAddNanoseconds()
     {
-        var result = 15.March(2026).At(10, 0, 0, 0, 0, nanoseconds: 100);
+        var result = 15.March(2026).At(10, 0, 0, 0, 0, 100);
 
         // 100 ns = 1 tick; verify total ticks advanced by at least 1 tick
-        var baseline = 15.March(2026).At(10, 0, 0);
+        var baseline = 15.March(2026).At(10, 0);
         (result.Ticks - baseline.Ticks).ShouldBe(1L);
     }
 
@@ -105,16 +104,12 @@ public class DateExtensionsTests
     }
 
     [Test]
-    public void At_ShouldThrow_WhenMicrosecondsOutOfRange()
-    {
+    public void At_ShouldThrow_WhenMicrosecondsOutOfRange() =>
         Should.Throw<ArgumentOutOfRangeException>(() => 1.January(2026).At(0, 0, microseconds: 1000));
-    }
 
     [Test]
-    public void At_ShouldThrow_WhenNanosecondsOutOfRange()
-    {
+    public void At_ShouldThrow_WhenNanosecondsOutOfRange() =>
         Should.Throw<ArgumentOutOfRangeException>(() => 1.January(2026).At(0, 0, nanoseconds: -1));
-    }
 
 
     [Test]
@@ -192,4 +187,3 @@ public class DateExtensionsTests
         result.Second.ShouldBe(0);
     }
 }
-

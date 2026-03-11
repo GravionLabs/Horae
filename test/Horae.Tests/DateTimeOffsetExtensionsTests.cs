@@ -3,11 +3,11 @@ using Shouldly;
 namespace Horae.Tests;
 
 /// <summary>
-///     Tests for <see cref="DateTimeOffsetExtensions"/>.
+///     Tests for <see cref="DateTimeOffsetExtensions" />.
 ///     Uses timezones with fixed, DST-free offsets (Japan UTC+9, Dubai UTC+4) wherever possible
 ///     to keep expected values deterministic.
 /// </summary>
-[TestFixture, Category("UnitTest")]
+[TestFixture] [Category("UnitTest")]
 public class DateTimeOffsetExtensionsTests
 {
     // 2026-06-15 10:00:00 UTC — a mid-summer reference instant.

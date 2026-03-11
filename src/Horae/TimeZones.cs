@@ -1,15 +1,14 @@
 namespace Horae;
 
 /// <summary>
-///     Provides a collection of commonly used time zones as <see cref="TimeZoneInfo"/> instances.
+///     Provides a collection of commonly used time zones as <see cref="TimeZoneInfo" /> instances.
 ///     All time zones use IANA IDs, which are supported on all platforms with .NET 6 and later.
 /// </summary>
 public static class TimeZones
 {
-
     /// <summary>
     ///     Gets the Coordinated Universal Time (UTC) time zone.
-    ///     This is the same instance as <see cref="TimeZoneInfo.Utc"/>.
+    ///     This is the same instance as <see cref="TimeZoneInfo.Utc" />.
     /// </summary>
     public static readonly TimeZoneInfo Utc = TimeZoneInfo.Utc;
 
