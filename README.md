@@ -1,2 +1,5 @@
-# Hoare
-A modern .NET time utility library built around DateTimeOffset. Provides expressive date construction like 1.January(2026), conversions between DateTimeOffset and DateOnly, and region‑aware transformations such as CentralEuropeanToUtc(). Designed to be minimal, readable, and extensible.
+# Horae
+
+Horae ist eine moderne, minimalistische .NET‑Bibliothek für elegante und präzise Zeit‑Utilities. Sie bietet syntaktischen Zucker wie `1.January(2026)`, robuste Konvertierungen zwischen `DateTimeOffset`, `DateOnly` und `DateTime`, sowie regionale Zeitumrechnungen wie `CentralEuropeanToUtc()`. Entwickelt für Klarheit, Erweiterbarkeit und professionelle Codebases.
+
+Lizenz: Apache‑2.0
