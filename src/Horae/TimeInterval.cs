@@ -145,23 +145,29 @@ public readonly record struct TimeInterval
     }
 
     /// <summary>
-    ///     Splits the interval into a sequence of UTC instants representing CET delivery-date
-    ///     boundaries (midnight CET → midnight CET, one per calendar day in Central European Time).
-    ///     This is the conventional split used for energy-market delivery periods.
+    ///     Splits the interval into a sequence of UTC instants representing calendar-day
+    ///     boundaries (midnight → midnight) in the specified time zone.
+    ///     The interval boundaries are first rounded outward to UTC-day boundaries, then
+    ///     expressed in the target time zone for iteration.
     /// </summary>
+    /// <param name="timeZone">
+    ///     The time zone used to determine calendar-day boundaries.
+    ///     When <see langword="null" />, <see cref="HoareSettings.CurrentTimeZone" /> is used.
+    /// </param>
     /// <returns>
-    ///     A sequence of UTC <see cref="DateTimeOffset" /> values, one per CET calendar day,
-    ///     each representing the start of that day in UTC.
+    ///     A sequence of UTC <see cref="DateTimeOffset" /> values, one per calendar day
+    ///     in the given time zone, each representing the start of that day expressed in UTC.
     /// </returns>
-    public IEnumerable<DateTimeOffset> SplitByDeliveryDates()
+    public IEnumerable<DateTimeOffset> SplitByDays(TimeZoneInfo? timeZone = null)
     {
+        var tz = timeZone ?? HoareSettings.CurrentTimeZone;
         var day = TimeSpan.FromDays(1);
 
-        // Round outward to UTC day boundaries, then express in CET for iteration.
-        var startDate = Start.RoundDown(day, TimeZoneInfo.Utc).ToCentralEuropeanTime();
-        var endDate = End.RoundUp(day, TimeZoneInfo.Utc).ToCentralEuropeanTime();
+        // Round outward to UTC day boundaries, then express in the target time zone for iteration.
+        var startDate = Start.RoundDown(day, TimeZoneInfo.Utc).ToTimeZone(tz);
+        var endDate = End.RoundUp(day, TimeZoneInfo.Utc).ToTimeZone(tz);
 
         for (var current = startDate; current < endDate; current = current.Add(day))
-            yield return current.CentralEuropeanToUtcTime();
+            yield return current.ToUniversalTime();
     }
 }

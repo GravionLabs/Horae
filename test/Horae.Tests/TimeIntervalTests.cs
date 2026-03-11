@@ -200,13 +200,13 @@ public class TimeIntervalTests
     }
 
     [Test]
-    public void SplitByDeliveryDates_ShouldReturnUtcMidnights_AlignedToCetDayBoundaries()
+    public void SplitByDays_ShouldReturnUtcMidnights_AlignedToCetDayBoundaries()
     {
         // Input is exactly one CET day (June 15 CEST = UTC+2):
         //   start = 2026-06-14 22:00 UTC  (= June 15 00:00 CEST)
         //   end   = 2026-06-15 22:00 UTC  (= June 16 00:00 CEST)
         //
-        // SplitByDeliveryDates rounds outward to UTC-day boundaries first:
+        // SplitByDays rounds outward to UTC-day boundaries first:
         //   RoundDown(start, Utc) = 2026-06-14 00:00 UTC  → CEST = 2026-06-14 02:00
         //   RoundUp(end,   Utc)  = 2026-06-16 00:00 UTC  → CEST = 2026-06-16 02:00
         //
@@ -216,7 +216,7 @@ public class TimeIntervalTests
         var end   = new DateTimeOffset(2026, 6, 15, 22, 0, 0, TimeSpan.Zero);
         var interval = new TimeInterval(start, end);
 
-        var dates = interval.SplitByDeliveryDates().ToList();
+        var dates = interval.SplitByDays(TimeZones.CentralEuropean).ToList();
 
         dates.Count.ShouldBe(2);
         dates[0].ShouldBe(new DateTimeOffset(2026, 6, 14, 0, 0, 0, TimeSpan.Zero));
@@ -224,7 +224,7 @@ public class TimeIntervalTests
     }
 
     [Test]
-    public void SplitByDeliveryDates_ShouldReturnMultipleDates_WhenIntervalSpansMultipleCetDays()
+    public void SplitByDays_ShouldReturnMultipleDates_WhenIntervalSpansMultipleCetDays()
     {
         // Three CET days: June 15, 16, 17 (summer, UTC+2).
         //   start = 2026-06-14 22:00 UTC  (= June 15 00:00 CEST)
@@ -236,7 +236,7 @@ public class TimeIntervalTests
         var end   = new DateTimeOffset(2026, 6, 17, 22, 0, 0, TimeSpan.Zero);
         var interval = new TimeInterval(start, end);
 
-        var dates = interval.SplitByDeliveryDates().ToList();
+        var dates = interval.SplitByDays(TimeZones.CentralEuropean).ToList();
 
         dates.Count.ShouldBe(4);
         dates[0].ShouldBe(new DateTimeOffset(2026, 6, 14, 0, 0, 0, TimeSpan.Zero));
