@@ -18,24 +18,6 @@ public static class DateTimeOffsetExtensions
         TimeZoneInfo.ConvertTime(dateTimeOffset, timeZone);
 
     /// <summary>
-    ///     Converts a <see cref="DateTimeOffset" /> value to Central European Time (CET/CEST).
-    /// </summary>
-    /// <param name="dateTimeOffset">The value to convert.</param>
-    /// <returns>The same instant expressed in Central European Time.</returns>
-    public static DateTimeOffset ToCentralEuropeanTime(this DateTimeOffset dateTimeOffset) =>
-        dateTimeOffset.ToTimeZone(TimeZones.CentralEuropean);
-
-    /// <summary>
-    ///     Converts a <see cref="DateTimeOffset" /> value to UTC.
-    ///     This is a named convenience alias kept for backward compatibility.
-    /// </summary>
-    /// <param name="dateTimeOffset">The value to convert.</param>
-    /// <returns>The same instant expressed as UTC.</returns>
-    public static DateTimeOffset CentralEuropeanToUtcTime(this DateTimeOffset dateTimeOffset) =>
-        dateTimeOffset.CentralEuropeanToUtc();
-
-
-    /// <summary>
     ///     Gets the start of the day (midnight) for a <see cref="DateTimeOffset" /> value
     ///     in the specified time zone.
     /// </summary>

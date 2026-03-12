@@ -200,48 +200,61 @@ public class TimeIntervalTests
     }
 
     [Test]
-    public void SplitByDays_ShouldReturnUtcMidnights_AlignedToCetDayBoundaries()
+    public void SplitByDays_ShouldReturnOneDatePerCetCalendarDay()
     {
-        // Input is exactly one CET day (June 15 CEST = UTC+2):
+        // Interval is exactly CET June 15 (CEST = UTC+2):
         //   start = 2026-06-14 22:00 UTC  (= June 15 00:00 CEST)
         //   end   = 2026-06-15 22:00 UTC  (= June 16 00:00 CEST)
         //
-        // SplitByDays rounds outward to UTC-day boundaries first:
-        //   RoundDown(start, Utc) = 2026-06-14 00:00 UTC  → CEST = 2026-06-14 02:00
-        //   RoundUp(end,   Utc)  = 2026-06-16 00:00 UTC  → CEST = 2026-06-16 02:00
-        //
-        // Iteration in CEST (step = 1 day): June 14 02:00 → June 15 02:00 → stop
-        // → yields 2026-06-14 00:00 UTC and 2026-06-15 00:00 UTC (UTC midnights).
+        // New DST-safe algorithm: startDate = June 15, endDate = June 15 (End == midnight)
+        // → yields midnight of June 15 in CEST = 2026-06-14 22:00 UTC (1 date).
         var start = new DateTimeOffset(2026, 6, 14, 22, 0, 0, TimeSpan.Zero);
         var end   = new DateTimeOffset(2026, 6, 15, 22, 0, 0, TimeSpan.Zero);
         var interval = new TimeInterval(start, end);
 
         var dates = interval.SplitByDays(TimeZones.CentralEuropean).ToList();
 
-        dates.Count.ShouldBe(2);
-        dates[0].ShouldBe(new DateTimeOffset(2026, 6, 14, 0, 0, 0, TimeSpan.Zero));
-        dates[1].ShouldBe(new DateTimeOffset(2026, 6, 15, 0, 0, 0, TimeSpan.Zero));
+        dates.Count.ShouldBe(1);
+        dates[0].ShouldBe(new DateTimeOffset(2026, 6, 14, 22, 0, 0, TimeSpan.Zero));
     }
 
     [Test]
     public void SplitByDays_ShouldReturnMultipleDates_WhenIntervalSpansMultipleCetDays()
     {
-        // Three CET days: June 15, 16, 17 (summer, UTC+2).
+        // Three CET days: June 15, 16, 17 (summer CEST, UTC+2).
         //   start = 2026-06-14 22:00 UTC  (= June 15 00:00 CEST)
-        //   end   = 2026-06-17 22:00 UTC  (= June 18 00:00 CEST)
+        //   end   = 2026-06-17 22:00 UTC  (= June 18 00:00 CEST) — End == midnight → excluded
         //
-        // UTC rounding gives [2026-06-14 00:00 UTC, 2026-06-18 00:00 UTC)
-        // → CEST iteration: June 14, 15, 16, 17 → 4 UTC midnight values.
+        // → startDate = June 15, endDate = June 17 → 3 dates.
         var start = new DateTimeOffset(2026, 6, 14, 22, 0, 0, TimeSpan.Zero);
         var end   = new DateTimeOffset(2026, 6, 17, 22, 0, 0, TimeSpan.Zero);
         var interval = new TimeInterval(start, end);
 
         var dates = interval.SplitByDays(TimeZones.CentralEuropean).ToList();
 
-        dates.Count.ShouldBe(4);
-        dates[0].ShouldBe(new DateTimeOffset(2026, 6, 14, 0, 0, 0, TimeSpan.Zero));
-        dates[1].ShouldBe(new DateTimeOffset(2026, 6, 15, 0, 0, 0, TimeSpan.Zero));
-        dates[2].ShouldBe(new DateTimeOffset(2026, 6, 16, 0, 0, 0, TimeSpan.Zero));
-        dates[3].ShouldBe(new DateTimeOffset(2026, 6, 17, 0, 0, 0, TimeSpan.Zero));
+        dates.Count.ShouldBe(3);
+        dates[0].ShouldBe(new DateTimeOffset(2026, 6, 14, 22, 0, 0, TimeSpan.Zero)); // June 15 00:00 CEST
+        dates[1].ShouldBe(new DateTimeOffset(2026, 6, 15, 22, 0, 0, TimeSpan.Zero)); // June 16 00:00 CEST
+        dates[2].ShouldBe(new DateTimeOffset(2026, 6, 16, 22, 0, 0, TimeSpan.Zero)); // June 17 00:00 CEST
+    }
+
+    [Test]
+    public void SplitByDays_ShouldBeDstSafe_AtCetToCestTransition()
+    {
+        // 2026-03-29 is the CET → CEST spring transition (clocks forward, 23-hour day).
+        //   March 29 midnight CET  = 2026-03-28 23:00 UTC (+01:00)
+        //   March 30 midnight CEST = 2026-03-29 22:00 UTC (+02:00)  ← only 23 h apart!
+        //
+        // A naïve +24 h step would land at 2026-03-29 23:00 UTC (wrong).
+        // The DST-safe DateOnly iteration correctly yields 2026-03-29 22:00 UTC.
+        var start = new DateTimeOffset(2026, 3, 28, 23, 0, 0, TimeSpan.Zero); // March 29 00:00 CET
+        var end   = new DateTimeOffset(2026, 3, 30, 22, 0, 0, TimeSpan.Zero); // March 31 00:00 CEST
+        var interval = new TimeInterval(start, end);
+
+        var dates = interval.SplitByDays(TimeZones.CentralEuropean).ToList();
+
+        dates.Count.ShouldBe(2);
+        dates[0].ShouldBe(new DateTimeOffset(2026, 3, 28, 23, 0, 0, TimeSpan.Zero)); // March 29 00:00 CET (+1)
+        dates[1].ShouldBe(new DateTimeOffset(2026, 3, 29, 22, 0, 0, TimeSpan.Zero)); // March 30 00:00 CEST (+2)
     }
 }

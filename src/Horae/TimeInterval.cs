@@ -163,8 +163,9 @@ public readonly record struct TimeInterval
     /// <summary>
     ///     Splits the interval into a sequence of UTC instants representing calendar-day
     ///     boundaries (midnight → midnight) in the specified time zone.
-    ///     The interval boundaries are first rounded outward to UTC-day boundaries, then
-    ///     expressed in the target time zone for iteration.
+    ///     Iteration is performed over calendar dates in the given time zone, so each yielded
+    ///     value is the exact UTC equivalent of midnight for that date — correctly accounting
+    ///     for DST transitions where a day may be 23 or 25 hours long.
     /// </summary>
     /// <param name="timeZone">
     ///     The time zone used to determine calendar-day boundaries.
@@ -172,18 +173,28 @@ public readonly record struct TimeInterval
     /// </param>
     /// <returns>
     ///     A sequence of UTC <see cref="DateTimeOffset" /> values, one per calendar day
-    ///     in the given time zone, each representing the start of that day expressed in UTC.
+    ///     in the given time zone, each representing the start (midnight) of that day in UTC.
     /// </returns>
     public IEnumerable<DateTimeOffset> SplitByDays(TimeZoneInfo? timeZone = null)
     {
         var tz = timeZone ?? HoareSettings.CurrentTimeZone;
-        var day = TimeSpan.FromDays(1);
 
-        // Round outward to UTC day boundaries, then express in the target time zone for iteration.
-        var startDate = Start.RoundDown(day, TimeZoneInfo.Utc).ToTimeZone(tz);
-        var endDate = End.RoundUp(day, TimeZoneInfo.Utc).ToTimeZone(tz);
+        // Determine the first and last calendar dates in the target timezone.
+        var startInTz = TimeZoneInfo.ConvertTime(Start, tz);
+        var endInTz   = TimeZoneInfo.ConvertTime(End,   tz);
 
-        for (var current = startDate; current < endDate; current = current.Add(day))
-            yield return current.ToUniversalTime();
+        var startDate = new DateOnly(startInTz.Year, startInTz.Month, startInTz.Day);
+        var endDate   = new DateOnly(endInTz.Year,   endInTz.Month,   endInTz.Day);
+
+        // If End falls exactly on midnight, that boundary day is excluded (half-open interval).
+        var endMidnight = endDate.AsDateTimeOffset(tz);
+        if (End <= endMidnight)
+            endDate = endDate.AddDays(-1);
+
+        // Yield midnight of each calendar day in tz as UTC.
+        // Using DateOnly.AddDays(1) ensures DST-safe iteration: each step advances
+        // exactly one calendar day, regardless of whether that day is 23 or 25 hours.
+        for (var date = startDate; date <= endDate; date = date.AddDays(1))
+            yield return date.AsDateTimeOffset(tz).ToUniversalTime();
     }
 }

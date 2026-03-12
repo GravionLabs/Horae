@@ -1,5 +1,6 @@
-using System.Text.Json;
 using System.Text.Json.Serialization;
+
+using Horae.Converters;
 
 namespace Horae;
 
@@ -47,8 +48,11 @@ public readonly record struct Resolution
     public Resolution(TimeSpan value)
     {
         if (value <= TimeSpan.Zero)
-            throw new ArgumentOutOfRangeException(nameof(value), value,
+        {
+            throw new ArgumentOutOfRangeException(nameof(value),
+                value,
                 "Resolution must be a positive duration.");
+        }
 
         Value = value;
     }
@@ -171,33 +175,23 @@ public readonly record struct Resolution
 
             switch (designator)
             {
-                case 'D' when !inTime: days    = num; break;
-                case 'H' when inTime:  hours   = num; break;
-                case 'M' when inTime:  minutes = num; break;
-                case 'S' when inTime:  seconds = num; break;
-                default: return null;
+                case 'D' when !inTime:
+                    days = num;
+                    break;
+                case 'H' when inTime:
+                    hours = num;
+                    break;
+                case 'M' when inTime:
+                    minutes = num;
+                    break;
+                case 'S' when inTime:
+                    seconds = num;
+                    break;
+                default:
+                    return null;
             }
         }
 
         return TimeSpan.FromSeconds(days * 86400 + hours * 3600 + minutes * 60 + seconds);
-    }
-
-    // ── JSON converter ────────────────────────────────────────────────────────
-
-    /// <summary>
-    ///     <see cref="System.Text.Json" /> converter that serialises <see cref="Resolution" />
-    ///     as an ISO 8601 duration string (e.g. <c>"PT15M"</c>).
-    /// </summary>
-    public sealed class ResolutionJsonConverter : JsonConverter<Resolution>
-    {
-        /// <inheritdoc />
-        public override Resolution Read(ref Utf8JsonReader reader, Type typeToConvert,
-            JsonSerializerOptions options) =>
-            Parse(reader.GetString() ?? throw new JsonException("Expected a non-null string."));
-
-        /// <inheritdoc />
-        public override void Write(Utf8JsonWriter writer, Resolution value,
-            JsonSerializerOptions options) =>
-            writer.WriteStringValue(value.ToString());
     }
 }

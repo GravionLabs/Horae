@@ -41,16 +41,6 @@ public class DateTimeOffsetExtensionsTests
     }
 
 
-    [Test]
-    public void ToCentralEuropeanTime_ShouldConvertToCet()
-    {
-        var result = _utcRef.ToCentralEuropeanTime();
-
-        // June is CEST (UTC+2).
-        result.Offset.ShouldBe(TimeSpan.FromHours(2));
-        result.UtcDateTime.ShouldBe(_utcRef.UtcDateTime);
-    }
-
 
     [Test]
     public void StartOfDay_ShouldReturnMidnightInExplicitTimeZone()
