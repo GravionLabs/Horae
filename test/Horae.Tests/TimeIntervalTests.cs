@@ -200,6 +200,27 @@ public class TimeIntervalTests
     }
 
     [Test]
+    public void SplitBy_ResolutionDay_ShouldBeDstSafe_AtCetToCestTransition()
+    {
+        // 2026-03-29 is the CET → CEST spring transition (23-hour day).
+        // Interval covers exactly March 29 and March 30 in CET:
+        //   start = 2026-03-28 23:00 UTC  (= March 29 00:00 CET, +01:00)
+        //   end   = 2026-03-30 22:00 UTC  (= March 31 00:00 CEST, +02:00)
+        //
+        // A naïve +24 h step would land at 2026-03-29 23:00 UTC for March 30 (wrong).
+        // The DST-safe DateOnly path yields 2026-03-29 22:00 UTC (correct midnight).
+        var start = new DateTimeOffset(2026, 3, 28, 23, 0, 0, TimeSpan.Zero); // March 29 00:00 CET
+        var end   = new DateTimeOffset(2026, 3, 30, 22, 0, 0, TimeSpan.Zero); // March 31 00:00 CEST
+        var interval = new TimeInterval(start, end);
+
+        var slots = interval.SplitBy(Resolution.Day, TimeZones.CentralEuropean).ToList();
+
+        slots.Count.ShouldBe(2);
+        slots[0].ShouldBe(new DateTimeOffset(2026, 3, 28, 23, 0, 0, TimeSpan.Zero)); // March 29 00:00 CET (+1)
+        slots[1].ShouldBe(new DateTimeOffset(2026, 3, 29, 22, 0, 0, TimeSpan.Zero)); // March 30 00:00 CEST (+2)
+    }
+
+    [Test]
     public void SplitByDays_ShouldReturnOneDatePerCetCalendarDay()
     {
         // Interval is exactly CET June 15 (CEST = UTC+2):

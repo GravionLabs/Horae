@@ -142,6 +142,9 @@ public readonly record struct TimeInterval
     ///     Splits the interval into a sequence of UTC instants at the given resolution.
     ///     The interval boundaries are first rounded outward (down for <see cref="Start" />,
     ///     up for <see cref="End" />) to the nearest multiple of <paramref name="resolution" />.
+    ///     For resolutions of one day or longer, iteration is performed via calendar-date
+    ///     arithmetic so that DST transitions are handled correctly (a spring day is 23 h,
+    ///     an autumn day is 25 h — not always 24 h).
     /// </summary>
     /// <param name="resolution">The step size to split by.</param>
     /// <param name="timeZone">
@@ -153,11 +156,27 @@ public readonly record struct TimeInterval
     /// </returns>
     public IEnumerable<DateTimeOffset> SplitBy(TimeSpan resolution, TimeZoneInfo? timeZone = null)
     {
-        var start = Start.RoundDown(resolution, timeZone);
-        var end = End.RoundUp(resolution, timeZone);
+        var tz = timeZone ?? HoareSettings.CurrentTimeZone;
+        var start = Start.RoundDown(resolution, tz);
+        var end   = End.RoundUp(resolution, tz);
 
-        for (var current = start; current < end; current = current.Add(resolution))
-            yield return current;
+        // For day-granularity resolutions, adding a fixed TimeSpan is not DST-safe:
+        // a CET spring day is only 23 h and an autumn day is 25 h.
+        // Iterating via DateOnly.AddDays() in the target timezone avoids this.
+        if (resolution.TotalDays >= 1.0)
+        {
+            var days      = (int)resolution.TotalDays;
+            var startDate = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(start, tz).DateTime);
+            var endDate   = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(end,   tz).DateTime);
+
+            for (var date = startDate; date < endDate; date = date.AddDays(days))
+                yield return date.AsDateTimeOffset(tz).ToUniversalTime();
+        }
+        else
+        {
+            for (var current = start; current < end; current = current.Add(resolution))
+                yield return current;
+        }
     }
 
     /// <summary>
