@@ -154,8 +154,9 @@ public static class DateTimeOffsetExtensions
     ///     When <see langword="null" />, <see cref="HoareSettings.CurrentTimeZone" /> is used.
     /// </param>
     /// <returns>Midnight of the next calendar day expressed in UTC.</returns>
-    public static DateTimeOffset
-        StartOfDayAheadUtc(this DateTimeOffset dateTimeOffset, TimeZoneInfo? timeZone = null) =>
+    public static DateTimeOffset StartOfDayAheadUtc(
+        this DateTimeOffset dateTimeOffset,
+        TimeZoneInfo? timeZone = null) =>
         TimeZoneInfo.ConvertTime(dateTimeOffset.StartOfDayAhead(timeZone), TimeZoneInfo.Utc);
 
     /// <summary>
@@ -182,7 +183,6 @@ public static class DateTimeOffsetExtensions
     /// <returns>Midnight two calendar days ahead expressed in UTC.</returns>
     public static DateTimeOffset EndOfDayAheadUtc(this DateTimeOffset dateTimeOffset, TimeZoneInfo? timeZone = null) =>
         TimeZoneInfo.ConvertTime(dateTimeOffset.EndOfDayAhead(timeZone), TimeZoneInfo.Utc);
-
 
     /// <summary>
     ///     Rounds down a <see cref="DateTimeOffset" /> value to the nearest multiple of
