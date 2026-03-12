@@ -124,6 +124,22 @@ public readonly record struct TimeInterval
 
     /// <summary>
     ///     Splits the interval into a sequence of UTC instants at the given resolution.
+    ///     Convenience overload that accepts a <see cref="Resolution" /> instead of a raw
+    ///     <see cref="TimeSpan" />.
+    /// </summary>
+    /// <param name="resolution">The step size to split by.</param>
+    /// <param name="timeZone">
+    ///     The time zone used for rounding.
+    ///     When <see langword="null" />, <see cref="HoareSettings.CurrentTimeZone" /> is used.
+    /// </param>
+    /// <returns>
+    ///     A sequence of UTC <see cref="DateTimeOffset" /> values, one per slot.
+    /// </returns>
+    public IEnumerable<DateTimeOffset> SplitBy(Resolution resolution, TimeZoneInfo? timeZone = null) =>
+        SplitBy(resolution.Value, timeZone);
+
+    /// <summary>
+    ///     Splits the interval into a sequence of UTC instants at the given resolution.
     ///     The interval boundaries are first rounded outward (down for <see cref="Start" />,
     ///     up for <see cref="End" />) to the nearest multiple of <paramref name="resolution" />.
     /// </summary>
