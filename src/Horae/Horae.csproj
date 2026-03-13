@@ -1,1 +1,18 @@
-<Project Sdk="Microsoft.NET.Sdk" />
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageId>Horae</PackageId>
+    <Authors>Gravion</Authors>
+    <Description>Modern .NET date/time ergonomics library. Provides fluent date construction, UTC-first conversions, DST-safe interval splitting, ISO 8601 formatting, and region/timezone helpers for DateTimeOffset, DateTime, and DateOnly.</Description>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/GravionLabs/Hoare</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>datetime;dateonly;timezone;dst;iso8601;utc;interval</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+</Project>

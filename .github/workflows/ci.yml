@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  # Determine the NuGet version from git history using GitVersion.
+  # Requires a full checkout (fetch-depth: 0) so GitVersion can walk the log.
+  version:
+    name: Determine Version
+    runs-on: ubuntu-latest
+    outputs:
+      nuget-version: ${{ steps.version.outputs.nuget-version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine version
+        id: version
+        uses: GravionLabs/ci/determine-version@main
+        with:
+          config-file-path: GitVersion.yml
+
+  # Build, test, pack and (on main) publish the NuGet package.
+  # The publish step inside the reusable workflow only runs on refs/heads/main,
+  # so PRs will build and test but never publish.
+  package:
+    name: Package
+    needs: version
+    uses: GravionLabs/ci/.github/workflows/nuget-package.yml@main
+    with:
+      dotnet-project: src/Horae/Horae.csproj
+      version: ${{ needs.version.outputs.nuget-version }}
+      publish-feed-url: https://api.nuget.org/v3/index.json
+    secrets:
+      publish-api-key: ${{ secrets.NUGET_API_KEY }}
