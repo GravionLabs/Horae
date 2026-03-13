@@ -37,3 +37,46 @@ jobs:
       publish-feed-url: https://api.nuget.org/v3/index.json
     secrets:
       publish-api-key: ${{ secrets.NUGET_API_KEY }}
+
+  # Verify the packed .nupkg contains the expected files:
+  # DLLs for all target frameworks, XML documentation, and the embedded README.
+  # This acts as a publish-time sanity check to catch packaging regressions early.
+  verify-package:
+    name: Verify Package Contents
+    needs: package
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download nupkgs artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: nupkgs
+          path: ./nupkgs
+
+      - name: Verify package contents
+        shell: bash
+        run: |
+          set -euo pipefail
+          pkg=$(ls ./nupkgs/*.nupkg | head -1)
+          echo "Inspecting: $pkg"
+          files=$(unzip -l "$pkg")
+          echo "$files"
+
+          check() {
+            local pattern="$1"
+            if echo "$files" | grep -q "$pattern"; then
+              echo "  OK: $pattern"
+            else
+              echo "  MISSING: $pattern" >&2
+              exit 1
+            fi
+          }
+
+          check "lib/net8.0/Horae.dll"
+          check "lib/net9.0/Horae.dll"
+          check "lib/net10.0/Horae.dll"
+          check "lib/net8.0/Horae.xml"
+          check "lib/net9.0/Horae.xml"
+          check "lib/net10.0/Horae.xml"
+          check "README.md"
+          check "CHANGELOG.md"
+          echo "All expected package contents found."
