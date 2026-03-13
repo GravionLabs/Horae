@@ -16,8 +16,9 @@ License: Apache-2.0 · Target frameworks: net8.0 · net9.0 · net10.0
 - [Conversions](#conversions)
 - [Regional Time Zones](#regional-time-zones)
 - [ISO 8601 Formatting & Parsing](#iso-8601-formatting--parsing)
-- [Duration](#resolution)
+- [Duration](#duration)
 - [TimeInterval](#timeinterval)
+- [ZonedTimeInterval](#zonedtimeinterval)
 - [JSON Converters](#json-converters)
 - [Time Zone Constants](#time-zone-constants)
 
@@ -173,9 +174,16 @@ var dto  = new DateTimeOffset(2026, 1, 1, 23, 0, 0, TimeSpan.Zero);
 var dto2 = new DateTimeOffset(2026, 1, 1, 23, 0, 0, 500, TimeSpan.Zero); // 500 ms
 var date = new DateOnly(2026, 6, 15);
 
-dto.ToIsoString();    // "2026-01-01T23:00:00Z"   (UTC, without sub-seconds when not needed)
-dto2.ToIsoString();   // "2026-01-01T23:00:00.5Z" (sub-seconds only when ≠ 0)
-date.ToIsoString();   // "2026-06-15"
+// Default: IsoDateTimePrecision.Seconds — sub-second digits always omitted
+dto.ToIsoString();   // "2026-01-01T23:00:00Z"
+dto2.ToIsoString();  // "2026-01-01T23:00:00Z"  (500 ms dropped)
+
+// Explicit precision control
+dto2.ToIsoString(IsoDateTimePrecision.Auto);        // "2026-01-01T23:00:00.5Z" (only when ≠ 0)
+dto2.ToIsoString(IsoDateTimePrecision.Fractional);  // "2026-01-01T23:00:00.5000000Z" (always 7 digits)
+dto.ToIsoString(IsoDateTimePrecision.Fractional);   // "2026-01-01T23:00:00.0000000Z"
+
+date.ToIsoString();  // "2026-06-15"
 
 // Nullable overloads
 DateTimeOffset? nullDto  = null;
@@ -275,6 +283,51 @@ foreach (DateTimeOffset midnight in interval.SplitByDays(TimeZones.CentralEurope
 
 ---
 
+## ZonedTimeInterval
+
+`ZonedTimeInterval` represents a half-open interval **[Start, End)** whose boundaries are expressed in a specific time zone, **preserving the local UTC offset** rather than normalising to UTC. Use this type when the local time context matters — for example, a trading day in CET or a session window such as "15:00–18:00 Europe/Berlin".
+
+The constructor converts `start` and `end` to the supplied time zone, so `Start.Offset` always reflects the correct DST offset for that instant (`+01:00` CET, `+02:00` CEST). `TimeZoneInfo` is required because a raw UTC offset alone is insufficient for DST-safe operations.
+
+```csharp
+// Trading day in CET — boundaries are stored as local CET/CEST offsets
+ZonedTimeInterval day = ZonedTimeInterval.Day(new DateOnly(2026, 1, 15), TimeZones.CentralEuropean);
+// day.Start = 2026-01-15T00:00:00+01:00
+// day.End   = 2026-01-16T00:00:00+01:00
+
+// Summer day — offset is automatically +02:00 (CEST)
+ZonedTimeInterval summerDay = ZonedTimeInterval.Day(new DateOnly(2026, 6, 15), TimeZones.CentralEuropean);
+// summerDay.Start = 2026-06-15T00:00:00+02:00
+// summerDay.End   = 2026-06-16T00:00:00+02:00
+
+// Session window: 15:00–18:00 CET
+ZonedTimeInterval session = ZonedTimeInterval.Create(
+    new DateTimeOffset(2026, 1, 1, 15, 0, 0, TimeSpan.FromHours(1)),
+    new DateTimeOffset(2026, 1, 1, 18, 0, 0, TimeSpan.FromHours(1)),
+    TimeZones.CentralEuropean);
+
+// Contains check
+bool active = day.Contains(DateTimeOffset.UtcNow);
+
+// Deconstruct
+var (start, end) = day;
+
+// Convert to UTC-normalised TimeInterval
+TimeInterval utc = day.ToUtc();
+
+// Split — no TimeZoneInfo parameter needed (stored in the interval)
+foreach (DateTimeOffset slot in day.SplitBy(Duration.QuarterHour))
+    Console.WriteLine(slot); // 96 × 15-minute slots in CET offset
+
+// Split by calendar days (DST-safe)
+foreach (DateTimeOffset midnight in day.SplitByDays())
+    Console.WriteLine(midnight); // midnights in the interval's time zone
+```
+
+> **DST note:** `SplitBy(Duration.Day)` and `SplitByDays()` use `DateOnly.AddDays()` in the stored time zone, correctly handling 23-hour and 25-hour DST transition days.
+
+---
+
 ## JSON Converters
 
 All converters live in the `Horae.Converters` namespace and can be used via `[JsonConverter]` attributes or through `JsonSerializerOptions.Converters`.
@@ -302,6 +355,33 @@ record DeliveryPeriod(
     [property: JsonConverter(typeof(DurationConverter))]
     Duration Duration);
 ```
+
+### `IsoDateTimeFormatAttribute`
+
+Use `[IsoDateTimeFormat]` instead of `[JsonConverter(typeof(...))]` on `DateTimeOffset` and `DateTimeOffset?` properties to control sub-second precision directly on the attribute:
+
+```csharp
+record Event(
+    // Always emit 7 fractional digits: "2026-01-01T23:00:00.0000000Z"
+    [property: IsoDateTimeFormat(IsoDateTimePrecision.Fractional)]
+    DateTimeOffset Timestamp,
+
+    // Always omit sub-seconds (default): "2026-01-01T23:00:00Z"
+    [property: IsoDateTimeFormat]
+    DateTimeOffset Start,
+
+    // Include sub-seconds only when non-zero
+    [property: IsoDateTimeFormat(IsoDateTimePrecision.Auto)]
+    DateTimeOffset? End);
+```
+
+`IsoDateTimePrecision` values:
+
+| Value | Behaviour |
+|-------|-----------|
+| `Seconds` *(default)* | Always omit sub-second digits — `"...T23:00:00Z"` |
+| `Auto` | Include sub-second digits only when non-zero |
+| `Fractional` | Always include 7 sub-second digits — `"...T23:00:00.0000000Z"` |
 
 ---
 
