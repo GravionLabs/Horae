@@ -28,12 +28,12 @@ public class IsoStringTests
     }
 
     [Test]
-    public void ToIsoString_DateTimeOffset_ShouldIncludeSubSecondsWhenNonZero()
+    public void ToIsoString_DateTimeOffset_ShouldOmitSubSecondsWhenNonZero()
     {
-        // 500 ms → ".5" (single non-zero digit via FFFFFFF).
+        // Default is Seconds: sub-second digits are always omitted.
         var dto = new DateTimeOffset(2026, 1, 1, 23, 0, 0, 500, TimeSpan.Zero);
 
-        dto.ToIsoString().ShouldBe("2026-01-01T23:00:00.5Z");
+        dto.ToIsoString().ShouldBe("2026-01-01T23:00:00Z");
     }
 
     [Test]

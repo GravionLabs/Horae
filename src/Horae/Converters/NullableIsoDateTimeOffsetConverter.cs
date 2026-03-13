@@ -17,9 +17,9 @@ public sealed class NullableIsoDateTimeOffsetConverter : JsonConverter<DateTimeO
     private readonly IsoDateTimePrecision _precision;
 
     /// <summary>
-    ///     Initializes a new <see cref="NullableIsoDateTimeOffsetConverter" /> with <see cref="IsoDateTimePrecision.Auto" />.
+    ///     Initializes a new <see cref="NullableIsoDateTimeOffsetConverter" /> with <see cref="IsoDateTimePrecision.Seconds" />.
     /// </summary>
-    public NullableIsoDateTimeOffsetConverter() : this(IsoDateTimePrecision.Auto) { }
+    public NullableIsoDateTimeOffsetConverter() : this(IsoDateTimePrecision.Seconds) { }
 
     /// <summary>
     ///     Initializes a new <see cref="NullableIsoDateTimeOffsetConverter" />.

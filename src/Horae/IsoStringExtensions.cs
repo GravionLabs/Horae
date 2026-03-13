@@ -28,12 +28,12 @@ public static class IsoStringExtensions
     ///     Controls sub-second digits in the output.
     ///     <list type="bullet">
     ///         <item>
-    ///             <see cref="IsoDateTimePrecision.Auto" /> (default) — sub-second digits only when non-zero,
-    ///             e.g. <c>"2026-01-01T23:00:00Z"</c> or <c>"2026-01-01T23:00:00.5Z"</c>.
+    ///             <see cref="IsoDateTimePrecision.Seconds" /> (default) — always omit sub-second digits,
+    ///             e.g. <c>"2026-01-01T23:00:00Z"</c>.
     ///         </item>
     ///         <item>
-    ///             <see cref="IsoDateTimePrecision.Seconds" /> — always omit sub-second digits,
-    ///             e.g. <c>"2026-01-01T23:00:00Z"</c>.
+    ///             <see cref="IsoDateTimePrecision.Auto" /> — sub-second digits only when non-zero,
+    ///             e.g. <c>"2026-01-01T23:00:00Z"</c> or <c>"2026-01-01T23:00:00.5Z"</c>.
     ///         </item>
     ///         <item>
     ///             <see cref="IsoDateTimePrecision.Fractional" /> — always include 7 sub-second digits,
@@ -51,7 +51,7 @@ public static class IsoStringExtensions
     ///     </code>
     /// </example>
     public static string ToIsoString(this DateTimeOffset dto,
-        IsoDateTimePrecision precision = IsoDateTimePrecision.Auto)
+        IsoDateTimePrecision precision = IsoDateTimePrecision.Seconds)
     {
         var utc = dto.ToUniversalTime();
         var fmt = precision switch

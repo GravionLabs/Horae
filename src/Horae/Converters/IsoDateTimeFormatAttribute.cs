@@ -22,13 +22,13 @@ namespace Horae.Converters;
 ///         [IsoDateTimeFormat(IsoDateTimePrecision.Seconds)]
 ///         public DateTimeOffset? StartTime { get; init; }
 ///
-///         // Default: include fractional digits only when non-zero
+///         // Default: always omit sub-second digits (Seconds)
 ///         [IsoDateTimeFormat]
 ///         public DateTimeOffset EndTime { get; init; }
 ///     </code>
 /// </example>
 [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
-public sealed class IsoDateTimeFormatAttribute(IsoDateTimePrecision precision = IsoDateTimePrecision.Auto)
+public sealed class IsoDateTimeFormatAttribute(IsoDateTimePrecision precision = IsoDateTimePrecision.Seconds)
     : JsonConverterAttribute
 {
     /// <summary>Gets the sub-second precision used when serialising.</summary>
