@@ -9,6 +9,7 @@
     <RepositoryUrl>https://github.com/GravionLabs/Hoare</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>datetime;dateonly;timezone;dst;iso8601;utc;interval</PackageTags>
+    <PackageReleaseNotes>Initial public release (v1.0.0). See CHANGELOG.md for full details. Highlights: ZonedTimeInterval (timezone-preserving interval), IsoDateTimePrecision (sub-second control for JSON serialization), Duration type (ISO 8601 durations with named presets), DST-safe TimeInterval.SplitByDays, SourceLink support.</PackageReleaseNotes>
     <!-- SourceLink: embed source info so consumers can step into Horae in the debugger -->
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
@@ -19,6 +20,7 @@
 
   <ItemGroup>
     <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+    <None Include="..\..\CHANGELOG.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
   <ItemGroup>
