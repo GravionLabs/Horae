@@ -294,4 +294,111 @@ public class IsoStringTests
         restored.Date.ShouldBe(original.Date);
         restored.OptionalDate.ShouldBe(original.OptionalDate);
     }
+
+    // ── IsoDateTimePrecision ──────────────────────────────────────────────────
+
+    [Test]
+    public void ToIsoString_PrecisionAuto_ShouldOmitFractionalForWholeSecond()
+    {
+        var dto = new DateTimeOffset(2026, 1, 1, 23, 0, 0, TimeSpan.Zero);
+
+        dto.ToIsoString(IsoDateTimePrecision.Auto).ShouldBe("2026-01-01T23:00:00Z");
+    }
+
+    [Test]
+    public void ToIsoString_PrecisionAuto_ShouldIncludeFractionalWhenNonZero()
+    {
+        var dto = new DateTimeOffset(2026, 1, 1, 23, 0, 0, 500, TimeSpan.Zero);
+
+        dto.ToIsoString(IsoDateTimePrecision.Auto).ShouldBe("2026-01-01T23:00:00.5Z");
+    }
+
+    [Test]
+    public void ToIsoString_PrecisionSeconds_ShouldAlwaysOmitFractional()
+    {
+        var dto = new DateTimeOffset(2026, 1, 1, 23, 0, 0, 500, TimeSpan.Zero);
+
+        dto.ToIsoString(IsoDateTimePrecision.Seconds).ShouldBe("2026-01-01T23:00:00Z");
+    }
+
+    [Test]
+    public void ToIsoString_PrecisionFractional_ShouldAlwaysInclude7Digits()
+    {
+        var dto = new DateTimeOffset(2026, 1, 1, 23, 0, 0, TimeSpan.Zero);
+
+        dto.ToIsoString(IsoDateTimePrecision.Fractional).ShouldBe("2026-01-01T23:00:00.0000000Z");
+    }
+
+    [Test]
+    public void ToIsoString_PrecisionFractional_ShouldInclude7DigitsForNonZeroSubSecond()
+    {
+        var dto = new DateTimeOffset(2026, 1, 1, 23, 0, 0, 500, TimeSpan.Zero);
+
+        dto.ToIsoString(IsoDateTimePrecision.Fractional).ShouldBe("2026-01-01T23:00:00.5000000Z");
+    }
+
+    // ── IsoDateTimeFormatAttribute ────────────────────────────────────────────
+
+    private record PrecisionModel(
+        [property: IsoDateTimeFormat(IsoDateTimePrecision.Fractional)]
+        DateTimeOffset Fractional,
+        [property: IsoDateTimeFormat(IsoDateTimePrecision.Seconds)]
+        DateTimeOffset Seconds,
+        [property: IsoDateTimeFormat]
+        DateTimeOffset? Auto);
+
+    [Test]
+    public void IsoDateTimeFormatAttribute_Fractional_ShouldSerialize7Digits()
+    {
+        var model = new PrecisionModel(
+            new DateTimeOffset(2026, 1, 1, 23, 0, 0, TimeSpan.Zero),
+            new DateTimeOffset(2026, 1, 1, 23, 0, 0, 500, TimeSpan.Zero),
+            null);
+
+        var json = JsonSerializer.Serialize(model);
+
+        json.ShouldContain("\"Fractional\":\"2026-01-01T23:00:00.0000000Z\"");
+    }
+
+    [Test]
+    public void IsoDateTimeFormatAttribute_Seconds_ShouldOmitFractional()
+    {
+        var model = new PrecisionModel(
+            new DateTimeOffset(2026, 1, 1, 23, 0, 0, TimeSpan.Zero),
+            new DateTimeOffset(2026, 1, 1, 23, 0, 0, 500, TimeSpan.Zero),
+            null);
+
+        var json = JsonSerializer.Serialize(model);
+
+        json.ShouldContain("\"Seconds\":\"2026-01-01T23:00:00Z\"");
+    }
+
+    [Test]
+    public void IsoDateTimeFormatAttribute_Auto_NullableNull_ShouldSerializeAsNull()
+    {
+        var model = new PrecisionModel(
+            new DateTimeOffset(2026, 1, 1, 23, 0, 0, TimeSpan.Zero),
+            new DateTimeOffset(2026, 1, 1, 23, 0, 0, TimeSpan.Zero),
+            null);
+
+        var json = JsonSerializer.Serialize(model);
+
+        json.ShouldContain("\"Auto\":null");
+    }
+
+    [Test]
+    public void IsoDateTimeFormatAttribute_ShouldRoundTrip()
+    {
+        var original = new PrecisionModel(
+            new DateTimeOffset(2026, 6, 15, 12, 30, 0, TimeSpan.Zero),
+            new DateTimeOffset(2026, 6, 15, 12, 30, 0, TimeSpan.Zero),
+            new DateTimeOffset(2026, 6, 15, 12, 30, 0, TimeSpan.Zero));
+
+        var json = JsonSerializer.Serialize(original);
+        var restored = JsonSerializer.Deserialize<PrecisionModel>(json)!;
+
+        restored.Fractional.ShouldBe(original.Fractional);
+        restored.Seconds.ShouldBe(original.Seconds);
+        restored.Auto.ShouldBe(original.Auto);
+    }
 }

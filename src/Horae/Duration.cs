@@ -38,6 +38,9 @@ public readonly record struct Duration
     /// <summary>One day — <c>P1D</c>.</summary>
     public static readonly Duration Day = new(TimeSpan.FromDays(1));
 
+    /// <summary>One day — <c>P7D</c>.</summary>
+    public static readonly Duration Week = new(TimeSpan.FromDays(7));
+
     /// <summary>
     ///     Initializes a new <see cref="Duration" /> with the given duration.
     /// </summary>

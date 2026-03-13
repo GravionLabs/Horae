@@ -7,16 +7,34 @@ namespace Horae.Converters;
 /// <summary>
 ///     <see cref="System.Text.Json" /> converter that serialises <see cref="DateTimeOffset" />
 ///     as an ISO 8601 string in UTC, e.g. <c>"2026-01-01T23:00:00Z"</c>.
-///     Sub-second precision is included only when non-zero (e.g. <c>"2026-01-01T23:00:00.5Z"</c>).
+///     Sub-second precision is controlled by <see cref="IsoDateTimePrecision" />.
 /// </summary>
 /// <example>
 ///     <code>
 ///         [JsonConverter(typeof(IsoDateTimeOffsetConverter))]
 ///         public DateTimeOffset Timestamp { get; init; }
+///
+///         // Or via the attribute for fine-grained precision control:
+///         [IsoDateTimeFormat(IsoDateTimePrecision.Fractional)]
+///         public DateTimeOffset Timestamp { get; init; }
 ///     </code>
 /// </example>
 public sealed class IsoDateTimeOffsetConverter : JsonConverter<DateTimeOffset>
 {
+    private readonly IsoDateTimePrecision _precision;
+
+    /// <summary>
+    ///     Initializes a new <see cref="IsoDateTimeOffsetConverter" /> with <see cref="IsoDateTimePrecision.Auto" />.
+    /// </summary>
+    public IsoDateTimeOffsetConverter() : this(IsoDateTimePrecision.Auto) { }
+
+    /// <summary>
+    ///     Initializes a new <see cref="IsoDateTimeOffsetConverter" />.
+    /// </summary>
+    /// <param name="precision">Sub-second precision to use when writing.</param>
+    public IsoDateTimeOffsetConverter(IsoDateTimePrecision precision) =>
+        _precision = precision;
+
     /// <inheritdoc />
     public override DateTimeOffset Read(ref Utf8JsonReader reader,
         Type typeToConvert,
@@ -30,5 +48,5 @@ public sealed class IsoDateTimeOffsetConverter : JsonConverter<DateTimeOffset>
     public override void Write(Utf8JsonWriter writer,
         DateTimeOffset value,
         JsonSerializerOptions options) =>
-        writer.WriteStringValue(value.ToIsoString());
+        writer.WriteStringValue(value.ToIsoString(_precision));
 }

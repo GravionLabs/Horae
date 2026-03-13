@@ -23,6 +23,7 @@ public class ResolutionTests
     [TestCase("PT30M", 30,   0,  0)]
     [TestCase("PT1H",  0,    1,  0)]
     [TestCase("P1D",   0,    0,  1)]
+    [TestCase("P7D",   0,    0,  7)]
     public void ToString_ShouldReturnIso8601Duration(string expected, int minutes, int hours, int days)
     {
         var resolution = new Duration(TimeSpan.FromMinutes(minutes) + TimeSpan.FromHours(hours) +
@@ -55,6 +56,7 @@ public class ResolutionTests
         Duration.HalfHour.Value.ShouldBe(TimeSpan.FromMinutes(30));
         Duration.Hour.Value.ShouldBe(TimeSpan.FromHours(1));
         Duration.Day.Value.ShouldBe(TimeSpan.FromDays(1));
+        Duration.Week.Value.ShouldBe(TimeSpan.FromDays(7));
     }
 
     [Test]
@@ -66,6 +68,7 @@ public class ResolutionTests
         Duration.HalfHour.ToString().ShouldBe("PT30M");
         Duration.Hour.ToString().ShouldBe("PT1H");
         Duration.Day.ToString().ShouldBe("P1D");
+        Duration.Week.ToString().ShouldBe("P7D");
     }
 
     [Test]
@@ -115,8 +118,8 @@ public class ResolutionTests
     [Test]
     public void JsonDeserialise_ShouldParseIso8601String()
     {
-        var r = JsonSerializer.Deserialize<Duration>("\"P1D\"");
-        r.ShouldBe(Duration.Day);
+        var r = JsonSerializer.Deserialize<Duration>("\"P7D\"");
+        r.ShouldBe(Duration.Week);
     }
 
     [Test]

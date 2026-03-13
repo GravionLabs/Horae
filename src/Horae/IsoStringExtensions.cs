@@ -11,32 +11,57 @@ public static class IsoStringExtensions
     // Format used for DateTimeOffset serialisation (UTC, no sub-second component).
     private const string IsoDateTimeFormat = "yyyy-MM-ddTHH:mm:ss'Z'";
 
-    // Format used when sub-second precision is present.
+    // Format used when sub-second precision is present (trailing zeros suppressed via FFFFFFF).
     private const string IsoDateTimeFormatFractional = "yyyy-MM-ddTHH:mm:ss.FFFFFFF'Z'";
+
+    // Format used when sub-second digits must always appear (7 fixed digits, no trimming).
+    private const string IsoDateTimeFormatFractionalAlways = "yyyy-MM-ddTHH:mm:ss.fffffff'Z'";
 
     // Format used for DateOnly serialisation.
     private const string IsoDateFormat = "yyyy-MM-dd";
 
     /// <summary>
-    ///     Formats a <see cref="DateTimeOffset" /> as an ISO 8601 UTC string,
-    ///     e.g. <c>"2026-01-01T23:00:00Z"</c>.
-    ///     Sub-second precision is included only when non-zero,
-    ///     e.g. <c>"2026-01-01T23:00:00.5Z"</c>.
+    ///     Formats a <see cref="DateTimeOffset" /> as an ISO 8601 UTC string.
     /// </summary>
     /// <param name="dto">The value to format. Converted to UTC before formatting.</param>
+    /// <param name="precision">
+    ///     Controls sub-second digits in the output.
+    ///     <list type="bullet">
+    ///         <item>
+    ///             <see cref="IsoDateTimePrecision.Auto" /> (default) — sub-second digits only when non-zero,
+    ///             e.g. <c>"2026-01-01T23:00:00Z"</c> or <c>"2026-01-01T23:00:00.5Z"</c>.
+    ///         </item>
+    ///         <item>
+    ///             <see cref="IsoDateTimePrecision.Seconds" /> — always omit sub-second digits,
+    ///             e.g. <c>"2026-01-01T23:00:00Z"</c>.
+    ///         </item>
+    ///         <item>
+    ///             <see cref="IsoDateTimePrecision.Fractional" /> — always include 7 sub-second digits,
+    ///             e.g. <c>"2026-01-01T23:00:00.0000000Z"</c> or <c>"2026-01-01T23:00:00.5000000Z"</c>.
+    ///         </item>
+    ///     </list>
+    /// </param>
     /// <returns>An ISO 8601 UTC string.</returns>
     /// <example>
     ///     <code>
     ///         var dto = new DateTimeOffset(2026, 1, 1, 23, 0, 0, TimeSpan.Zero);
-    ///         dto.ToIsoString(); // "2026-01-01T23:00:00Z"
+    ///         dto.ToIsoString();                                    // "2026-01-01T23:00:00Z"
+    ///         dto.ToIsoString(IsoDateTimePrecision.Fractional);     // "2026-01-01T23:00:00.0000000Z"
+    ///         dto.ToIsoString(IsoDateTimePrecision.Seconds);        // "2026-01-01T23:00:00Z"
     ///     </code>
     /// </example>
-    public static string ToIsoString(this DateTimeOffset dto)
+    public static string ToIsoString(this DateTimeOffset dto,
+        IsoDateTimePrecision precision = IsoDateTimePrecision.Auto)
     {
         var utc = dto.ToUniversalTime();
-        var fmt = utc.Ticks % TimeSpan.TicksPerSecond == 0
-            ? IsoDateTimeFormat
-            : IsoDateTimeFormatFractional;
+        var fmt = precision switch
+        {
+            IsoDateTimePrecision.Seconds    => IsoDateTimeFormat,
+            IsoDateTimePrecision.Fractional => IsoDateTimeFormatFractionalAlways,
+            _                               => utc.Ticks % TimeSpan.TicksPerSecond == 0
+                                                   ? IsoDateTimeFormat
+                                                   : IsoDateTimeFormatFractional,
+        };
         return utc.ToString(fmt, CultureInfo.InvariantCulture);
     }
 
