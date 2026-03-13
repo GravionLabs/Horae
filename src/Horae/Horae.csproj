@@ -9,10 +9,20 @@
     <RepositoryUrl>https://github.com/GravionLabs/Hoare</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>datetime;dateonly;timezone;dst;iso8601;utc;interval</PackageTags>
+    <!-- SourceLink: embed source info so consumers can step into Horae in the debugger -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <!-- Symbol package (.snupkg) published alongside .nupkg for debugger support -->
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
   <ItemGroup>
     <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
   </ItemGroup>
 
 </Project>
