@@ -58,12 +58,12 @@ public class TimeSpanExtensionsTests
 
 
     [Test]
-    public void Seconds_Int_ShouldReturnCorrectTimeSpan() =>
-        30.Seconds().ShouldBe(TimeSpan.FromSeconds(30));
+    public void Seconds_Int_ShouldReturnDuration() =>
+        30.Seconds().ShouldBe(new Duration(TimeSpan.FromSeconds(30)));
 
     [Test]
-    public void Seconds_Double_ShouldReturnCorrectTimeSpan() =>
-        1.5d.Seconds().ShouldBe(TimeSpan.FromSeconds(1.5));
+    public void Seconds_Double_ShouldReturnDuration() =>
+        1.5d.Seconds().ShouldBe(new Duration(TimeSpan.FromSeconds(1.5)));
 
     [Test]
     public void Seconds_WithOffset_ShouldAddOffset()
@@ -75,12 +75,12 @@ public class TimeSpanExtensionsTests
 
 
     [Test]
-    public void Minutes_Int_ShouldReturnCorrectTimeSpan() =>
-        45.Minutes().ShouldBe(TimeSpan.FromMinutes(45));
+    public void Minutes_Int_ShouldReturnDuration() =>
+        45.Minutes().ShouldBe(new Duration(TimeSpan.FromMinutes(45)));
 
     [Test]
-    public void Minutes_Double_ShouldReturnCorrectTimeSpan() =>
-        0.5d.Minutes().ShouldBe(TimeSpan.FromMinutes(0.5));
+    public void Minutes_Double_ShouldReturnDuration() =>
+        0.5d.Minutes().ShouldBe(new Duration(TimeSpan.FromMinutes(0.5)));
 
     [Test]
     public void Minutes_WithOffset_ShouldAddOffset()
@@ -92,12 +92,12 @@ public class TimeSpanExtensionsTests
 
 
     [Test]
-    public void Hours_Int_ShouldReturnCorrectTimeSpan() =>
-        3.Hours().ShouldBe(TimeSpan.FromHours(3));
+    public void Hours_Int_ShouldReturnDuration() =>
+        3.Hours().ShouldBe(new Duration(TimeSpan.FromHours(3)));
 
     [Test]
-    public void Hours_Double_ShouldReturnCorrectTimeSpan() =>
-        1.5d.Hours().ShouldBe(TimeSpan.FromHours(1.5));
+    public void Hours_Double_ShouldReturnDuration() =>
+        1.5d.Hours().ShouldBe(new Duration(TimeSpan.FromHours(1.5)));
 
     [Test]
     public void Hours_WithOffset_ShouldAddOffset()
@@ -109,12 +109,12 @@ public class TimeSpanExtensionsTests
 
 
     [Test]
-    public void Days_Int_ShouldReturnCorrectTimeSpan() =>
-        7.Days().ShouldBe(TimeSpan.FromDays(7));
+    public void Days_Int_ShouldReturnDuration() =>
+        7.Days().ShouldBe(new Duration(TimeSpan.FromDays(7)));
 
     [Test]
-    public void Days_Double_ShouldReturnCorrectTimeSpan() =>
-        0.5d.Days().ShouldBe(TimeSpan.FromHours(12));
+    public void Days_Double_ShouldReturnDuration() =>
+        0.5d.Days().ShouldBe(new Duration(TimeSpan.FromHours(12)));
 
     [Test]
     public void Days_WithOffset_ShouldAddOffset()
@@ -130,7 +130,7 @@ public class TimeSpanExtensionsTests
     {
         var result = 1.Hours().And(30.Minutes());
 
-        result.ShouldBe(TimeSpan.FromMinutes(90));
+        result.ShouldBe(new Duration(TimeSpan.FromMinutes(90)));
     }
 
     [Test]
@@ -138,7 +138,23 @@ public class TimeSpanExtensionsTests
     {
         var result = 1.Days().And(2.Hours()).And(30.Minutes()).And(15.Seconds());
 
-        result.ShouldBe(TimeSpan.FromDays(1) + TimeSpan.FromHours(2) + TimeSpan.FromMinutes(30) +
-                        TimeSpan.FromSeconds(15));
+        result.ShouldBe(new Duration(TimeSpan.FromDays(1) + TimeSpan.FromHours(2) + TimeSpan.FromMinutes(30) +
+                        TimeSpan.FromSeconds(15)));
     }
+
+    [Test]
+    public void Days_NegativeInput_ShouldThrowArgumentOutOfRangeException() =>
+        Should.Throw<ArgumentOutOfRangeException>(() => (-1).Days());
+
+    [Test]
+    public void Hours_NegativeInput_ShouldThrowArgumentOutOfRangeException() =>
+        Should.Throw<ArgumentOutOfRangeException>(() => (-1).Hours());
+
+    [Test]
+    public void Minutes_NegativeInput_ShouldThrowArgumentOutOfRangeException() =>
+        Should.Throw<ArgumentOutOfRangeException>(() => (-5).Minutes());
+
+    [Test]
+    public void Seconds_NegativeInput_ShouldThrowArgumentOutOfRangeException() =>
+        Should.Throw<ArgumentOutOfRangeException>(() => (-30).Seconds());
 }

@@ -2,15 +2,22 @@ namespace Horae;
 
 /// <summary>
 ///     Extension methods on <see cref="int" />, <see cref="long" />, <see cref="double" /> and <see cref="TimeSpan" />
-///     for a fluent, readable way of constructing <see cref="TimeSpan" /> values.
+///     for a fluent, readable way of constructing <see cref="Duration" /> and <see cref="TimeSpan" /> values.
+///     Methods that represent whole-unit step sizes (<c>Seconds</c>, <c>Minutes</c>, <c>Hours</c>, <c>Days</c>)
+///     return <see cref="Duration" />; precision methods (<c>Ticks</c>, <c>Nanoseconds</c>, etc.) return
+///     <see cref="TimeSpan" />.
 /// </summary>
 /// <example>
 ///     <code>
-/// // Instead of TimeSpan.FromHours(12) write:
-/// TimeSpan ts = 12.Hours();
+/// // Fluent Duration construction:
+/// Duration d = 12.Hours();
+/// Duration d = 15.Minutes();
 ///
-/// // Compose with And:
-/// TimeSpan ts = 23.Hours().And(59.Minutes()).And(30.Seconds());
+/// // Compose with And (Duration chain):
+/// Duration d = 23.Hours().And(59.Minutes()).And(30.Seconds());
+///
+/// // Mix with TimeSpan (And returns TimeSpan via implicit conversion):
+/// TimeSpan ts = 1.Days().And(500.Milliseconds());
 /// </code>
 /// </example>
 public static class TimeSpanExtensions
@@ -60,13 +67,13 @@ public static class TimeSpanExtensions
     public static TimeSpan Milliseconds(this double milliseconds) =>
         TimeSpan.FromMilliseconds(milliseconds);
 
-    /// <summary>Returns a <see cref="TimeSpan" /> for the given number of seconds.</summary>
-    public static TimeSpan Seconds(this int seconds) =>
-        TimeSpan.FromSeconds(seconds);
+    /// <summary>Returns a <see cref="Duration" /> for the given number of seconds.</summary>
+    public static Duration Seconds(this int seconds) =>
+        new(TimeSpan.FromSeconds(seconds));
 
-    /// <summary>Returns a <see cref="TimeSpan" /> for the given number of seconds.</summary>
-    public static TimeSpan Seconds(this double seconds) =>
-        TimeSpan.FromSeconds(seconds);
+    /// <summary>Returns a <see cref="Duration" /> for the given number of seconds.</summary>
+    public static Duration Seconds(this double seconds) =>
+        new(TimeSpan.FromSeconds(seconds));
 
     /// <summary>
     ///     Returns a <see cref="TimeSpan" /> for the given number of seconds, plus <paramref name="offset" />.
@@ -76,13 +83,13 @@ public static class TimeSpanExtensions
         TimeSpan.FromSeconds(seconds).Add(offset);
 
 
-    /// <summary>Returns a <see cref="TimeSpan" /> for the given number of minutes.</summary>
-    public static TimeSpan Minutes(this int minutes) =>
-        TimeSpan.FromMinutes(minutes);
+    /// <summary>Returns a <see cref="Duration" /> for the given number of minutes.</summary>
+    public static Duration Minutes(this int minutes) =>
+        new(TimeSpan.FromMinutes(minutes));
 
-    /// <summary>Returns a <see cref="TimeSpan" /> for the given number of minutes.</summary>
-    public static TimeSpan Minutes(this double minutes) =>
-        TimeSpan.FromMinutes(minutes);
+    /// <summary>Returns a <see cref="Duration" /> for the given number of minutes.</summary>
+    public static Duration Minutes(this double minutes) =>
+        new(TimeSpan.FromMinutes(minutes));
 
     /// <summary>
     ///     Returns a <see cref="TimeSpan" /> for the given number of minutes, plus <paramref name="offset" />.
@@ -91,13 +98,13 @@ public static class TimeSpanExtensions
         TimeSpan.FromMinutes(minutes).Add(offset);
 
 
-    /// <summary>Returns a <see cref="TimeSpan" /> for the given number of hours.</summary>
-    public static TimeSpan Hours(this int hours) =>
-        TimeSpan.FromHours(hours);
+    /// <summary>Returns a <see cref="Duration" /> for the given number of hours.</summary>
+    public static Duration Hours(this int hours) =>
+        new(TimeSpan.FromHours(hours));
 
-    /// <summary>Returns a <see cref="TimeSpan" /> for the given number of hours.</summary>
-    public static TimeSpan Hours(this double hours) =>
-        TimeSpan.FromHours(hours);
+    /// <summary>Returns a <see cref="Duration" /> for the given number of hours.</summary>
+    public static Duration Hours(this double hours) =>
+        new(TimeSpan.FromHours(hours));
 
     /// <summary>
     ///     Returns a <see cref="TimeSpan" /> for the given number of hours, plus <paramref name="offset" />.
@@ -106,13 +113,13 @@ public static class TimeSpanExtensions
         TimeSpan.FromHours(hours).Add(offset);
 
 
-    /// <summary>Returns a <see cref="TimeSpan" /> for the given number of days.</summary>
-    public static TimeSpan Days(this int days) =>
-        TimeSpan.FromDays(days);
+    /// <summary>Returns a <see cref="Duration" /> for the given number of days.</summary>
+    public static Duration Days(this int days) =>
+        new(TimeSpan.FromDays(days));
 
-    /// <summary>Returns a <see cref="TimeSpan" /> for the given number of days.</summary>
-    public static TimeSpan Days(this double days) =>
-        TimeSpan.FromDays(days);
+    /// <summary>Returns a <see cref="Duration" /> for the given number of days.</summary>
+    public static Duration Days(this double days) =>
+        new(TimeSpan.FromDays(days));
 
     /// <summary>
     ///     Returns a <see cref="TimeSpan" /> for the given number of days, plus <paramref name="offset" />.
@@ -131,4 +138,16 @@ public static class TimeSpanExtensions
     /// </example>
     public static TimeSpan And(this TimeSpan sourceTime, TimeSpan offset) =>
         sourceTime.Add(offset);
+
+    /// <summary>
+    ///     Adds <paramref name="offset" /> to this <see cref="Duration" />, returning a new <see cref="Duration" />.
+    ///     Enables fully-typed Duration chains: <c>1.Days().And(2.Hours()).And(30.Minutes())</c>.
+    /// </summary>
+    /// <example>
+    ///     <code>
+    /// Duration d = 1.Days().And(2.Hours()).And(30.Minutes());
+    /// </code>
+    /// </example>
+    public static Duration And(this Duration duration, Duration offset) =>
+        new(duration.Value.Add(offset.Value));
 }
