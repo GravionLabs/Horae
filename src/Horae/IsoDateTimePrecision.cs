@@ -16,7 +16,7 @@ public enum IsoDateTimePrecision
     /// <summary>
     ///     Always omit sub-second digits, even when the value has a non-zero sub-second component.
     ///     Result is always in the form <c>2026-01-01T23:00:00Z</c>.
-    ///     This is the default behaviour.
+    ///     This is the default behavior.
     /// </summary>
     Seconds,
 
