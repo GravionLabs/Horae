@@ -8,8 +8,6 @@ namespace Horae.Tests;
 [TestFixture] [Category("UnitTest")]
 public class IsoStringTests
 {
-    // ── ToIsoString(DateTimeOffset) ──────────────────────────────────────────
-
     [Test]
     public void ToIsoString_DateTimeOffset_ShouldFormatWholeSecondsWithZ()
     {
@@ -44,8 +42,6 @@ public class IsoStringTests
         dto.ToIsoString().ShouldNotContain(".");
     }
 
-    // ── ToIsoString(DateTimeOffset?) ─────────────────────────────────────────
-
     [Test]
     public void ToIsoString_NullableDateTimeOffset_ShouldReturnNullForNull()
     {
@@ -62,8 +58,6 @@ public class IsoStringTests
         dto.ToIsoString().ShouldBe("2026-01-01T23:00:00Z");
     }
 
-    // ── ToIsoString(DateOnly) ────────────────────────────────────────────────
-
     [Test]
     public void ToIsoString_DateOnly_ShouldFormatAsIsoDate()
     {
@@ -75,8 +69,6 @@ public class IsoStringTests
     {
         new DateOnly(2026, 3, 9).ToIsoString().ShouldBe("2026-03-09");
     }
-
-    // ── ToIsoString(DateOnly?) ───────────────────────────────────────────────
 
     [Test]
     public void ToIsoString_NullableDateOnly_ShouldReturnNullForNull()
@@ -93,8 +85,6 @@ public class IsoStringTests
 
         date.ToIsoString().ShouldBe("2026-01-01");
     }
-
-    // ── ParseIsoDateTime ─────────────────────────────────────────────────────
 
     [Test]
     public void ParseIsoDateTime_ShouldParseUtcZString()
@@ -131,8 +121,6 @@ public class IsoStringTests
         Should.Throw<FormatException>(() => "not-a-date".ParseIsoDateTime());
     }
 
-    // ── TryParseIsoDateTime ──────────────────────────────────────────────────
-
     [Test]
     public void TryParseIsoDateTime_ShouldReturnTrueForValidString()
     {
@@ -149,8 +137,6 @@ public class IsoStringTests
 
         ok.ShouldBeFalse();
     }
-
-    // ── ParseIsoDate ─────────────────────────────────────────────────────────
 
     [Test]
     public void ParseIsoDate_ShouldParseIsoDateString()
@@ -176,8 +162,6 @@ public class IsoStringTests
         Should.Throw<FormatException>(() => "not-a-date".ParseIsoDate());
     }
 
-    // ── TryParseIsoDate ──────────────────────────────────────────────────────
-
     [Test]
     public void TryParseIsoDate_ShouldReturnTrueForValidString()
     {
@@ -195,9 +179,7 @@ public class IsoStringTests
         ok.ShouldBeFalse();
     }
 
-    // ── JSON Converters via [JsonConverter] attribute ─────────────────────────
-
-    private record TestModel(
+    private sealed record TestModel(
         [property: JsonConverter(typeof(IsoDateTimeOffsetConverter))]
         DateTimeOffset Timestamp,
         [property: JsonConverter(typeof(NullableIsoDateTimeOffsetConverter))]
@@ -295,8 +277,6 @@ public class IsoStringTests
         restored.OptionalDate.ShouldBe(original.OptionalDate);
     }
 
-    // ── IsoDateTimePrecision ──────────────────────────────────────────────────
-
     [Test]
     public void ToIsoString_PrecisionAuto_ShouldOmitFractionalForWholeSecond()
     {
@@ -337,9 +317,8 @@ public class IsoStringTests
         dto.ToIsoString(IsoDateTimePrecision.Fractional).ShouldBe("2026-01-01T23:00:00.5000000Z");
     }
 
-    // ── IsoDateTimeFormatAttribute ────────────────────────────────────────────
 
-    private record PrecisionModel(
+    private sealed record PrecisionModel(
         [property: IsoDateTimeFormat(IsoDateTimePrecision.Fractional)]
         DateTimeOffset Fractional,
         [property: IsoDateTimeFormat(IsoDateTimePrecision.Seconds)]

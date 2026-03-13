@@ -84,7 +84,7 @@ public readonly record struct Duration
     /// <param name="value">The ISO 8601 duration string to parse.</param>
     /// <returns>The parsed <see cref="Duration" />.</returns>
     /// <exception cref="FormatException">
-    ///     Thrown when <paramref name="value" /> is not a recognised ISO 8601 duration.
+    ///     Thrown when <paramref name="value" /> is not a recognized ISO 8601 duration.
     /// </exception>
     public static Duration Parse(string value)
     {
@@ -130,7 +130,6 @@ public readonly record struct Duration
     /// </summary>
     public override string ToString() => ToIso8601(Value);
 
-    // ── Helpers ──────────────────────────────────────────────────────────────
 
     private static string ToIso8601(TimeSpan ts)
     {

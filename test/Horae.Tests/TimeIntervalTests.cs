@@ -4,7 +4,7 @@ namespace Horae.Tests;
 
 /// <summary>
 ///     Tests for <see cref="TimeInterval" />.
-///     Uses fixed-offset instants and Japan (UTC+9, no DST) where timezone-aware behaviour
+///     Uses fixed-offset instants and Japan (UTC+9, no DST) where timezone-aware behavior
 ///     must be deterministic, and Central European Time for delivery-date tests.
 /// </summary>
 [TestFixture] [Category("UnitTest")]

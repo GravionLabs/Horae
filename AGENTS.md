@@ -29,9 +29,18 @@
 
 ## Project-Specific Conventions
 - Prefer file-scoped namespaces and concise expression-bodied members (see `src/Horae/*.cs`, `.editorconfig`).
-- Test methods use `Method_Should_DoThing` naming and NUnit assertions (`Assert.That(...)`).
+- Use modern C# features where they improve readability (targeting current language level in repo instructions).
+- Place `using` directives outside namespaces; avoid unnecessary `this.` qualification.
+- For public APIs, keep XML docs up to date; prefer `nameof(...)` over string literals for member names.
+- Null checks should follow `is null` / `is not null` style.
+- Test methods use `Method_Should_DoThing` naming and Shouldly-style assertions (`ShouldBe`, `ShouldThrow`, etc.) with NUnit as the test framework.
+- Every test fixture/class should carry a `[Category]`; default is `[Category("UnitTest")]`.
+- `ManualTest` cases must be marked `[Explicit]`.
 - Test files rely on implicit NUnit global using from `test/Directory.Build.props` (`<Using Include="NUnit.Framework"/>`).
 - Keep line length practical (`.editorconfig` sets `max_line_length = 120` for general files).
+- Use US English spelling in code, tests, docs, XML comments, and identifiers where practical (for example, `Deserialize`, `Serialize`, `behavior`, `normalized`).
+- Do not add decorative separator comments such as `// ---`, `// ===`, or `// ──`; use whitespace or normal explanatory comments instead.
+- Do not add "Act/Arrange/Assert" section comments in tests.
 
 ## Integration Points and Dependencies
 - Timezone integration: `TimeZoneInfo.FindSystemTimeZoneById("Europe/Berlin")` in `RegionExtensions`.
@@ -40,6 +49,7 @@
 
 ## Safe Change Checklist for Agents
 - Update/add tests in `test/Horae.Tests` whenever extension behavior changes.
+- Prefer Shouldly in tests and follow nearby naming/capitalization conventions.
 - If adding NuGet packages, add matching entries in `Directory.Packages.props` (CPM is enabled).
 - Re-run restore/build/test after dependency or framework edits to catch NU1010/NU1504 regressions early.
 - For timezone features, consider DST and Linux/Windows timezone ID portability in tests.

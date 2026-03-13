@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 namespace Horae.Converters;
 
 /// <summary>
-///     <see cref="System.Text.Json" /> converter that serialises <see cref="Duration" />
+///     <see cref="System.Text.Json" /> converter that serializes <see cref="Duration" />
 ///     as an ISO 8601 duration string (e.g. <c>"PT15M"</c>).
 /// </summary>
 public sealed class DurationConverter : JsonConverter<Duration>

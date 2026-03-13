@@ -312,7 +312,7 @@ bool active = day.Contains(DateTimeOffset.UtcNow);
 // Deconstruct
 var (start, end) = day;
 
-// Convert to UTC-normalised TimeInterval
+// Convert to UTC-normalized TimeInterval
 TimeInterval utc = day.ToUtc();
 
 // Split — no TimeZoneInfo parameter needed (stored in the interval)
@@ -332,14 +332,14 @@ foreach (DateTimeOffset midnight in day.SplitByDays())
 
 All converters live in the `Horae.Converters` namespace and can be used via `[JsonConverter]` attributes or through `JsonSerializerOptions.Converters`.
 
-| Converter | Type | JSON representation |
-|-----------|------|---------------------|
-| `IsoDateTimeOffsetConverter` | `DateTimeOffset` | `"2026-01-01T23:00:00Z"` |
+| Converter                            | Type              | JSON representation               |
+|--------------------------------------|-------------------|-----------------------------------|
+| `IsoDateTimeOffsetConverter`         | `DateTimeOffset`  | `"2026-01-01T23:00:00Z"`          |
 | `NullableIsoDateTimeOffsetConverter` | `DateTimeOffset?` | `"2026-01-01T23:00:00Z"` / `null` |
-| `IsoDateConverter` | `DateOnly` | `"2026-01-01"` |
-| `NullableIsoDateConverter` | `DateOnly?` | `"2026-01-01"` / `null` |
-| `DurationConverter` | `Duration` | `"PT15M"` |
-| `NullableDurationConverter` | `Duration?` | `"PT15M"` / `null` |
+| `IsoDateConverter`                   | `DateOnly`        | `"2026-01-01"`                    |
+| `NullableIsoDateConverter`           | `DateOnly?`       | `"2026-01-01"` / `null`           |
+| `DurationConverter`                  | `Duration`        | `"PT15M"`                         |
+| `NullableDurationConverter`          | `Duration?`       | `"PT15M"` / `null`                |
 
 ```csharp
 record DeliveryPeriod(
@@ -377,11 +377,11 @@ record Event(
 
 `IsoDateTimePrecision` values:
 
-| Value | Behaviour |
-|-------|-----------|
-| `Seconds` *(default)* | Always omit sub-second digits — `"...T23:00:00Z"` |
-| `Auto` | Include sub-second digits only when non-zero |
-| `Fractional` | Always include 7 sub-second digits — `"...T23:00:00.0000000Z"` |
+| Value                 | Behavior                                                        |
+|-----------------------|-----------------------------------------------------------------|
+| `Seconds` *(default)* | Always omit sub-second digits — `"...T23:00:00Z"`               |
+| `Auto`                | Include sub-second digits only when non-zero                    |
+| `Fractional`          | Always include 7 sub-second digits — `"...T23:00:00.0000000Z"`  |
 
 ---
 
@@ -389,19 +389,19 @@ record Event(
 
 `TimeZones` provides `TimeZoneInfo` instances for common regions (IANA IDs, supported on all platforms since .NET 6).
 
-| Property | IANA ID | Offset (standard time) |
-|----------|---------|------------------------|
-| `TimeZones.Utc` | UTC | +00:00 |
-| `TimeZones.CentralEuropean` | Europe/Berlin | +01:00 / +02:00 |
-| `TimeZones.London` | Europe/London | +00:00 / +01:00 |
-| `TimeZones.Lisbon` | Europe/Lisbon | +00:00 / +01:00 |
-| `TimeZones.EasternEurope` | Europe/Athens | +02:00 / +03:00 |
-| `TimeZones.Moscow` | Europe/Moscow | +03:00 (no DST) |
-| `TimeZones.Istanbul` | Europe/Istanbul | +03:00 (no DST) |
-| `TimeZones.EasternUs` | America/New_York | -05:00 / -04:00 |
-| `TimeZones.PacificUs` | America/Los_Angeles | -08:00 / -07:00 |
-| `TimeZones.Dubai` | Asia/Dubai | +04:00 (no DST) |
-| `TimeZones.India` | Asia/Kolkata | +05:30 (no DST) |
-| `TimeZones.Japan` | Asia/Tokyo | +09:00 (no DST) |
-| `TimeZones.AustraliaEastern` | Australia/Sydney | +10:00 / +11:00 |
+| Property                     | IANA ID             | Offset (standard time) |
+|------------------------------|---------------------|------------------------|
+| `TimeZones.Utc`              | UTC                 | +00:00                 |
+| `TimeZones.CentralEuropean`  | Europe/Berlin       | +01:00 / +02:00        |
+| `TimeZones.London`           | Europe/London       | +00:00 / +01:00        |
+| `TimeZones.Lisbon`           | Europe/Lisbon       | +00:00 / +01:00        |
+| `TimeZones.EasternEurope`    | Europe/Athens       | +02:00 / +03:00        |
+| `TimeZones.Moscow`           | Europe/Moscow       | +03:00 (no DST)        |
+| `TimeZones.Istanbul`         | Europe/Istanbul     | +03:00 (no DST)        |
+| `TimeZones.EasternUs`        | America/New_York    | -05:00 / -04:00        |
+| `TimeZones.PacificUs`        | America/Los_Angeles | -08:00 / -07:00        |
+| `TimeZones.Dubai`            | Asia/Dubai          | +04:00 (no DST)        |
+| `TimeZones.India`            | Asia/Kolkata        | +05:30 (no DST)        |
+| `TimeZones.Japan`            | Asia/Tokyo          | +09:00 (no DST)        |
+| `TimeZones.AustraliaEastern` | Australia/Sydney    | +10:00 / +11:00        |
 

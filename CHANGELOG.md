@@ -60,18 +60,3 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 - SourceLink + `.snupkg` symbol package for debugger source-stepping support.
 
-### Breaking changes / Migration notes
-
-- **`RegionExtensions`** API was redesigned before 1.0:
-  - Old: `dto.CentralEuropeanToUtc()` / `dto.ToUtc(sourceTimeZone)` → removed
-  - New: `dto.ToCentralEuropeanTime()` — converts *to* CET/CEST (same instant, different offset)
-  - New: `dto.ToUtc()` — converts to UTC (no `sourceTimeZone` parameter needed)
-  - All regional helpers now follow the `To*Time()` naming pattern.
-
-- **`Resolution`** was renamed to **`Duration`** before 1.0.
-  If migrating from pre-release code, replace all `Resolution` references with `Duration`
-  and `ResolutionConverter` / `NullableResolutionConverter` with the `Duration` equivalents.
-
-- **`ToIsoString()` default precision** is `IsoDateTimePrecision.Seconds` — sub-second digits are
-  omitted by default. Pre-release code that relied on sub-seconds appearing automatically should
-  pass `IsoDateTimePrecision.Auto` explicitly.

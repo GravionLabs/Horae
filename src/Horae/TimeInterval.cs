@@ -22,7 +22,7 @@ public readonly record struct TimeInterval
 
     /// <summary>
     ///     Initializes a new instance of <see cref="TimeInterval" />.
-    ///     Both endpoints are normalised to UTC.
+    ///     Both endpoints are normalized to UTC.
     /// </summary>
     /// <param name="start">The inclusive start of the interval.</param>
     /// <param name="end">The exclusive end of the interval.</param>

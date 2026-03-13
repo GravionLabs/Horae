@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 namespace Horae.Converters;
 
 /// <summary>
-///     <see cref="System.Text.Json" /> converter that serialises <see cref="DateOnly" />?
+///     <see cref="System.Text.Json" /> converter that serializes <see cref="DateOnly" />?
 ///     as an ISO 8601 date string (e.g. <c>"2026-01-01"</c>), or as <c>null</c> when absent.
 /// </summary>
 public sealed class NullableIsoDateConverter : JsonConverter<DateOnly?>

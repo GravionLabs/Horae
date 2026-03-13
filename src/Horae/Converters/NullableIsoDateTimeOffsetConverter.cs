@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 namespace Horae.Converters;
 
 /// <summary>
-///     <see cref="System.Text.Json" /> converter that serialises <see cref="DateTimeOffset" />?
+///     <see cref="System.Text.Json" /> converter that serializes <see cref="DateTimeOffset" />?
 ///     as an ISO 8601 string in UTC (e.g. <c>"2026-01-01T23:00:00Z"</c>), or as
 ///     <c>null</c> when the value is absent.
 ///     Sub-second precision is controlled by <see cref="IsoDateTimePrecision" />.

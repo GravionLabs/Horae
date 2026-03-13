@@ -60,7 +60,7 @@ public class ResolutionTests
     }
 
     [Test]
-    public void StaticInstances_ShouldSerialiseToExpectedStrings()
+    public void StaticInstances_ShouldSerializeToExpectedStrings()
     {
         Duration.Minute.ToString().ShouldBe("PT1M");
         Duration.FiveMinutes.ToString().ShouldBe("PT5M");
@@ -138,14 +138,14 @@ public class ResolutionTests
     }
 
     [Test]
-    public void JsonSerialise_ShouldProduceQuotedIso8601String()
+    public void JsonSerialize_ShouldProduceQuotedIso8601String()
     {
         var json = JsonSerializer.Serialize(Duration.QuarterHour);
         json.ShouldBe("\"PT15M\"");
     }
 
     [Test]
-    public void JsonDeserialise_ShouldParseIso8601String()
+    public void JsonDeserialize_ShouldParseIso8601String()
     {
         var r = JsonSerializer.Deserialize<Duration>("\"P7D\"");
         r.ShouldBe(Duration.Week);

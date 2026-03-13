@@ -2,12 +2,12 @@ namespace Horae;
 
 /// <summary>
 ///     Represents a half-open time interval [<see cref="Start" />, <see cref="End" />) whose
-///     boundaries are expressed in a specific time zone rather than normalised to UTC.
+///     boundaries are expressed in a specific time zone rather than normalized to UTC.
 ///     Use this type when the local time context must be preserved — for example, a trading-day
 ///     boundary in CET or a session window such as "15:00–18:00 Europe/Berlin".
 /// </summary>
 /// <remarks>
-///     For UTC-normalised intervals, use <see cref="TimeInterval" /> instead.
+///     For UTC-normalized intervals, use <see cref="TimeInterval" /> instead.
 ///     <para>
 ///     The constructor converts <c>start</c> and <c>end</c> to the supplied
 ///         time zone's local time, so <see cref="Start" /> and <see cref="End" />
@@ -128,7 +128,7 @@ public readonly record struct ZonedTimeInterval
     }
 
     /// <summary>
-    ///     Returns a UTC-normalised <see cref="TimeInterval" /> with the same boundaries.
+    ///     Returns a UTC-normalized <see cref="TimeInterval" /> with the same boundaries.
     ///     Both endpoints are converted to UTC (<c>+00:00</c> offset).
     /// </summary>
     /// <returns>A <see cref="TimeInterval" /> representing the same interval in UTC.</returns>

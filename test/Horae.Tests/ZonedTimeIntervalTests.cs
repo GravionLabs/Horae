@@ -9,9 +9,6 @@ namespace Horae.Tests;
 public class ZonedTimeIntervalTests
 {
     private static readonly TimeZoneInfo Cet  = TimeZones.CentralEuropean;
-    private static readonly TimeZoneInfo Jst  = TimeZones.Japan;
-
-    // ── Constructor ──────────────────────────────────────────────────────────
 
     [Test]
     public void Constructor_ShouldConvertStartAndEndToZoneTime()
@@ -57,8 +54,6 @@ public class ZonedTimeIntervalTests
         Should.Throw<ArgumentNullException>(() => new ZonedTimeInterval(dto, dto, null!));
     }
 
-    // ── Day factory ──────────────────────────────────────────────────────────
-
     [Test]
     public void Day_ShouldProduceMidnightToMidnightInZone_Winter()
     {
@@ -76,8 +71,6 @@ public class ZonedTimeIntervalTests
         interval.Start.ShouldBe(new DateTimeOffset(2026, 6, 15, 0, 0, 0, TimeSpan.FromHours(2)));
         interval.End.ShouldBe(  new DateTimeOffset(2026, 6, 16, 0, 0, 0, TimeSpan.FromHours(2)));
     }
-
-    // ── Contains ─────────────────────────────────────────────────────────────
 
     [Test]
     public void Contains_ShouldReturnTrue_ForInstantWithinInterval()
@@ -105,8 +98,6 @@ public class ZonedTimeIntervalTests
         interval.Contains(interval.Start).ShouldBeTrue();
     }
 
-    // ── Deconstruct ──────────────────────────────────────────────────────────
-
     [Test]
     public void Deconstruct_ShouldProvideStartAndEnd()
     {
@@ -118,8 +109,6 @@ public class ZonedTimeIntervalTests
         end.ShouldBe(interval.End);
     }
 
-    // ── ToUtc ────────────────────────────────────────────────────────────────
-
     [Test]
     public void ToUtc_ShouldReturnUtcNormalisedTimeInterval()
     {
@@ -130,8 +119,6 @@ public class ZonedTimeIntervalTests
         utc.Start.ShouldBe(new DateTimeOffset(2026, 1, 14, 23, 0, 0, TimeSpan.Zero));
         utc.End.ShouldBe(  new DateTimeOffset(2026, 1, 15, 23, 0, 0, TimeSpan.Zero));
     }
-
-    // ── SplitBy ──────────────────────────────────────────────────────────────
 
     [Test]
     public void SplitBy_QuarterHour_ShouldReturn96Slots_ForOneDay()
@@ -166,7 +153,6 @@ public class ZonedTimeIntervalTests
         slots.Count.ShouldBe(92);
     }
 
-    // ── SplitByDays ──────────────────────────────────────────────────────────
 
     [Test]
     public void SplitByDays_ShouldReturnOneMidnightPerDay()

@@ -8,6 +8,8 @@ applyTo: '**/*.cs'
 ## C# Instructions
 - Always use the latest version C#, currently C# 14 features.
 - Write clear and concise comments for each function.
+- Use US English spelling consistently (for example, `Deserialize` instead of `Deserialise`).
+- Do not add decorative section-separator comments such as `// ---`, `// ===`, or `// ──`; use whitespace or regular explanatory comments instead.
 
 ## General Instructions
 - Make only high confidence suggestions when reviewing code changes.
