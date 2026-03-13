@@ -4,20 +4,20 @@ using System.Text.Json.Serialization;
 namespace Horae.Converters;
 
 /// <summary>
-///     <see cref="System.Text.Json" /> converter that serialises <see cref="Resolution" />
+///     <see cref="System.Text.Json" /> converter that serialises <see cref="Duration" />
 ///     as an ISO 8601 duration string (e.g. <c>"PT15M"</c>).
 /// </summary>
-public sealed class ResolutionJsonConverter : JsonConverter<Resolution>
+public sealed class DurationConverter : JsonConverter<Duration>
 {
     /// <inheritdoc />
-    public override Resolution Read(ref Utf8JsonReader reader,
+    public override Duration Read(ref Utf8JsonReader reader,
         Type typeToConvert,
         JsonSerializerOptions options) =>
-        Resolution.Parse(reader.GetString() ?? throw new JsonException("Expected a non-null string."));
+        Duration.Parse(reader.GetString() ?? throw new JsonException("Expected a non-null string."));
 
     /// <inheritdoc />
     public override void Write(Utf8JsonWriter writer,
-        Resolution value,
+        Duration value,
         JsonSerializerOptions options) =>
         writer.WriteStringValue(value.ToString());
 }

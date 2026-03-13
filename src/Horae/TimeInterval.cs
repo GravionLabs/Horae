@@ -124,7 +124,7 @@ public readonly record struct TimeInterval
 
     /// <summary>
     ///     Splits the interval into a sequence of UTC instants at the given resolution.
-    ///     Convenience overload that accepts a <see cref="Resolution" /> instead of a raw
+    ///     Convenience overload that accepts a <see cref="Duration" /> instead of a raw
     ///     <see cref="TimeSpan" />.
     /// </summary>
     /// <param name="resolution">The step size to split by.</param>
@@ -135,7 +135,7 @@ public readonly record struct TimeInterval
     /// <returns>
     ///     A sequence of UTC <see cref="DateTimeOffset" /> values, one per slot.
     /// </returns>
-    public IEnumerable<DateTimeOffset> SplitBy(Resolution resolution, TimeZoneInfo? timeZone = null) =>
+    public IEnumerable<DateTimeOffset> SplitBy(Duration resolution, TimeZoneInfo? timeZone = null) =>
         SplitBy(resolution.Value, timeZone);
 
     /// <summary>

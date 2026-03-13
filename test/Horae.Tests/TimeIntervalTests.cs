@@ -213,7 +213,7 @@ public class TimeIntervalTests
         var end   = new DateTimeOffset(2026, 3, 30, 22, 0, 0, TimeSpan.Zero); // March 31 00:00 CEST
         var interval = new TimeInterval(start, end);
 
-        var slots = interval.SplitBy(Resolution.Day, TimeZones.CentralEuropean).ToList();
+        var slots = interval.SplitBy(Duration.Day, TimeZones.CentralEuropean).ToList();
 
         slots.Count.ShouldBe(2);
         slots[0].ShouldBe(new DateTimeOffset(2026, 3, 28, 23, 0, 0, TimeSpan.Zero)); // March 29 00:00 CET (+1)

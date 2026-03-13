@@ -5,53 +5,53 @@ using Horae.Converters;
 namespace Horae;
 
 /// <summary>
-///     Represents a fixed time resolution (step size), such as 15 minutes or 1 day.
-///     Serializes to and from ISO 8601 duration strings (e.g. <c>PT15M</c>, <c>P1D</c>).
+///     Represents an ISO 8601 duration (e.g. <c>PT15M</c>, <c>P1D</c>), wrapping a positive <see cref="TimeSpan" />.
+///     Commonly used as a step size for interval splitting and time rounding.
 /// </summary>
 /// <example>
 ///     <code>
-///         var r = Resolution.QuarterHour;          // PT15M
+///         var r = Duration.QuarterHour;          // PT15M
 ///         TimeSpan ts = r;                          // implicit conversion
 ///         string json = JsonSerializer.Serialize(r); // "PT15M"
 ///
-///         var parsed = Resolution.Parse("PT15M");
+///         var parsed = Duration.Parse("PT15M");
 ///     </code>
 /// </example>
-[JsonConverter(typeof(ResolutionJsonConverter))]
-public readonly record struct Resolution
+[JsonConverter(typeof(DurationConverter))]
+public readonly record struct Duration
 {
     /// <summary>One minute — <c>PT1M</c>.</summary>
-    public static readonly Resolution Minute = new(TimeSpan.FromMinutes(1));
+    public static readonly Duration Minute = new(TimeSpan.FromMinutes(1));
 
     /// <summary>Five minutes — <c>PT5M</c>.</summary>
-    public static readonly Resolution FiveMinutes = new(TimeSpan.FromMinutes(5));
+    public static readonly Duration FiveMinutes = new(TimeSpan.FromMinutes(5));
 
     /// <summary>Fifteen minutes — <c>PT15M</c>.</summary>
-    public static readonly Resolution QuarterHour = new(TimeSpan.FromMinutes(15));
+    public static readonly Duration QuarterHour = new(TimeSpan.FromMinutes(15));
 
     /// <summary>Thirty minutes — <c>PT30M</c>.</summary>
-    public static readonly Resolution HalfHour = new(TimeSpan.FromMinutes(30));
+    public static readonly Duration HalfHour = new(TimeSpan.FromMinutes(30));
 
     /// <summary>One hour — <c>PT1H</c>.</summary>
-    public static readonly Resolution Hour = new(TimeSpan.FromHours(1));
+    public static readonly Duration Hour = new(TimeSpan.FromHours(1));
 
     /// <summary>One day — <c>P1D</c>.</summary>
-    public static readonly Resolution Day = new(TimeSpan.FromDays(1));
+    public static readonly Duration Day = new(TimeSpan.FromDays(1));
 
     /// <summary>
-    ///     Initializes a new <see cref="Resolution" /> with the given duration.
+    ///     Initializes a new <see cref="Duration" /> with the given duration.
     /// </summary>
     /// <param name="value">The duration of one resolution step. Must be positive.</param>
     /// <exception cref="ArgumentOutOfRangeException">
     ///     Thrown when <paramref name="value" /> is zero or negative.
     /// </exception>
-    public Resolution(TimeSpan value)
+    public Duration(TimeSpan value)
     {
         if (value <= TimeSpan.Zero)
         {
             throw new ArgumentOutOfRangeException(nameof(value),
                 value,
-                "Resolution must be a positive duration.");
+                "Duration must be a positive time span.");
         }
 
         Value = value;
@@ -61,25 +61,25 @@ public readonly record struct Resolution
     public TimeSpan Value { get; }
 
     /// <summary>
-    ///     Implicitly converts a <see cref="Resolution" /> to its underlying <see cref="TimeSpan" />.
+    ///     Implicitly converts a <see cref="Duration" /> to its underlying <see cref="TimeSpan" />.
     /// </summary>
-    public static implicit operator TimeSpan(Resolution resolution) => resolution.Value;
+    public static implicit operator TimeSpan(Duration resolution) => resolution.Value;
 
     /// <summary>
-    ///     Implicitly converts a <see cref="TimeSpan" /> to a <see cref="Resolution" />.
+    ///     Implicitly converts a <see cref="TimeSpan" /> to a <see cref="Duration" />.
     /// </summary>
-    public static implicit operator Resolution(TimeSpan timeSpan) => new(timeSpan);
+    public static implicit operator Duration(TimeSpan timeSpan) => new(timeSpan);
 
     /// <summary>
     ///     Parses an ISO 8601 duration string (e.g. <c>PT15M</c>, <c>P1D</c>, <c>PT1H</c>)
-    ///     into a <see cref="Resolution" />.
+    ///     into a <see cref="Duration" />.
     /// </summary>
     /// <param name="value">The ISO 8601 duration string to parse.</param>
-    /// <returns>The parsed <see cref="Resolution" />.</returns>
+    /// <returns>The parsed <see cref="Duration" />.</returns>
     /// <exception cref="FormatException">
     ///     Thrown when <paramref name="value" /> is not a recognised ISO 8601 duration.
     /// </exception>
-    public static Resolution Parse(string value)
+    public static Duration Parse(string value)
     {
         if (!TryParse(value, out var result))
             throw new FormatException($"'{value}' is not a valid ISO 8601 duration.");
@@ -88,7 +88,7 @@ public readonly record struct Resolution
     }
 
     /// <summary>
-    ///     Tries to parse an ISO 8601 duration string into a <see cref="Resolution" />.
+    ///     Tries to parse an ISO 8601 duration string into a <see cref="Duration" />.
     /// </summary>
     /// <param name="value">The string to parse.</param>
     /// <param name="result">
@@ -98,7 +98,7 @@ public readonly record struct Resolution
     /// <returns>
     ///     <see langword="true" /> if parsing succeeded; otherwise <see langword="false" />.
     /// </returns>
-    public static bool TryParse(string? value, out Resolution result)
+    public static bool TryParse(string? value, out Duration result)
     {
         result = default;
 
@@ -113,7 +113,7 @@ public readonly record struct Resolution
         if (timeSpan is null || timeSpan.Value <= TimeSpan.Zero)
             return false;
 
-        result = new Resolution(timeSpan.Value);
+        result = new Duration(timeSpan.Value);
         return true;
     }
 

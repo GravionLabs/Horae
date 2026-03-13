@@ -3,7 +3,7 @@
 ## Project Snapshot
 - `Horae` is a small extension-method library for date/time ergonomics (`src/Horae/*.cs`) with NUnit tests in `test/Horae.Tests`.
 - Primary API style is fluent date construction and UTC-first conversion, e.g. `1.January(2026)` and `DateOnly -> DateTimeOffset (+00:00)`.
-- Solution file is `Hoare.slnx`; root docs are minimal (`README.md` is short and German-language).
+- Solution file is `Hoare.slnx`; `README.md` is the main usage guide and is English-language.
 
 ## Repo Map (Where to Look First)
 - `src/Horae/DateExtensions.cs`: month-name extension methods on `int`, each returns `DateTimeOffset` at midnight UTC.

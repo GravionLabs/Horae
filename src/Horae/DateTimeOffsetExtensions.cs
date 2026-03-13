@@ -187,7 +187,7 @@ public static class DateTimeOffsetExtensions
     /// <summary>
     ///     Rounds down a <see cref="DateTimeOffset" /> value to the nearest multiple of
     ///     <paramref name="resolution" /> in the specified time zone and returns the result as UTC.
-    ///     Convenience overload that accepts a <see cref="Resolution" /> instead of a raw
+    ///     Convenience overload that accepts a <see cref="Duration" /> instead of a raw
     ///     <see cref="TimeSpan" />.
     /// </summary>
     /// <param name="dateTimeOffset">The value to round.</param>
@@ -198,7 +198,7 @@ public static class DateTimeOffsetExtensions
     /// </param>
     /// <returns>The rounded value expressed in UTC.</returns>
     public static DateTimeOffset RoundDown(this DateTimeOffset dateTimeOffset,
-        Resolution resolution,
+        Duration resolution,
         TimeZoneInfo? timeZone = null) =>
         dateTimeOffset.RoundDown(resolution.Value, timeZone);
 
@@ -226,7 +226,7 @@ public static class DateTimeOffsetExtensions
     /// <summary>
     ///     Rounds a <see cref="DateTimeOffset" /> value to the nearest multiple of
     ///     <paramref name="resolution" /> in the specified time zone and returns the result as UTC.
-    ///     Convenience overload that accepts a <see cref="Resolution" /> instead of a raw
+    ///     Convenience overload that accepts a <see cref="Duration" /> instead of a raw
     ///     <see cref="TimeSpan" />.
     /// </summary>
     /// <param name="dateTimeOffset">The value to round.</param>
@@ -237,7 +237,7 @@ public static class DateTimeOffsetExtensions
     /// </param>
     /// <returns>The rounded value expressed in UTC.</returns>
     public static DateTimeOffset RoundToNearest(this DateTimeOffset dateTimeOffset,
-        Resolution resolution,
+        Duration resolution,
         TimeZoneInfo? timeZone = null) =>
         dateTimeOffset.RoundToNearest(resolution.Value, timeZone);
 
@@ -267,7 +267,7 @@ public static class DateTimeOffsetExtensions
     /// <summary>
     ///     Rounds up a <see cref="DateTimeOffset" /> value to the next multiple of
     ///     <paramref name="resolution" /> in the specified time zone and returns the result as UTC.
-    ///     Convenience overload that accepts a <see cref="Resolution" /> instead of a raw
+    ///     Convenience overload that accepts a <see cref="Duration" /> instead of a raw
     ///     <see cref="TimeSpan" />.
     /// </summary>
     /// <param name="dateTimeOffset">The value to round up.</param>
@@ -278,7 +278,7 @@ public static class DateTimeOffsetExtensions
     /// </param>
     /// <returns>The rounded value expressed in UTC.</returns>
     public static DateTimeOffset RoundUp(this DateTimeOffset dateTimeOffset,
-        Resolution resolution,
+        Duration resolution,
         TimeZoneInfo? timeZone = null) =>
         dateTimeOffset.RoundUp(resolution.Value, timeZone);
 
