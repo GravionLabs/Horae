@@ -47,6 +47,9 @@ public sealed class IsoDateTimeOffsetConverter : JsonConverter<DateTimeOffset>
     /// <inheritdoc />
     public override void Write(Utf8JsonWriter writer,
         DateTimeOffset value,
-        JsonSerializerOptions options) =>
+        JsonSerializerOptions options)
+    {
+        ArgumentNullException.ThrowIfNull(writer);
         writer.WriteStringValue(value.ToIsoString(_precision));
+    }
 }

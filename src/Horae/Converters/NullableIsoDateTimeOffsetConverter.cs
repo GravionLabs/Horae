@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -11,7 +10,6 @@ namespace Horae.Converters;
 ///     <c>null</c> when the value is absent.
 ///     Sub-second precision is controlled by <see cref="IsoDateTimePrecision" />.
 /// </summary>
-[SuppressMessage("Design", "CA1062:Validate arguments of public methods")]
 public sealed class NullableIsoDateTimeOffsetConverter : JsonConverter<DateTimeOffset?>
 {
     private readonly IsoDateTimePrecision _precision;
@@ -45,6 +43,8 @@ public sealed class NullableIsoDateTimeOffsetConverter : JsonConverter<DateTimeO
         DateTimeOffset? value,
         JsonSerializerOptions options)
     {
+        ArgumentNullException.ThrowIfNull(writer);
+
         if (value is null)
         {
             writer.WriteNullValue();

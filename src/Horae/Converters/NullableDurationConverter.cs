@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -8,7 +7,6 @@ namespace Horae.Converters;
 ///     <see cref="System.Text.Json" /> converter that serialises <see cref="Duration" />
 ///     as an ISO 8601 duration string (e.g. <c>"PT15M"</c>).
 /// </summary>
-[SuppressMessage("Design", "CA1062:Validate arguments of public methods")]
 public sealed class NullableDurationConverter : JsonConverter<Duration?>
 {
     /// <inheritdoc />
@@ -27,6 +25,8 @@ public sealed class NullableDurationConverter : JsonConverter<Duration?>
         Duration? value,
         JsonSerializerOptions options)
     {
+        ArgumentNullException.ThrowIfNull(writer);
+
         if (value == null)
         {
             writer.WriteNullValue();

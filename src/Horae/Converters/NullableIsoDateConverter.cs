@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -9,7 +8,6 @@ namespace Horae.Converters;
 ///     <see cref="System.Text.Json" /> converter that serialises <see cref="DateOnly" />?
 ///     as an ISO 8601 date string (e.g. <c>"2026-01-01"</c>), or as <c>null</c> when absent.
 /// </summary>
-[SuppressMessage("Design", "CA1062:Validate arguments of public methods")]
 public sealed class NullableIsoDateConverter : JsonConverter<DateOnly?>
 {
     /// <inheritdoc />
@@ -29,6 +27,8 @@ public sealed class NullableIsoDateConverter : JsonConverter<DateOnly?>
         DateOnly? value,
         JsonSerializerOptions options)
     {
+        ArgumentNullException.ThrowIfNull(writer);
+
         if (value is null)
         {
             writer.WriteNullValue();

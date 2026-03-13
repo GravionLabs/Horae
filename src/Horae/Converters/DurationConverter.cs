@@ -18,6 +18,9 @@ public sealed class DurationConverter : JsonConverter<Duration>
     /// <inheritdoc />
     public override void Write(Utf8JsonWriter writer,
         Duration value,
-        JsonSerializerOptions options) =>
+        JsonSerializerOptions options)
+    {
+        ArgumentNullException.ThrowIfNull(writer);
         writer.WriteStringValue(value.ToString());
+    }
 }

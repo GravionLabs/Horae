@@ -154,7 +154,7 @@ public static class DateExtensions
 
     /// <summary>
     ///     Returns a new <see cref="DateTimeOffset" /> with <paramref name="nanoseconds" /> added.
-    ///     Uses <see cref="TimeSpan.FromNanoseconds" /> internally; precision is limited to 100 ns (one tick).
+    ///     Precision is limited to 100 ns (one tick); values below that are truncated.
     /// </summary>
     /// <remarks>
     ///     <see cref="DateTimeOffset" /> does not have a native <c>AddNanoseconds</c> method;

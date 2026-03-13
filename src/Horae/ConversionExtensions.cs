@@ -76,6 +76,14 @@ public static class ConversionExtensions
     ///     When <see langword="null" />, <see cref="HoareSettings.CurrentTimeZone" /> is used.
     /// </param>
     /// <returns>Midnight of <paramref name="date" /> with the UTC offset of the given time zone.</returns>
+    /// <remarks>
+    ///     During a DST fall-back transition (e.g. the last Sunday in October in CET) midnight may
+    ///     be ambiguous. In that case <see cref="TimeZoneInfo.GetUtcOffset(DateTime)" /> returns
+    ///     the <em>standard</em> time offset (e.g. <c>+01:00</c> for CET), which is the second
+    ///     occurrence. There is no parameter to choose the first occurrence.
+    ///     During a DST spring-forward transition midnight may be invalid; the framework adjusts
+    ///     the offset silently to the DST offset.
+    /// </remarks>
     /// <example>
     ///     <code>
     ///         var date = new DateOnly(2026, 6, 15);

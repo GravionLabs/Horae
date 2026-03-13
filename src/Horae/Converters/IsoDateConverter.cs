@@ -28,6 +28,9 @@ public sealed class IsoDateConverter : JsonConverter<DateOnly>
     /// <inheritdoc />
     public override void Write(Utf8JsonWriter writer,
         DateOnly value,
-        JsonSerializerOptions options) =>
+        JsonSerializerOptions options)
+    {
+        ArgumentNullException.ThrowIfNull(writer);
         writer.WriteStringValue(value.ToIsoString());
+    }
 }

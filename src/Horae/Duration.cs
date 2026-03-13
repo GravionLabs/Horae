@@ -71,6 +71,10 @@ public readonly record struct Duration
     /// <summary>
     ///     Implicitly converts a <see cref="TimeSpan" /> to a <see cref="Duration" />.
     /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">
+    ///     Thrown when <paramref name="timeSpan" /> is zero or negative.
+    ///     Prefer an explicit cast or <see cref="Parse" /> if the sign of the value is uncertain.
+    /// </exception>
     public static implicit operator Duration(TimeSpan timeSpan) => new(timeSpan);
 
     /// <summary>

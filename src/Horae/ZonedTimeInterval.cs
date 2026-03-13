@@ -9,8 +9,8 @@ namespace Horae;
 /// <remarks>
 ///     For UTC-normalised intervals, use <see cref="TimeInterval" /> instead.
 ///     <para>
-///         The constructor converts <c>start</c> and <c>end</c> to the supplied
-///         <paramref name="timeZone" />'s local time, so <see cref="Start" /> and <see cref="End" />
+///     The constructor converts <c>start</c> and <c>end</c> to the supplied
+///         time zone's local time, so <see cref="Start" /> and <see cref="End" />
 ///         always reflect the correct UTC offset for that instant (e.g. <c>+01:00</c> in winter,
 ///         <c>+02:00</c> in summer for CET/CEST).
 ///     </para>
