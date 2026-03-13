@@ -5,15 +5,6 @@ namespace Horae.Tests;
 [TestFixture] [Category("UnitTest")]
 public class HoareSettingsTests
 {
-    // Store the original value so each test starts clean and does not affect others.
-    private TimeZoneInfo _originalTimeZone = null!;
-
-    [SetUp]
-    public void SetUp() => _originalTimeZone = HoareSettings.CurrentTimeZone;
-
-    [TearDown]
-    public void TearDown() => HoareSettings.CurrentTimeZone = _originalTimeZone;
-
     [Test]
     public void CurrentTimeZone_ShouldDefaultToLocalTimeZone() =>
         HoareSettings.CurrentTimeZone.ShouldBe(TimeZoneInfo.Local);
@@ -48,5 +39,31 @@ public class HoareSettingsTests
 
         // EndOfDay returns the first instant of the next day (exclusive upper boundary).
         result.ShouldBe(new DateTimeOffset(2026, 6, 16, 0, 0, 0, TimeSpan.FromHours(2)));
+    }
+
+    [Test]
+    public void Use_ShouldOverrideCurrentTimeZoneWithinScope()
+    {
+        var before = HoareSettings.CurrentTimeZone;
+
+        using (HoareSettings.Use(TimeZones.Japan))
+            HoareSettings.CurrentTimeZone.ShouldBe(TimeZones.Japan);
+
+        HoareSettings.CurrentTimeZone.ShouldBe(before);
+    }
+
+    [Test]
+    public void Use_ShouldRestoreTimeZone_EvenWhenExceptionIsThrown()
+    {
+        var before = HoareSettings.CurrentTimeZone;
+
+        try
+        {
+            using (HoareSettings.Use(TimeZones.Japan))
+                throw new InvalidOperationException("simulated");
+        }
+        catch (InvalidOperationException) { }
+
+        HoareSettings.CurrentTimeZone.ShouldBe(before);
     }
 }

@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Horae;
 
 /// <summary>
@@ -29,6 +31,7 @@ public readonly record struct TimeInterval
     /// <exception cref="ArgumentException">
     ///     Thrown when <paramref name="start" /> is greater than <paramref name="end" />.
     /// </exception>
+    [JsonConstructor]
     public TimeInterval(DateTimeOffset start, DateTimeOffset end)
     {
         start = start.ToUniversalTime();

@@ -5,13 +5,6 @@ namespace Horae.Tests;
 [TestFixture(Category = "UnitTest")]
 public class ConversionExtensionsTests
 {
-    private TimeZoneInfo _originalTimeZone = null!;
-
-    [SetUp]
-    public void SetUp() => _originalTimeZone = HoareSettings.CurrentTimeZone;
-
-    [TearDown]
-    public void TearDown() => HoareSettings.CurrentTimeZone = _originalTimeZone;
 
 
     [Test]

@@ -9,14 +9,6 @@ namespace Horae.Tests;
 [TestFixture] [Category("UnitTest")]
 public class ResolutionTests
 {
-    private TimeZoneInfo _originalTimeZone = null!;
-
-    [SetUp]
-    public void SetUp() => _originalTimeZone = HoareSettings.CurrentTimeZone;
-
-    [TearDown]
-    public void TearDown() => HoareSettings.CurrentTimeZone = _originalTimeZone;
-
     [TestCase("PT1M",  1,    0,  0)]
     [TestCase("PT5M",  5,    0,  0)]
     [TestCase("PT15M", 15,   0,  0)]

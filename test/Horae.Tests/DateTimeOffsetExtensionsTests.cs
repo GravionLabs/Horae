@@ -13,14 +13,6 @@ public class DateTimeOffsetExtensionsTests
     // 2026-06-15 10:00:00 UTC — a mid-summer reference instant.
     private static readonly DateTimeOffset _utcRef = new(2026, 6, 15, 10, 0, 0, TimeSpan.Zero);
 
-    private TimeZoneInfo _originalTimeZone = null!;
-
-    [SetUp]
-    public void SetUp() => _originalTimeZone = HoareSettings.CurrentTimeZone;
-
-    [TearDown]
-    public void TearDown() => HoareSettings.CurrentTimeZone = _originalTimeZone;
-
 
     [Test]
     public void ToTimeZone_ShouldExpressInstantInTargetTimeZone()
