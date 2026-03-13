@@ -152,6 +152,10 @@ public readonly record struct Duration
         var minutes = 0L;
         var seconds = 0L;
         var inTime = false;
+        var seenD = false;
+        var seenH = false;
+        var seenM = false;
+        var seenS = false;
 
         while (!span.IsEmpty)
         {
@@ -178,23 +182,39 @@ public readonly record struct Duration
 
             switch (designator)
             {
-                case 'D' when !inTime:
+                case 'D' when !inTime && !seenD:
                     days = num;
+                    seenD = true;
                     break;
-                case 'H' when inTime:
+                case 'H' when inTime && !seenH:
                     hours = num;
+                    seenH = true;
                     break;
-                case 'M' when inTime:
+                case 'M' when inTime && !seenM:
                     minutes = num;
+                    seenM = true;
                     break;
-                case 'S' when inTime:
+                case 'S' when inTime && !seenS:
                     seconds = num;
+                    seenS = true;
                     break;
                 default:
                     return null;
             }
         }
 
-        return TimeSpan.FromSeconds(days * 86400 + hours * 3600 + minutes * 60 + seconds);
+        // Use checked arithmetic to detect overflow for extreme inputs (e.g. "P9999999999999D").
+        try
+        {
+            var totalSeconds = checked(days * 86400L + hours * 3600L + minutes * 60L + seconds);
+            if (totalSeconds > (long)TimeSpan.MaxValue.TotalSeconds)
+                return null;
+
+            return TimeSpan.FromSeconds(totalSeconds);
+        }
+        catch (OverflowException)
+        {
+            return null;
+        }
     }
 }

@@ -89,9 +89,38 @@ public class ResolutionTests
     [TestCase("P1Y")]      // year — calendar-dependent, not supported
     [TestCase("PT0M")]     // zero duration
     [TestCase("PT-15M")]   // negative
+    [TestCase("PT")]       // time designator with no components
+    [TestCase("PT15M15M")] // duplicate designator
+    [TestCase("P9999999999999D")] // overflows long arithmetic
     public void TryParse_ShouldReturnFalse_ForInvalidInput(string input)
     {
         Duration.TryParse(input, out _).ShouldBeFalse();
+    }
+
+    [TestCase("PT2H30M",     150, 0)]
+    [TestCase("PT1H30M15S",  0,   0)]
+    [TestCase("P1DT2H30M",   0,   0)]
+    public void TryParse_ShouldSucceed_ForCombinedSegments(string iso, int ignored1, int ignored2)
+    {
+        Duration.TryParse(iso, out var result).ShouldBeTrue();
+        result.Value.ShouldBeGreaterThan(TimeSpan.Zero);
+    }
+
+    [Test]
+    public void TryParse_ShouldSucceed_ForCombinedSegments_Values()
+    {
+        Duration.Parse("PT2H30M").Value.ShouldBe(TimeSpan.FromMinutes(150));
+        Duration.Parse("PT1H30M15S").Value.ShouldBe(new TimeSpan(0, 1, 30, 15));
+        Duration.Parse("P1DT2H30M").Value.ShouldBe(new TimeSpan(1, 2, 30, 0));
+    }
+
+    [Test]
+    public void TryParse_ShouldSucceed_NearMaxValue()
+    {
+        // P10675199DT2H48M5S ≈ TimeSpan.MaxValue (10675199 days, 2 h, 48 min, 5 s)
+        const string nearMax = "P10675199DT2H48M5S";
+        Duration.TryParse(nearMax, out var result).ShouldBeTrue();
+        result.Value.ShouldBeGreaterThan(TimeSpan.Zero);
     }
 
     [Test]
