@@ -6,77 +6,24 @@ on:
   pull_request:
 
 jobs:
-  # Determine the NuGet version from git history using GitVersion.
-  # Requires a full checkout (fetch-depth: 0) so GitVersion can walk the log.
-  version:
-    name: Determine Version
-    runs-on: ubuntu-latest
-    outputs:
-      nuget-version: ${{ steps.version.outputs.nuget-version }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Determine version
-        id: version
-        uses: GravionLabs/ci/determine-version@main
-        with:
-          config-file-path: GitVersion.yml
-
-  # Build, test, pack and (on main) publish the NuGet package.
-  # The publish step inside the reusable workflow only runs on refs/heads/main,
-  # so PRs will build and test but never publish.
+  # Build, test, pack, verify and (on main) publish the NuGet package.
+  # Versioning is handled internally by the reusable workflow via GitVersion.
+  # The publish step only runs on refs/heads/main, so PRs build and test but never publish.
   package:
     name: Package
-    needs: version
     uses: GravionLabs/ci/.github/workflows/nuget-package.yml@main
     with:
       dotnet-project: src/Horae/Horae.csproj
-      version: ${{ needs.version.outputs.nuget-version }}
+      gitversion-config-file: GitVersion.yml
       publish-feed-url: https://api.nuget.org/v3/index.json
+      verify-package-files: |
+        lib/net8.0/Horae.dll
+        lib/net9.0/Horae.dll
+        lib/net10.0/Horae.dll
+        lib/net8.0/Horae.xml
+        lib/net9.0/Horae.xml
+        lib/net10.0/Horae.xml
+        README.md
+        CHANGELOG.md
     secrets:
       publish-api-key: ${{ secrets.NUGET_API_KEY }}
-
-  # Verify the packed .nupkg contains the expected files:
-  # DLLs for all target frameworks, XML documentation, and the embedded README.
-  # This acts as a publish-time sanity check to catch packaging regressions early.
-  verify-package:
-    name: Verify Package Contents
-    needs: package
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download nupkgs artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: nupkgs
-          path: ./nupkgs
-
-      - name: Verify package contents
-        shell: bash
-        run: |
-          set -euo pipefail
-          pkg=$(ls ./nupkgs/*.nupkg | head -1)
-          echo "Inspecting: $pkg"
-          files=$(unzip -l "$pkg")
-          echo "$files"
-
-          check() {
-            local pattern="$1"
-            if echo "$files" | grep -q "$pattern"; then
-              echo "  OK: $pattern"
-            else
-              echo "  MISSING: $pattern" >&2
-              exit 1
-            fi
-          }
-
-          check "lib/net8.0/Horae.dll"
-          check "lib/net9.0/Horae.dll"
-          check "lib/net10.0/Horae.dll"
-          check "lib/net8.0/Horae.xml"
-          check "lib/net9.0/Horae.xml"
-          check "lib/net10.0/Horae.xml"
-          check "README.md"
-          check "CHANGELOG.md"
-          echo "All expected package contents found."
