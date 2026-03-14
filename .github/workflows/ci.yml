@@ -15,7 +15,7 @@ jobs:
     with:
       dotnet-project: src/Horae/Horae.csproj
       gitversion-config-file: GitVersion.yml
-      publish-feed-url: https://api.nuget.org/v3/index.json
+      publish-feed-url: https://nuget.pkg.github.com/GravionLabs/index.json
       verify-package-files: |
         lib/net8.0/Horae.dll
         lib/net9.0/Horae.dll
@@ -26,4 +26,4 @@ jobs:
         README.md
         CHANGELOG.md
     secrets:
-      publish-api-key: ${{ secrets.NUGET_API_KEY }}
+      publish-api-key: ${{ secrets.GITHUB_TOKEN }}
