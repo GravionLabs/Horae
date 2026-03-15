@@ -12,6 +12,9 @@ jobs:
   # The publish step only runs on refs/heads/main, so PRs build and test but never publish.
   package:
     name: Package
+    permissions:
+      contents: write
+      packages: write
     uses: GravionLabs/ci/.github/workflows/nuget-package.yml@main
     with:
       dotnet-project: src/Horae/Horae.csproj
