@@ -6,7 +6,7 @@
     <Description>Modern .NET date/time ergonomics library. Provides fluent date construction, UTC-first conversions, DST-safe interval splitting, ISO 8601 formatting, and region/timezone helpers for DateTimeOffset, DateTime, and DateOnly.</Description>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <RepositoryUrl>https://github.com/GravionLabs/Hoare</RepositoryUrl>
+    <RepositoryUrl>https://github.com/GravionLabs/Horae</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>datetime;dateonly;timezone;dst;iso8601;utc;interval</PackageTags>
     <PackageReleaseNotes>Initial public release (v1.0.0). See CHANGELOG.md for full details. Highlights: ZonedTimeInterval (timezone-preserving interval), IsoDateTimePrecision (sub-second control for JSON serialization), Duration type (ISO 8601 durations with named presets), DST-safe TimeInterval.SplitByDays, SourceLink support.</PackageReleaseNotes>

@@ -7,6 +7,13 @@ on:
   workflow_dispatch:
 
 jobs:
+  wiki:
+    name: Wiki
+    if: github.ref == 'refs/heads/main'
+    uses: GravionLabs/ci/.github/workflows/sync-wiki.yml@main
+    permissions:
+      contents: write
+
   # Build, test, pack, verify and (on main) publish the NuGet package.
   # Versioning is handled internally by the reusable workflow via GitVersion.
   # The publish step only runs on refs/heads/main, so PRs build and test but never publish.
