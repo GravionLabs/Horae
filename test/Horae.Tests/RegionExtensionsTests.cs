@@ -152,4 +152,3 @@ public class RegionExtensionsTests
         utc.Offset.ShouldBe(TimeSpan.Zero);
     }
 }
-

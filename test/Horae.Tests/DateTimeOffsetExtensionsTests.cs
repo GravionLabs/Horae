@@ -33,7 +33,6 @@ public class DateTimeOffsetExtensionsTests
     }
 
 
-
     [Test]
     public void StartOfDay_ShouldReturnMidnightInExplicitTimeZone()
     {

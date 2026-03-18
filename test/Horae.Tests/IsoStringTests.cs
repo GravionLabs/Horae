@@ -1,6 +1,8 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+
 using Horae.Converters;
+
 using Shouldly;
 
 namespace Horae.Tests;
@@ -59,16 +61,12 @@ public class IsoStringTests
     }
 
     [Test]
-    public void ToIsoString_DateOnly_ShouldFormatAsIsoDate()
-    {
+    public void ToIsoString_DateOnly_ShouldFormatAsIsoDate() =>
         new DateOnly(2026, 1, 1).ToIsoString().ShouldBe("2026-01-01");
-    }
 
     [Test]
-    public void ToIsoString_DateOnly_ShouldPadMonthAndDayWithLeadingZero()
-    {
+    public void ToIsoString_DateOnly_ShouldPadMonthAndDayWithLeadingZero() =>
         new DateOnly(2026, 3, 9).ToIsoString().ShouldBe("2026-03-09");
-    }
 
     [Test]
     public void ToIsoString_NullableDateOnly_ShouldReturnNullForNull()
@@ -116,10 +114,8 @@ public class IsoStringTests
     }
 
     [Test]
-    public void ParseIsoDateTime_ShouldThrowForInvalidString()
-    {
+    public void ParseIsoDateTime_ShouldThrowForInvalidString() =>
         Should.Throw<FormatException>(() => "not-a-date".ParseIsoDateTime());
-    }
 
     [Test]
     public void TryParseIsoDateTime_ShouldReturnTrueForValidString()
@@ -157,10 +153,8 @@ public class IsoStringTests
     }
 
     [Test]
-    public void ParseIsoDate_ShouldThrowForInvalidString()
-    {
+    public void ParseIsoDate_ShouldThrowForInvalidString() =>
         Should.Throw<FormatException>(() => "not-a-date".ParseIsoDate());
-    }
 
     [Test]
     public void TryParseIsoDate_ShouldReturnTrueForValidString()
@@ -298,7 +292,7 @@ public class IsoStringTests
     {
         var dto = new DateTimeOffset(2026, 1, 1, 23, 0, 0, 500, TimeSpan.Zero);
 
-        dto.ToIsoString(IsoDateTimePrecision.Seconds).ShouldBe("2026-01-01T23:00:00Z");
+        dto.ToIsoString().ShouldBe("2026-01-01T23:00:00Z");
     }
 
     [Test]
@@ -321,7 +315,7 @@ public class IsoStringTests
     private sealed record PrecisionModel(
         [property: IsoDateTimeFormat(IsoDateTimePrecision.Fractional)]
         DateTimeOffset Fractional,
-        [property: IsoDateTimeFormat(IsoDateTimePrecision.Seconds)]
+        [property: IsoDateTimeFormat()]
         DateTimeOffset Seconds,
         [property: IsoDateTimeFormat]
         DateTimeOffset? Auto);

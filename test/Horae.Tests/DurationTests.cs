@@ -1,4 +1,5 @@
 using System.Text.Json;
+
 using Shouldly;
 
 namespace Horae.Tests;
@@ -9,17 +10,17 @@ namespace Horae.Tests;
 [TestFixture] [Category("UnitTest")]
 public class ResolutionTests
 {
-    [TestCase("PT1M",  1,    0,  0)]
-    [TestCase("PT5M",  5,    0,  0)]
-    [TestCase("PT15M", 15,   0,  0)]
-    [TestCase("PT30M", 30,   0,  0)]
-    [TestCase("PT1H",  0,    1,  0)]
-    [TestCase("P1D",   0,    0,  1)]
-    [TestCase("P7D",   0,    0,  7)]
+    [TestCase("PT1M", 1, 0, 0)]
+    [TestCase("PT5M", 5, 0, 0)]
+    [TestCase("PT15M", 15, 0, 0)]
+    [TestCase("PT30M", 30, 0, 0)]
+    [TestCase("PT1H", 0, 1, 0)]
+    [TestCase("P1D", 0, 0, 1)]
+    [TestCase("P7D", 0, 0, 7)]
     public void ToString_ShouldReturnIso8601Duration(string expected, int minutes, int hours, int days)
     {
         var resolution = new Duration(TimeSpan.FromMinutes(minutes) + TimeSpan.FromHours(hours) +
-                                        TimeSpan.FromDays(days));
+                                      TimeSpan.FromDays(days));
 
         resolution.ToString().ShouldBe(expected);
     }
@@ -64,34 +65,28 @@ public class ResolutionTests
     }
 
     [Test]
-    public void Constructor_ShouldThrow_WhenValueIsZero()
-    {
+    public void Constructor_ShouldThrow_WhenValueIsZero() =>
         Should.Throw<ArgumentOutOfRangeException>(() => new Duration(TimeSpan.Zero));
-    }
 
     [Test]
-    public void Constructor_ShouldThrow_WhenValueIsNegative()
-    {
+    public void Constructor_ShouldThrow_WhenValueIsNegative() =>
         Should.Throw<ArgumentOutOfRangeException>(() => new Duration(TimeSpan.FromMinutes(-1)));
-    }
 
     [TestCase("")]
     [TestCase("invalid")]
-    [TestCase("P1M")]      // month — calendar-dependent, not supported
-    [TestCase("P1Y")]      // year — calendar-dependent, not supported
-    [TestCase("PT0M")]     // zero duration
-    [TestCase("PT-15M")]   // negative
-    [TestCase("PT")]       // time designator with no components
+    [TestCase("P1M")] // month — calendar-dependent, not supported
+    [TestCase("P1Y")] // year — calendar-dependent, not supported
+    [TestCase("PT0M")] // zero duration
+    [TestCase("PT-15M")] // negative
+    [TestCase("PT")] // time designator with no components
     [TestCase("PT15M15M")] // duplicate designator
     [TestCase("P9999999999999D")] // overflows long arithmetic
-    public void TryParse_ShouldReturnFalse_ForInvalidInput(string input)
-    {
+    public void TryParse_ShouldReturnFalse_ForInvalidInput(string input) =>
         Duration.TryParse(input, out _).ShouldBeFalse();
-    }
 
-    [TestCase("PT2H30M",     150, 0)]
-    [TestCase("PT1H30M15S",  0,   0)]
-    [TestCase("P1DT2H30M",   0,   0)]
+    [TestCase("PT2H30M", 150, 0)]
+    [TestCase("PT1H30M15S", 0, 0)]
+    [TestCase("P1DT2H30M", 0, 0)]
     public void TryParse_ShouldSucceed_ForCombinedSegments(string iso, int ignored1, int ignored2)
     {
         Duration.TryParse(iso, out var result).ShouldBeTrue();
@@ -174,7 +169,7 @@ public class ResolutionTests
         var dto = new DateTimeOffset(2026, 6, 15, 10, 37, 0, TimeSpan.Zero);
 
         var viaResolution = dto.RoundDown(Duration.HalfHour);
-        var viaTimeSpan   = dto.RoundDown(TimeSpan.FromMinutes(30));
+        var viaTimeSpan = dto.RoundDown(TimeSpan.FromMinutes(30));
 
         viaResolution.ShouldBe(viaTimeSpan);
         viaResolution.ShouldBe(new DateTimeOffset(2026, 6, 15, 10, 30, 0, TimeSpan.Zero));
@@ -187,7 +182,7 @@ public class ResolutionTests
         var dto = new DateTimeOffset(2026, 6, 15, 10, 37, 0, TimeSpan.Zero);
 
         var viaResolution = dto.RoundUp(Duration.HalfHour);
-        var viaTimeSpan   = dto.RoundUp(TimeSpan.FromMinutes(30));
+        var viaTimeSpan = dto.RoundUp(TimeSpan.FromMinutes(30));
 
         viaResolution.ShouldBe(viaTimeSpan);
         viaResolution.ShouldBe(new DateTimeOffset(2026, 6, 15, 11, 0, 0, TimeSpan.Zero));
@@ -200,7 +195,7 @@ public class ResolutionTests
         var dto = new DateTimeOffset(2026, 6, 15, 10, 22, 0, TimeSpan.Zero);
 
         var viaResolution = dto.RoundToNearest(Duration.QuarterHour);
-        var viaTimeSpan   = dto.RoundToNearest(TimeSpan.FromMinutes(15));
+        var viaTimeSpan = dto.RoundToNearest(TimeSpan.FromMinutes(15));
 
         viaResolution.ShouldBe(viaTimeSpan);
         viaResolution.ShouldBe(new DateTimeOffset(2026, 6, 15, 10, 15, 0, TimeSpan.Zero));

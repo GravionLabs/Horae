@@ -139,7 +139,7 @@ public class TimeSpanExtensionsTests
         var result = 1.Days().And(2.Hours()).And(30.Minutes()).And(15.Seconds());
 
         result.ShouldBe(new Duration(TimeSpan.FromDays(1) + TimeSpan.FromHours(2) + TimeSpan.FromMinutes(30) +
-                        TimeSpan.FromSeconds(15)));
+                                     TimeSpan.FromSeconds(15)));
     }
 
     [Test]

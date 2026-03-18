@@ -8,19 +8,19 @@ namespace Horae.Tests;
 [TestFixture] [Category("UnitTest")]
 public class ZonedTimeIntervalTests
 {
-    private static readonly TimeZoneInfo Cet  = TimeZones.CentralEuropean;
+    private static readonly TimeZoneInfo Cet = TimeZones.CentralEuropean;
 
     [Test]
     public void Constructor_ShouldConvertStartAndEndToZoneTime()
     {
         // UTC midnight → CET = +01:00 in January
         var utcStart = new DateTimeOffset(2026, 1, 1, 23, 0, 0, TimeSpan.Zero);
-        var utcEnd   = new DateTimeOffset(2026, 1, 2, 23, 0, 0, TimeSpan.Zero);
+        var utcEnd = new DateTimeOffset(2026, 1, 2, 23, 0, 0, TimeSpan.Zero);
 
         var interval = new ZonedTimeInterval(utcStart, utcEnd, Cet);
 
-        interval.Start.ShouldBe(new DateTimeOffset(2026, 1, 2,  0, 0, 0, TimeSpan.FromHours(1)));
-        interval.End.ShouldBe(  new DateTimeOffset(2026, 1, 3,  0, 0, 0, TimeSpan.FromHours(1)));
+        interval.Start.ShouldBe(new DateTimeOffset(2026, 1, 2, 0, 0, 0, TimeSpan.FromHours(1)));
+        interval.End.ShouldBe(new DateTimeOffset(2026, 1, 3, 0, 0, 0, TimeSpan.FromHours(1)));
         interval.TimeZone.ShouldBe(Cet);
     }
 
@@ -29,19 +29,19 @@ public class ZonedTimeIntervalTests
     {
         // In summer CET is +02:00 (CEST)
         var utcStart = new DateTimeOffset(2026, 6, 15, 22, 0, 0, TimeSpan.Zero);
-        var utcEnd   = new DateTimeOffset(2026, 6, 16, 22, 0, 0, TimeSpan.Zero);
+        var utcEnd = new DateTimeOffset(2026, 6, 16, 22, 0, 0, TimeSpan.Zero);
 
         var interval = new ZonedTimeInterval(utcStart, utcEnd, Cet);
 
         interval.Start.Offset.ShouldBe(TimeSpan.FromHours(2));
-        interval.End.Offset.ShouldBe(  TimeSpan.FromHours(2));
+        interval.End.Offset.ShouldBe(TimeSpan.FromHours(2));
     }
 
     [Test]
     public void Constructor_ShouldThrow_WhenStartIsAfterEnd()
     {
         var start = new DateTimeOffset(2026, 1, 2, 0, 0, 0, TimeSpan.FromHours(1));
-        var end   = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.FromHours(1));
+        var end = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.FromHours(1));
 
         Should.Throw<ArgumentException>(() => new ZonedTimeInterval(start, end, Cet));
     }
@@ -60,7 +60,7 @@ public class ZonedTimeIntervalTests
         var interval = ZonedTimeInterval.Day(new DateOnly(2026, 1, 15), Cet);
 
         interval.Start.ShouldBe(new DateTimeOffset(2026, 1, 15, 0, 0, 0, TimeSpan.FromHours(1)));
-        interval.End.ShouldBe(  new DateTimeOffset(2026, 1, 16, 0, 0, 0, TimeSpan.FromHours(1)));
+        interval.End.ShouldBe(new DateTimeOffset(2026, 1, 16, 0, 0, 0, TimeSpan.FromHours(1)));
     }
 
     [Test]
@@ -69,14 +69,14 @@ public class ZonedTimeIntervalTests
         var interval = ZonedTimeInterval.Day(new DateOnly(2026, 6, 15), Cet);
 
         interval.Start.ShouldBe(new DateTimeOffset(2026, 6, 15, 0, 0, 0, TimeSpan.FromHours(2)));
-        interval.End.ShouldBe(  new DateTimeOffset(2026, 6, 16, 0, 0, 0, TimeSpan.FromHours(2)));
+        interval.End.ShouldBe(new DateTimeOffset(2026, 6, 16, 0, 0, 0, TimeSpan.FromHours(2)));
     }
 
     [Test]
     public void Contains_ShouldReturnTrue_ForInstantWithinInterval()
     {
         var interval = ZonedTimeInterval.Day(new DateOnly(2026, 1, 1), Cet);
-        var inside   = new DateTimeOffset(2026, 1, 1, 14, 0, 0, TimeSpan.FromHours(1));
+        var inside = new DateTimeOffset(2026, 1, 1, 14, 0, 0, TimeSpan.FromHours(1));
 
         interval.Contains(inside).ShouldBeTrue();
     }
@@ -85,7 +85,7 @@ public class ZonedTimeIntervalTests
     public void Contains_ShouldReturnFalse_ForInstantAfterEnd()
     {
         var interval = ZonedTimeInterval.Day(new DateOnly(2026, 1, 1), Cet);
-        var after    = new DateTimeOffset(2026, 1, 2, 0, 0, 0, TimeSpan.FromHours(1));
+        var after = new DateTimeOffset(2026, 1, 2, 0, 0, 0, TimeSpan.FromHours(1));
 
         interval.Contains(after).ShouldBeFalse();
     }
@@ -117,7 +117,7 @@ public class ZonedTimeIntervalTests
         var utc = interval.ToUtc();
 
         utc.Start.ShouldBe(new DateTimeOffset(2026, 1, 14, 23, 0, 0, TimeSpan.Zero));
-        utc.End.ShouldBe(  new DateTimeOffset(2026, 1, 15, 23, 0, 0, TimeSpan.Zero));
+        utc.End.ShouldBe(new DateTimeOffset(2026, 1, 15, 23, 0, 0, TimeSpan.Zero));
     }
 
     [Test]
@@ -157,8 +157,8 @@ public class ZonedTimeIntervalTests
     [Test]
     public void SplitByDays_ShouldReturnOneMidnightPerDay()
     {
-        var start    = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.FromHours(1));
-        var end      = new DateTimeOffset(2026, 1, 4, 0, 0, 0, TimeSpan.FromHours(1));
+        var start = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.FromHours(1));
+        var end = new DateTimeOffset(2026, 1, 4, 0, 0, 0, TimeSpan.FromHours(1));
         var interval = new ZonedTimeInterval(start, end, Cet);
 
         var days = interval.SplitByDays().ToList();
@@ -184,8 +184,8 @@ public class ZonedTimeIntervalTests
     {
         // 2026-03-29 starts at +01:00 (CET) but the day switches to +02:00 (CEST)
         // SplitByDays across transition should give correct midnights
-        var start    = new DateTimeOffset(2026, 3, 28, 0, 0, 0, TimeSpan.FromHours(1));
-        var end      = new DateTimeOffset(2026, 3, 30, 0, 0, 0, TimeSpan.FromHours(2));
+        var start = new DateTimeOffset(2026, 3, 28, 0, 0, 0, TimeSpan.FromHours(1));
+        var end = new DateTimeOffset(2026, 3, 30, 0, 0, 0, TimeSpan.FromHours(2));
         var interval = new ZonedTimeInterval(start, end, Cet);
 
         var days = interval.SplitByDays().ToList();
