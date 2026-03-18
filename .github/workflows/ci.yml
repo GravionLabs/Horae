@@ -39,6 +39,8 @@ jobs:
     permissions:
       contents: write
       packages: write
+      checks: write
+      pull-requests: write
     uses: GravionLabs/ci/.github/workflows/nuget-package.yml@main
     with:
       gitversion-config-file: GitVersion.yml
