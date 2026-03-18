@@ -5,6 +5,23 @@ on:
     branches: [main]
   pull_request:
   workflow_dispatch:
+    inputs:
+      verbosity:
+        description: 'dotnet build verbosity level'
+        required: false
+        default: 'minimal'
+        type: choice
+        options:
+          - quiet
+          - minimal
+          - normal
+          - detailed
+          - diagnostic
+      force-publish:
+        description: 'Force package publication'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   wiki:
@@ -27,6 +44,8 @@ jobs:
       dotnet-project: src/Horae/Horae.csproj
       gitversion-config-file: GitVersion.yml
       publish-feed-url: https://nuget.pkg.github.com/GravionLabs/index.json
+      verbosity: ${{ github.event.inputs.verbosity || 'minimal' }}
+      force-publish: ${{ github.event.inputs.force-publish == 'true' }}
       verify-package-files: |
         lib/net8.0/Horae.dll
         lib/net9.0/Horae.dll
