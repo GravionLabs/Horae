@@ -21,7 +21,7 @@ public class TimeIntervalTests
     public void Constructor_ShouldNormaliseToUtc()
     {
         var cetStart = new DateTimeOffset(2026, 6, 15, 10, 0, 0, TimeSpan.FromHours(2));
-        var cetEnd   = new DateTimeOffset(2026, 6, 15, 12, 0, 0, TimeSpan.FromHours(2));
+        var cetEnd = new DateTimeOffset(2026, 6, 15, 12, 0, 0, TimeSpan.FromHours(2));
 
         var interval = new TimeInterval(cetStart, cetEnd);
 
@@ -35,7 +35,7 @@ public class TimeIntervalTests
     public void Constructor_ShouldThrow_WhenStartIsAfterEnd()
     {
         var start = new DateTimeOffset(2026, 6, 15, 12, 0, 0, TimeSpan.Zero);
-        var end   = new DateTimeOffset(2026, 6, 15, 10, 0, 0, TimeSpan.Zero);
+        var end = new DateTimeOffset(2026, 6, 15, 10, 0, 0, TimeSpan.Zero);
 
         Should.Throw<ArgumentException>(() => new TimeInterval(start, end));
     }
@@ -52,7 +52,7 @@ public class TimeIntervalTests
     public void Create_ShouldReturnCorrectInterval()
     {
         var start = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
-        var end   = new DateTimeOffset(2026, 1, 2, 0, 0, 0, TimeSpan.Zero);
+        var end = new DateTimeOffset(2026, 1, 2, 0, 0, 0, TimeSpan.Zero);
 
         var interval = TimeInterval.Create(start, end);
 
@@ -133,7 +133,7 @@ public class TimeIntervalTests
     public void Contains_ShouldReturnFalse_WhenValueEqualsEnd()
     {
         var start = new DateTimeOffset(2026, 6, 15, 0, 0, 0, TimeSpan.Zero);
-        var end   = start.AddDays(1);
+        var end = start.AddDays(1);
         var interval = new TimeInterval(start, end);
 
         // Half-open interval: End is exclusive.
@@ -153,7 +153,7 @@ public class TimeIntervalTests
     public void Deconstruct_ShouldReturnStartAndEnd()
     {
         var start = new DateTimeOffset(2026, 6, 15, 0, 0, 0, TimeSpan.Zero);
-        var end   = start.AddDays(1);
+        var end = start.AddDays(1);
         var interval = new TimeInterval(start, end);
 
         var (s, e) = interval;
@@ -182,7 +182,7 @@ public class TimeIntervalTests
         // Interval 00:15 – 00:45 split by 1 hour → rounds to 00:00 – 01:00 → 1 slot.
         HoareSettings.CurrentTimeZone = TimeZoneInfo.Utc;
         var start = new DateTimeOffset(2026, 6, 15, 0, 15, 0, TimeSpan.Zero);
-        var end   = new DateTimeOffset(2026, 6, 15, 0, 45, 0, TimeSpan.Zero);
+        var end = new DateTimeOffset(2026, 6, 15, 0, 45, 0, TimeSpan.Zero);
         var interval = new TimeInterval(start, end);
 
         var slots = interval.SplitBy(TimeSpan.FromHours(1)).ToList();
@@ -202,7 +202,7 @@ public class TimeIntervalTests
         // A naïve +24 h step would land at 2026-03-29 23:00 UTC for March 30 (wrong).
         // The DST-safe DateOnly path yields 2026-03-29 22:00 UTC (correct midnight).
         var start = new DateTimeOffset(2026, 3, 28, 23, 0, 0, TimeSpan.Zero); // March 29 00:00 CET
-        var end   = new DateTimeOffset(2026, 3, 30, 22, 0, 0, TimeSpan.Zero); // March 31 00:00 CEST
+        var end = new DateTimeOffset(2026, 3, 30, 22, 0, 0, TimeSpan.Zero); // March 31 00:00 CEST
         var interval = new TimeInterval(start, end);
 
         var slots = interval.SplitBy(Duration.Day, TimeZones.CentralEuropean).ToList();
@@ -222,7 +222,7 @@ public class TimeIntervalTests
         // New DST-safe algorithm: startDate = June 15, endDate = June 15 (End == midnight)
         // → yields midnight of June 15 in CEST = 2026-06-14 22:00 UTC (1 date).
         var start = new DateTimeOffset(2026, 6, 14, 22, 0, 0, TimeSpan.Zero);
-        var end   = new DateTimeOffset(2026, 6, 15, 22, 0, 0, TimeSpan.Zero);
+        var end = new DateTimeOffset(2026, 6, 15, 22, 0, 0, TimeSpan.Zero);
         var interval = new TimeInterval(start, end);
 
         var dates = interval.SplitByDays(TimeZones.CentralEuropean).ToList();
@@ -240,7 +240,7 @@ public class TimeIntervalTests
         //
         // → startDate = June 15, endDate = June 17 → 3 dates.
         var start = new DateTimeOffset(2026, 6, 14, 22, 0, 0, TimeSpan.Zero);
-        var end   = new DateTimeOffset(2026, 6, 17, 22, 0, 0, TimeSpan.Zero);
+        var end = new DateTimeOffset(2026, 6, 17, 22, 0, 0, TimeSpan.Zero);
         var interval = new TimeInterval(start, end);
 
         var dates = interval.SplitByDays(TimeZones.CentralEuropean).ToList();
@@ -261,7 +261,7 @@ public class TimeIntervalTests
         // A naïve +24 h step would land at 2026-03-29 23:00 UTC (wrong).
         // The DST-safe DateOnly iteration correctly yields 2026-03-29 22:00 UTC.
         var start = new DateTimeOffset(2026, 3, 28, 23, 0, 0, TimeSpan.Zero); // March 29 00:00 CET
-        var end   = new DateTimeOffset(2026, 3, 30, 22, 0, 0, TimeSpan.Zero); // March 31 00:00 CEST
+        var end = new DateTimeOffset(2026, 3, 30, 22, 0, 0, TimeSpan.Zero); // March 31 00:00 CEST
         var interval = new TimeInterval(start, end);
 
         var dates = interval.SplitByDays(TimeZones.CentralEuropean).ToList();

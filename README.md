@@ -26,11 +26,19 @@ License: Apache-2.0 · Target frameworks: net8.0 · net9.0 · net10.0
 
 ## Configuration
 
-`HoareSettings.CurrentTimeZone` sets the default time zone used by all methods with an optional `TimeZoneInfo?` parameter when `null` is passed. The default value is `TimeZoneInfo.Local`.
+`HoraeSettings.CurrentTimeZone` sets the default time zone used by all methods with an optional `TimeZoneInfo?` parameter when `null` is passed. The default value is `TimeZoneInfo.Local`.
+
+The value is stored per execution context using `AsyncLocal<T>`, making it safe for concurrent use in asynchronous applications and unit tests.
 
 ```csharp
-// Set once during application startup (not thread-safe)
-HoareSettings.CurrentTimeZone = TimeZones.CentralEuropean;
+// Set once during application startup
+HoraeSettings.CurrentTimeZone = TimeZones.CentralEuropean;
+
+// Or use a scoped override
+using (HoraeSettings.Use(TimeZones.Japan))
+{
+    // CurrentTimeZone is Japan here
+}
 ```
 
 ---
@@ -82,7 +90,7 @@ TimeSpan t8 = 2.Hours(30.Minutes());         // 2:30:00
 
 ### Day boundaries
 
-All methods accept an optional `TimeZoneInfo?` (default: `HoareSettings.CurrentTimeZone`).
+All methods accept an optional `TimeZoneInfo?` (default: `HoraeSettings.CurrentTimeZone`).
 
 ```csharp
 var now = DateTimeOffset.UtcNow;
@@ -214,12 +222,13 @@ bool ok2 = "2026-06-15".TryParseIsoDate(out DateOnly dateResult);
 
 ```csharp
 // Predefined instances
-Duration r = Duration.Minute;      // PT1M
-Duration r = Duration.FiveMinutes; // PT5M
-Duration r = Duration.QuarterHour; // PT15M
-Duration r = Duration.HalfHour;    // PT30M
-Duration r = Duration.Hour;        // PT1H
-Duration r = Duration.Day;         // P1D
+Duration r1 = Duration.Minute;      // PT1M
+Duration r2 = Duration.FiveMinutes; // PT5M
+Duration r3 = Duration.QuarterHour; // PT15M
+Duration r4 = Duration.HalfHour;    // PT30M
+Duration r5 = Duration.Hour;        // PT1H
+Duration r6 = Duration.Day;         // P1D
+Duration r7 = Duration.Week;        // P7D
 
 // Custom values
 var r2 = new Duration(TimeSpan.FromMinutes(10));
@@ -240,7 +249,7 @@ Duration.Day.ToString();         // "P1D"
 `Duration` carries a `[JsonConverter]` attribute and serializes automatically:
 
 ```json
-{ "resolution": "PT15M" }
+{ "duration": "PT15M" }
 ```
 
 ---

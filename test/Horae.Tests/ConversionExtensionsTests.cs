@@ -5,8 +5,6 @@ namespace Horae.Tests;
 [TestFixture(Category = "UnitTest")]
 public class ConversionExtensionsTests
 {
-
-
     [Test]
     public void AsDateOnly_ShouldReturnDateInExplicitTimeZone()
     {
