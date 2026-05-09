@@ -16,6 +16,7 @@ License: Apache-2.0 · Target frameworks: net8.0 · net9.0 · net10.0
 - [Conversions](#conversions)
 - [Regional Time Zones](#regional-time-zones)
 - [ISO 8601 Formatting & Parsing](#iso-8601-formatting--parsing)
+- [Day Offset](#day-offset)
 - [Duration](#duration)
 - [TimeInterval](#timeinterval)
 - [ZonedTimeInterval](#zonedtimeinterval)
@@ -213,6 +214,59 @@ bool ok = "2026-01-01T23:00:00Z".TryParseIsoDateTime(out DateTimeOffset result);
 DateOnly date = "2026-06-15".ParseIsoDate();
 bool ok2 = "2026-06-15".TryParseIsoDate(out DateOnly dateResult);
 ```
+
+---
+
+## Day Offset
+
+`DayOffset` describes a calendar day relative to the current instant in a specific time zone.
+It resolves to a `DateOnly` on demand, staying valid indefinitely (unlike a fixed date).
+
+```csharp
+// Named presets (no embedded timezone — pass it at resolve time)
+DateOnly today     = DayOffset.Today.Resolve(TimeZones.CentralEuropean);
+DateOnly dayAhead  = DayOffset.DayAhead.Resolve(TimeZones.CentralEuropean);
+DateOnly yesterday = DayOffset.Yesterday.Resolve(TimeZones.CentralEuropean);
+
+// Arbitrary offset via implicit int conversion
+DateOnly twoDaysOut = ((DayOffset)2).Resolve(TimeZones.CentralEuropean);
+
+// Self-contained with embedded timezone — resolves without any argument
+var dto = new DayOffset(1, TimeZones.CentralEuropean);
+DateOnly date = dto.Resolve();
+// Serializes as: { "days": 1, "timezone": "Europe/Berlin" }
+
+// Inject a reference instant (useful in tests or scheduled jobs)
+DateOnly pinned = new DayOffset(1).Resolve(
+    new DateTimeOffset(2026, 5, 9, 0, 0, 0, TimeSpan.Zero),
+    TimeZones.CentralEuropean);
+// → DateOnly(2026, 5, 10)
+
+// Bridge to TimeInterval
+TimeInterval interval = TimeInterval.Day(DayOffset.DayAhead.Resolve(TimeZones.CentralEuropean),
+                                         TimeZones.CentralEuropean);
+```
+
+### Timezone resolution priority
+
+1. Explicit `tz` argument passed to `Resolve`
+2. `TimeZone` embedded in the `DayOffset` instance
+3. `HoareSettings.CurrentTimeZone` (ambient fallback)
+
+### JSON serialization
+
+`DayOffset` carries a `[JsonConverter]` attribute and serializes automatically.
+The format depends on whether a time zone is embedded:
+
+```json
+// No embedded timezone → plain integer
+1
+
+// With embedded timezone → object
+{ "days": 1, "timezone": "Europe/Berlin" }
+```
+
+Both formats are accepted when reading, enabling a smooth migration from the compact integer form.
 
 ---
 
