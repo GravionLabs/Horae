@@ -84,8 +84,8 @@ public class DayOffsetTests
         new DayOffset(1).Resolve(beforeTransition, TimeZones.CentralEuropean)
             .ShouldBe(new DateOnly(2026, 3, 29));
 
-        // Reference: 2026-10-24 22:00 UTC = 2026-10-24 23:00 CEST (before CEST → CET)
-        var beforeFallBack = new DateTimeOffset(2026, 10, 24, 22, 0, 0, TimeSpan.Zero);
+        // Reference: 2026-10-24 21:00 UTC = 2026-10-24 23:00 CEST (before CEST → CET)
+        var beforeFallBack = new DateTimeOffset(2026, 10, 24, 21, 0, 0, TimeSpan.Zero);
 
         // +1 day should give Oct 25 (25-hour day, but DateOnly.AddDays is timezone-agnostic)
         new DayOffset(1).Resolve(beforeFallBack, TimeZones.CentralEuropean)
