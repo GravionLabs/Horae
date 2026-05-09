@@ -1,0 +1,83 @@
+name: Pack & Verify
+description: Pack NuGet package and verify contents
+
+inputs:
+  dotnet-project:
+    description: Project file to pack
+    required: false
+    default: Horae.slnx
+  configuration:
+    description: Build configuration
+    required: false
+    default: Release
+  package-version:
+    description: Package version
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Pack
+      shell: bash
+      run: |
+        dotnet pack ${{ inputs.dotnet-project }} \
+          --configuration ${{ inputs.configuration }} \
+          --output ./nupkgs \
+          --no-build \
+          /p:PackageVersion=${{ inputs.package-version }}
+
+    - name: Verify package contents
+      env:
+        EXPECTED_FILES: |
+          lib/net8.0/Horae.dll
+          lib/net9.0/Horae.dll
+          lib/net10.0/Horae.dll
+          lib/net8.0/Horae.xml
+          lib/net9.0/Horae.xml
+          lib/net10.0/Horae.xml
+          README.md
+          CHANGELOG.md
+      shell: bash
+      run: |
+        set -euo pipefail
+        pkgs=( ./nupkgs/*.nupkg )
+        if [[ ! -e "${pkgs[0]}" ]]; then
+          echo "::error::No .nupkg found in ./nupkgs/" >&2
+          exit 1
+        fi
+        pkg="${pkgs[0]}"
+        echo "Inspecting: $pkg"
+        file_list=$(unzip -Z1 "$pkg")
+        failed=0
+        while IFS= read -r pattern; do
+          [[ -z "$pattern" ]] && continue
+          pattern="${pattern//$'\r'/}"
+          if grep -Fxq -- "$pattern" <<< "$file_list"; then
+            echo "  ✅ $pattern"
+          else
+            echo "  ❌ Missing: $pattern"
+            failed=1
+          fi
+        done <<< "$EXPECTED_FILES"
+        [[ $failed -eq 0 ]] || exit 1
+
+    - name: Upload nupkgs
+      uses: actions/upload-artifact@v4
+      with:
+        name: nupkgs
+        path: ./nupkgs/*.nupkg
+        if-no-files-found: error
+
+    - name: Report package
+      shell: bash
+      run: |
+        PKG_FILE=$(ls ./nupkgs/*.nupkg | head -1)
+        PKG_SIZE=$(du -h "$PKG_FILE" | cut -f1)
+        {
+          echo "## Package Build"
+          echo "| Item | Value |"
+          echo "| --- | --- |"
+          echo "| Version | ${{ inputs.package-version }} |"
+          echo "| Size | $PKG_SIZE |"
+          echo "| Verification | ✅ All files present |"
+        } >> "$GITHUB_STEP_SUMMARY"

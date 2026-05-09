@@ -70,123 +70,20 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: ./.github/actions/setup-dotnet
+
+      - name: Restore & Build
+        uses: ./.github/actions/restore-build
         with:
-          dotnet-version: '10.x'
+          verbosity: ${{ github.event.inputs.verbosity || 'minimal' }}
 
-      - name: Cache NuGet packages
-        uses: actions/cache@v4
+      - name: Test & Coverage
+        uses: ./.github/actions/test-and-coverage
+
+      - name: Pack & Verify
+        uses: ./.github/actions/pack-and-verify
         with:
-          path: ~/.nuget/packages
-          key: nuget-packages-${{ runner.os }}-${{ hashFiles('**/*.csproj','**/packages.lock.json') }}
-          restore-keys: |
-            nuget-packages-${{ runner.os }}-
-
-      - name: Restore
-        run: dotnet restore Horae.slnx --configfile nuget.config
-
-      - name: Build
-        run: >
-          dotnet build Horae.slnx
-          --configuration Release
-          --no-restore
-          --verbosity ${{ github.event.inputs.verbosity || 'minimal' }}
-
-      - name: Test
-        run: >
-          dotnet test test/**/*.Tests.csproj
-          --configuration Release
-          --verbosity ${{ github.event.inputs.verbosity || 'minimal' }}
-          --logger trx
-          --collect "XPlat Code Coverage;Format=cobertura"
-          --results-directory ./test-results
-
-      - name: Upload test results
-        if: success() || failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results
-          path: ./test-results/**/*.trx
-          if-no-files-found: warn
-
-      - name: Upload coverage
-        if: success() || failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage
-          path: ./test-results/**/coverage.cobertura.xml
-          if-no-files-found: warn
-
-      - name: Publish test results
-        if: success() || failure()
-        uses: dorny/test-reporter@v1
-        with:
-          name: Test Results
-          path: ./test-results/**/*.trx
-          reporter: dotnet-trx
-          fail-on-error: false
-
-      - name: Publish coverage summary
-        if: success() || failure()
-        uses: irongut/CodeCoverageSummary@v1.3.0
-        with:
-          filename: ./test-results/**/coverage.cobertura.xml
-          badge: true
-          fail_below_min: false
-          format: markdown
-          output: both
-
-      - name: Pack
-        run: >
-          dotnet pack Horae.slnx
-          --configuration Release
-          --output ./nupkgs
-          --no-build
-          /p:PackageVersion=${{ needs.determine-version.outputs.nuget-version }}
-
-      - name: Verify package contents
-        env:
-          EXPECTED_FILES: |
-            lib/net8.0/Horae.dll
-            lib/net9.0/Horae.dll
-            lib/net10.0/Horae.dll
-            lib/net8.0/Horae.xml
-            lib/net9.0/Horae.xml
-            lib/net10.0/Horae.xml
-            README.md
-            CHANGELOG.md
-        run: |
-          set -euo pipefail
-          pkgs=( ./nupkgs/*.nupkg )
-          if [[ ! -e "${pkgs[0]}" ]]; then
-            echo "::error::No .nupkg found in ./nupkgs/" >&2
-            exit 1
-          fi
-          pkg="${pkgs[0]}"
-          echo "Inspecting: $pkg"
-          file_list=$(unzip -Z1 "$pkg")
-          printf '%s\n' "$file_list"
-          echo ""
-          failed=0
-          while IFS= read -r pattern; do
-            [[ -z "$pattern" ]] && continue
-            pattern="${pattern//$'\r'/}"
-            if grep -Fxq -- "$pattern" <<< "$file_list"; then
-              echo "  OK: $pattern"
-            else
-              echo "::error::Missing expected file in package: $pattern" >&2
-              failed=1
-            fi
-          done <<< "$EXPECTED_FILES"
-          [[ $failed -eq 0 ]] || exit 1
-          echo "All expected package contents verified."
-
-      - name: Upload nupkgs
-        uses: actions/upload-artifact@v4
-        with:
-          name: nupkgs
-          path: ./nupkgs/*.nupkg
-          if-no-files-found: error
+          package-version: ${{ needs.determine-version.outputs.nuget-version }}
 
   publish:
     name: Publish
@@ -212,6 +109,17 @@ jobs:
           --source "https://nuget.pkg.github.com/GravionLabs/index.json"
           --api-key "${{ secrets.GITHUB_TOKEN }}"
           --skip-duplicate
+
+      - name: Report publish
+        run: |
+          {
+            echo "## NuGet Publish"
+            echo "| Item | Status |"
+            echo "| --- | --- |"
+            echo "| Feed | GitHub Packages |"
+            echo "| Status | ✅ Published |"
+            echo "| Version | ${{ needs.determine-version.outputs.semver }} |"
+          } >> "$GITHUB_STEP_SUMMARY"
 
   release:
     name: Release
@@ -290,6 +198,17 @@ jobs:
             gh release create "$TAG" --title "$TAG" --generate-notes $PRERELEASE_FLAG
           fi
 
+      - name: Report release
+        run: |
+          {
+            echo "## GitHub Release"
+            echo "| Item | Status |"
+            echo "| --- | --- |"
+            echo "| Tag | v${{ needs.determine-version.outputs.semver }} |"
+            echo "| Release | ✅ Created |"
+            echo "| CHANGELOG | ✅ Updated |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
   wiki:
     name: Wiki
     if: github.ref == 'refs/heads/main'
@@ -357,6 +276,16 @@ jobs:
             git push
           fi
 
+      - name: Report wiki
+        run: |
+          {
+            echo "## Wiki Sync"
+            echo "| Item | Status |"
+            echo "| --- | --- |"
+            echo "| Sync | ✅ Complete |"
+            echo "| Home.md | ✅ Updated |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
   pages:
     name: Pages
     if: github.ref == 'refs/heads/main'
@@ -371,35 +300,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '10.x'
-
-      - name: Cache NuGet packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.nuget/packages
-          key: nuget-packages-${{ runner.os }}-${{ hashFiles('**/*.csproj','**/packages.lock.json') }}
-          restore-keys: |
-            nuget-packages-${{ runner.os }}-
-
-      - name: Restore & Build
-        run: |
-          dotnet restore Horae.slnx --configfile nuget.config
-          dotnet build Horae.slnx --configuration Release --no-restore
-
-      - name: Install DocFX
-        run: dotnet tool install -g docfx
-
-      - name: Build docs
-        run: docfx docfx.json
-
-      - name: Upload pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: _site
+      - name: Build DocFX
+        uses: ./.github/actions/docfx-build
 
       - name: Deploy to GitHub Pages
         id: deploy
         uses: actions/deploy-pages@v4
+
