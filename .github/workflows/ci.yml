@@ -24,39 +24,382 @@ on:
         type: boolean
 
 jobs:
+  determine-version:
+    name: Determine Version
+    runs-on: ubuntu-latest
+    outputs:
+      semver: ${{ steps.version.outputs.semVer }}
+      nuget-version: ${{ steps.version.outputs.semVer }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup GitVersion
+        uses: gittools/actions/gitversion/setup@v4.2.0
+        with:
+          versionSpec: '6.x'
+
+      - name: Determine version
+        id: version
+        uses: gittools/actions/gitversion/execute@v4.2.0
+        with:
+          configFilePath: GitVersion.yml
+
+      - name: Report version
+        run: |
+          echo "SemVer:          ${{ steps.version.outputs.semVer }}"
+          echo "NuGet version:   ${{ steps.version.outputs.semVer }}"
+          {
+            echo "## Version"
+            echo "| Output | Value |"
+            echo "| --- | --- |"
+            echo "| SemVer | \`${{ steps.version.outputs.semVer }}\` |"
+            echo "| InformationalVersion | \`${{ steps.version.outputs.informationalVersion }}\` |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  build-test-pack:
+    name: Build, Test & Pack
+    runs-on: ubuntu-latest
+    needs: determine-version
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.x'
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-packages-${{ runner.os }}-${{ hashFiles('**/*.csproj','**/packages.lock.json') }}
+          restore-keys: |
+            nuget-packages-${{ runner.os }}-
+
+      - name: Restore
+        run: dotnet restore Horae.slnx --configfile nuget.config
+
+      - name: Build
+        run: >
+          dotnet build Horae.slnx
+          --configuration Release
+          --no-restore
+          --verbosity ${{ github.event.inputs.verbosity || 'minimal' }}
+
+      - name: Test
+        run: >
+          dotnet test test/**/*.Tests.csproj
+          --configuration Release
+          --verbosity ${{ github.event.inputs.verbosity || 'minimal' }}
+          --logger trx
+          --collect "XPlat Code Coverage;Format=cobertura"
+          --results-directory ./test-results
+
+      - name: Upload test results
+        if: success() || failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: ./test-results/**/*.trx
+          if-no-files-found: warn
+
+      - name: Upload coverage
+        if: success() || failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: ./test-results/**/coverage.cobertura.xml
+          if-no-files-found: warn
+
+      - name: Publish test results
+        if: success() || failure()
+        uses: dorny/test-reporter@v1
+        with:
+          name: Test Results
+          path: ./test-results/**/*.trx
+          reporter: dotnet-trx
+          fail-on-error: false
+
+      - name: Publish coverage summary
+        if: success() || failure()
+        uses: irongut/CodeCoverageSummary@v1.3.0
+        with:
+          filename: ./test-results/**/coverage.cobertura.xml
+          badge: true
+          fail_below_min: false
+          format: markdown
+          output: both
+
+      - name: Pack
+        run: >
+          dotnet pack Horae.slnx
+          --configuration Release
+          --output ./nupkgs
+          --no-build
+          /p:PackageVersion=${{ needs.determine-version.outputs.nuget-version }}
+
+      - name: Verify package contents
+        env:
+          EXPECTED_FILES: |
+            lib/net8.0/Horae.dll
+            lib/net9.0/Horae.dll
+            lib/net10.0/Horae.dll
+            lib/net8.0/Horae.xml
+            lib/net9.0/Horae.xml
+            lib/net10.0/Horae.xml
+            README.md
+            CHANGELOG.md
+        run: |
+          set -euo pipefail
+          pkgs=( ./nupkgs/*.nupkg )
+          if [[ ! -e "${pkgs[0]}" ]]; then
+            echo "::error::No .nupkg found in ./nupkgs/" >&2
+            exit 1
+          fi
+          pkg="${pkgs[0]}"
+          echo "Inspecting: $pkg"
+          file_list=$(unzip -Z1 "$pkg")
+          printf '%s\n' "$file_list"
+          echo ""
+          failed=0
+          while IFS= read -r pattern; do
+            [[ -z "$pattern" ]] && continue
+            pattern="${pattern//$'\r'/}"
+            if grep -Fxq -- "$pattern" <<< "$file_list"; then
+              echo "  OK: $pattern"
+            else
+              echo "::error::Missing expected file in package: $pattern" >&2
+              failed=1
+            fi
+          done <<< "$EXPECTED_FILES"
+          [[ $failed -eq 0 ]] || exit 1
+          echo "All expected package contents verified."
+
+      - name: Upload nupkgs
+        uses: actions/upload-artifact@v4
+        with:
+          name: nupkgs
+          path: ./nupkgs/*.nupkg
+          if-no-files-found: error
+
+  publish:
+    name: Publish
+    needs: [determine-version, build-test-pack]
+    if: github.ref == 'refs/heads/main' || github.event.inputs.force-publish == 'true'
+    runs-on: ubuntu-latest
+    environment: nuget-publish
+    steps:
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.x'
+
+      - name: Download nupkgs
+        uses: actions/download-artifact@v4
+        with:
+          name: nupkgs
+          path: ./nupkgs
+
+      - name: Publish to GitHub Packages
+        run: >
+          dotnet nuget push "./nupkgs/*.nupkg"
+          --source "https://nuget.pkg.github.com/GravionLabs/index.json"
+          --api-key "${{ secrets.GITHUB_TOKEN }}"
+          --skip-duplicate
+
+  release:
+    name: Release
+    needs: [determine-version, publish]
+    if: github.ref == 'refs/heads/main' || github.event.inputs.force-publish == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref_name }}
+
+      - name: Generate release notes with git-cliff
+        id: cliff
+        uses: orhun/git-cliff-action@v4
+        with:
+          config: cliff.toml
+          args: --unreleased --tag v${{ needs.determine-version.outputs.semver }}
+
+      - name: Update CHANGELOG.md with git-cliff
+        uses: orhun/git-cliff-action@v4
+        with:
+          config: cliff.toml
+          args: --tag v${{ needs.determine-version.outputs.semver }}
+        env:
+          OUTPUT: CHANGELOG.md
+
+      - name: Commit updated CHANGELOG.md
+        env:
+          TAG: v${{ needs.determine-version.outputs.semver }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add CHANGELOG.md
+          if git diff --cached --quiet; then
+            echo "No changes to CHANGELOG.md — skipping commit."
+          else
+            git commit -m "docs: update CHANGELOG.md for $TAG [skip ci]"
+            git push
+          fi
+
+      - name: Create version tag
+        env:
+          TAG: v${{ needs.determine-version.outputs.semver }}
+        run: |
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "Tag $TAG already exists — skipping."
+          else
+            git tag "$TAG"
+            git push origin "$TAG"
+            echo "Created and pushed tag $TAG."
+          fi
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: v${{ needs.determine-version.outputs.semver }}
+          VERSION: ${{ needs.determine-version.outputs.semver }}
+          CLIFF_NOTES: ${{ steps.cliff.outputs.content }}
+        run: |
+          if gh release view "$TAG" &>/dev/null; then
+            echo "Release $TAG already exists — skipping."
+            exit 0
+          fi
+          if echo "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+-'; then
+            PRERELEASE_FLAG="--prerelease"
+          else
+            PRERELEASE_FLAG=""
+          fi
+          if [ -n "$CLIFF_NOTES" ]; then
+            echo "$CLIFF_NOTES" > /tmp/release_notes.md
+            gh release create "$TAG" --title "$TAG" --notes-file /tmp/release_notes.md $PRERELEASE_FLAG
+          else
+            gh release create "$TAG" --title "$TAG" --generate-notes $PRERELEASE_FLAG
+          fi
+
   wiki:
     name: Wiki
     if: github.ref == 'refs/heads/main'
-    uses: GravionLabs/ci/.github/workflows/sync-wiki.yml@main
+    runs-on: ubuntu-latest
     permissions:
       contents: write
+    steps:
+      - uses: actions/checkout@v4
 
-  # Build, test, pack, verify and (on main) publish the NuGet package.
-  # Versioning is handled internally by the reusable workflow via GitVersion.
-  # The publish step only runs on refs/heads/main, so PRs build and test but never publish.
-  package:
-    name: Package
+      - name: Clone or initialize wiki
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          WIKI_URL="https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.wiki.git"
+          HAS_WIKI=$(gh api "repos/${{ github.repository }}" --jq '.has_wiki' 2>/dev/null || echo "false")
+          if [ "$HAS_WIKI" != "true" ]; then
+            echo "::warning::Wiki is disabled for ${{ github.repository }}. Enable it under Settings → General → Features → Wikis."
+            exit 0
+          fi
+          if git clone "$WIKI_URL" wiki; then
+            echo "Cloned existing wiki."
+          else
+            echo "Initializing wiki for the first time..."
+            mkdir wiki && cd wiki
+            git init -b master
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            echo "# Horae" > Home.md
+            git add Home.md && git commit -m "Initialize wiki"
+            git remote add origin "$WIKI_URL"
+            git push -u origin master
+            cd ..
+          fi
+          cd wiki
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          cd ..
+
+      - name: Copy docs to wiki
+        run: |
+          cp README.md wiki/Home.md
+          if [ -d docs ]; then
+            find docs -name '*.md' | sort | while IFS= read -r file; do
+              rel="${file#docs/}"
+              wiki_name=$(echo "$rel" | awk -F'/' '{
+                for (i = 1; i <= NF; i++) {
+                  w = $i
+                  sub(/\.md$/, "", w)
+                  printf "%s%s", toupper(substr(w, 1, 1)) substr(w, 2), (i < NF ? "-" : ".md")
+                }
+                print ""
+              }')
+              cp "$file" "wiki/${wiki_name}"
+            done
+          fi
+
+      - name: Push wiki changes
+        run: |
+          cd wiki
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No wiki changes to commit."
+          else
+            git commit -m "docs: sync wiki from main [skip ci]"
+            git push
+          fi
+
+  pages:
+    name: Pages
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
     permissions:
-      contents: write
-      packages: write
-      checks: write
-      pull-requests: write
-    uses: GravionLabs/ci/.github/workflows/nuget-package.yml@main
-    with:
-      gitversion-config-file: GitVersion.yml
-      publish-feed-url: https://nuget.pkg.github.com/GravionLabs/index.json
-      verbosity: ${{ github.event.inputs.verbosity || 'minimal' }}
-      force-publish: ${{ github.event.inputs.force-publish == 'true' }}
-      verify-package-files: |
-        lib/net8.0/Horae.dll
-        lib/net9.0/Horae.dll
-        lib/net10.0/Horae.dll
-        lib/net8.0/Horae.xml
-        lib/net9.0/Horae.xml
-        lib/net10.0/Horae.xml
-        README.md
-        CHANGELOG.md
-      cliff-config: cliff.toml
-      update-changelog: true
-    secrets:
-      publish-api-key: ${{ secrets.GITHUB_TOKEN }}
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.x'
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-packages-${{ runner.os }}-${{ hashFiles('**/*.csproj','**/packages.lock.json') }}
+          restore-keys: |
+            nuget-packages-${{ runner.os }}-
+
+      - name: Restore & Build
+        run: |
+          dotnet restore Horae.slnx --configfile nuget.config
+          dotnet build Horae.slnx --configuration Release --no-restore
+
+      - name: Install DocFX
+        run: dotnet tool install -g docfx
+
+      - name: Build docs
+        run: docfx docfx.json
+
+      - name: Upload pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        id: deploy
+        uses: actions/deploy-pages@v4

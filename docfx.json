@@ -1,0 +1,35 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dotnet/docfx/main/schemas/docfx.schema.json",
+  "metadata": [
+    {
+      "src": [
+        {
+          "files": [ "src/Horae/Horae.csproj" ]
+        }
+      ],
+      "dest": "api",
+      "globalNamespaceId": "Global"
+    }
+  ],
+  "build": {
+    "content": [
+      {
+        "files": [ "api/**.yml", "api/index.md" ]
+      },
+      {
+        "files": [ "docs/toc.yml", "docs/index.md" ]
+      }
+    ],
+    "resource": [],
+    "dest": "_site",
+    "globalMetadata": {
+      "_appTitle": "Horae",
+      "_appName": "Horae",
+      "_enableSearch": true,
+      "_appFooter": "Horae — Apache-2.0 · <a href=\"https://github.com/GravionLabs/Horae\">GitHub</a>"
+    },
+    "sitemap": {
+      "baseUrl": "https://gravionlabs.github.io/Horae"
+    }
+  }
+}
