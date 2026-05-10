@@ -17,7 +17,8 @@
         "files": [ "api/**.yml", "api/index.md" ]
       },
       {
-        "files": [ "docs/toc.yml", "docs/index.md" ]
+        "src": "docs",
+        "files": [ "toc.yml", "index.md" ]
       }
     ],
     "resource": [],

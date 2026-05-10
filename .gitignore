@@ -55,4 +55,5 @@ nunit-*.xml
 
 # DocFX output
 _site/
-api/
+api/*.yml
+api/.manifest
