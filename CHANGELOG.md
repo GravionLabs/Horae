@@ -1,69 +1,64 @@
 # Changelog
 
-All notable changes to Horae are documented in this file.
-Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
-versioning follows [Semantic Versioning](https://semver.org/).
+All notable changes to Horae are documented here.
+Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
-## [1.0.0] — Initial public release
+## [1.0.0] — 2026-05-10
 
-### Added
+### Bug Fixes
+- Add checks and pull-requests write permissions for test reporter
 
-- **`ZonedTimeInterval`** — half-open interval `[Start, End)` with time-zone-preserved boundaries.
-  Unlike `TimeInterval`, offsets reflect the DST-correct local time (`+01:00` CET, `+02:00` CEST).
-  Requires `TimeZoneInfo` (raw offset is insufficient for DST-safe operations).
-  `SplitBy` and `SplitByDays` use the stored time zone automatically.
 
-- **`IsoDateTimePrecision`** enum — controls sub-second formatting in `ToIsoString()` and JSON converters:
-  - `Seconds` *(default)* — always omit sub-second digits
-  - `Auto` — include sub-second digits only when non-zero
-  - `Fractional` — always emit 7 sub-second digits (`fffffff`)
+### Features
+- Add git-cliff CHANGELOG auto-generation
+- Prepare release 1.0 (pre-existing work + calendar boundary extensions #2) (#10)
+- Add calendar query extensions (IsLeapYear, DaysInMonth, DaysInYear, Quarter, DayOfYear, IsWeekend, IsWeekday) (#11)
+- Add ISO week calendar extensions (IsoWeekNumber, IsoWeekYear, IsoWeekday) (#12)
+- Add DST query extensions (IsInDst, IsDstAmbiguous) (#13)
+- Add Unix timestamp helpers (FromUnixSeconds, FromUnixMilliseconds, ToUnixSeconds, ToUnixMilliseconds) (#14)
+- Add TimeInterval set operations (Duration, Overlaps, Engulfs, Intersection, Union) (#15)
+- Add Week/Month/Year factories and SplitByWeeks/SplitByMonths to TimeInterval (#8) (#16)
+- Add TimeOnly ISO string support to IsoStringExtensions (#9) (#17)
 
-- **`IsoDateTimeFormatAttribute`** — `JsonConverterAttribute` subclass for per-property precision control
-  on `DateTimeOffset` and `DateTimeOffset?` properties.
 
-- **`Duration`** — ISO 8601 duration wrapper (`PT15M`, `P1D`).  
-  Named presets: `Minute`, `FiveMinutes`, `QuarterHour`, `HalfHour`, `Hour`, `Day`, `Week`.  
-  Implicit conversion from/to `TimeSpan`; JSON serialization via `DurationConverter`.
+### Refactoring
+- Rename Hoare to Horae and update AsyncLocal settings for context isolation
+- Cleanup formatting and remove redundant code in tests and workflow configuration
 
-- **`TimeInterval`** — UTC-normalized half-open interval with `Day`, `Intraday`, `DayAhead` factories,
-  `SplitBy(Duration)`, `SplitByDays(TimeZoneInfo?)`, `Contains`, and `Deconstruct`.
 
-- **`DateTimeOffsetExtensions`** — `StartOfDay`, `EndOfDay`, `StartOfIntraday`, `EndOfIntraday`,
-  `StartOfDayAhead`, `EndOfDayAhead`, `RoundDown`, `RoundUp`, `RoundToNearest`, `ToTimeZone`,
-  and `AddNanoseconds`.
+## [0.0.1] — 2026-03-15
 
-- **`ConversionExtensions`** — `AsDateOnly`, `AsUtcDateOnly`, `AsDateTime`, `AsUtcDateTime`,
-  `AsDateTimeOffset`, `AsUtcDateTimeOffset`.
+### Bug Fixes
+- DST-safe SplitBy for day-granularity resolutions
+- Harden Duration ISO 8601 parser against overflow and duplicate designators
+- Resolve all build warnings in source library
 
-- **`IsoStringExtensions`** — `ToIsoString(IsoDateTimePrecision)` for `DateTimeOffset` and `DateOnly`
-  (including nullable variants); `ParseIsoDateTime`, `TryParseIsoDateTime`, `ParseIsoDate`, `TryParseIsoDate`.
 
-- **`RegionExtensions`** — `ToUtc()`, `ToCentralEuropeanTime()`, `ToLondonTime()`, `ToLisbonTime()`,
-  `ToEasternEuropeTime()`, `ToMoscowTime()`, `ToIstanbulTime()`, `ToEasternUsTime()`, `ToPacificUsTime()`,
-  `ToDubaiTime()`, `ToIndiaTime()`, `ToJapanTime()`, `ToAustraliaEasternTime()`.
+### Documentation
+- Vollständige README-Dokumentation der gesamten API
+- Update README for ZonedTimeInterval, IsoDateTimePrecision, default Seconds
+- Add CHANGELOG.md and PackageReleaseNotes for v1.0.0
+- Update project conventions and README for consistency in spelling and formatting
 
-- **`DateExtensions`** — fluent month constructors on `int` (`1.January(2026)`), `.At(hour, minute)`,
-  `.After(TimeSpan)`, `.Before(TimeSpan)`, `.AddNanoseconds(long)`.
 
-- **`DayOffset`** — offset-based relative date descriptor. Resolves a calendar day relative to
-  the current instant in a given time zone: `DayOffset.DayAhead.Resolve(TimeZones.CentralEuropean)`.
-  Named presets: `Yesterday` (-1), `Today` (0), `DayAhead` (+1). Optional embedded `TimeZone`
-  makes the value self-contained. JSON: plain integer (no timezone) or
-  `{ "days": 1, "timezone": "Europe/Berlin" }` (with timezone). Dual-format
-  `DayOffsetConverter` reads both.
+### Features
+- Add TimeInterval readonly record struct
+- Add Resolution type with ISO 8601 JSON serialisation
+- ISO 8601 JSON converters and formatting extensions
+- Add CI workflow and NuGet packaging metadata
+- Add IsoDateTimePrecision and IsoDateTimeFormatAttribute
+- Add ZonedTimeInterval
+- Seconds/Minutes/Hours/Days return Duration instead of TimeSpan
 
-- **`TimeSpanExtensions`** — fluent constructors on `int`/`long`/`double` (`15.Minutes()`, `2.Hours()`,
-  `1.Days()`), `.And(TimeSpan)`, offset overloads.
 
-- **`HoareSettings`** — ambient default time zone via `CurrentTimeZone`
-  (default: `TimeZoneInfo.Local`).
+### Refactoring
+- Rename SplitByDeliveryDates to SplitByDays with optional TimeZoneInfo
+- RegionExtensions To*Time + DST-safe SplitByDays
+- Rename Resolution to Duration
+- Change default IsoDateTimePrecision to Seconds
+- Switch HoareSettings to AsyncLocal for per-context isolation
 
-- **`TimeZones`** — strongly-typed constants for 13 common time zones.
 
-- JSON converter classes: `IsoDateTimeOffsetConverter`, `NullableIsoDateTimeOffsetConverter`,
-  `IsoDateConverter`, `NullableIsoDateConverter`, `DurationConverter`, `NullableDurationConverter`.
-
-- SourceLink + `.snupkg` symbol package for debugger source-stepping support.
 
