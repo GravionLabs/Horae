@@ -91,6 +91,8 @@ jobs:
     if: github.ref == 'refs/heads/main' || github.event.inputs.force-publish == 'true'
     runs-on: ubuntu-latest
     environment: nuget-publish
+    permissions:
+      packages: write
     steps:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
