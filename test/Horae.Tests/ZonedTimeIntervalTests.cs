@@ -194,4 +194,85 @@ public class ZonedTimeIntervalTests
         days[0].ShouldBe(new DateTimeOffset(2026, 3, 28, 0, 0, 0, TimeSpan.FromHours(1)));
         days[1].ShouldBe(new DateTimeOffset(2026, 3, 29, 0, 0, 0, TimeSpan.FromHours(1)));
     }
+
+    // Duration
+
+    [Test]
+    public void Duration_ShouldReturnEndMinusStart()
+    {
+        var day = ZonedTimeInterval.Day(new DateOnly(2026, 5, 11), TimeZones.Japan);
+        day.Duration.ShouldBe(TimeSpan.FromHours(24));
+    }
+
+    // Overlaps
+
+    [Test]
+    public void Overlaps_ShouldReturnTrue_WhenIntervalsShare()
+    {
+        var tz = TimeZones.Japan;
+        var a = new ZonedTimeInterval(D(0), D(12), tz);
+        var b = new ZonedTimeInterval(D(10), D(20), tz);
+        a.Overlaps(b).ShouldBeTrue();
+        b.Overlaps(a).ShouldBeTrue();
+    }
+
+    [Test]
+    public void Overlaps_ShouldReturnFalse_WhenDisjoint()
+    {
+        var tz = TimeZones.Japan;
+        var a = new ZonedTimeInterval(D(0), D(6), tz);
+        var b = new ZonedTimeInterval(D(6), D(12), tz);
+        a.Overlaps(b).ShouldBeFalse();
+    }
+
+    // Engulfs
+
+    [Test]
+    public void Engulfs_ShouldReturnTrue_WhenContained()
+    {
+        var tz = TimeZones.Japan;
+        var outer = new ZonedTimeInterval(D(0), D(24), tz);
+        var inner = new ZonedTimeInterval(D(6), D(18), tz);
+        outer.Engulfs(inner).ShouldBeTrue();
+        inner.Engulfs(outer).ShouldBeFalse();
+    }
+
+    // Intersection
+
+    [Test]
+    public void Intersection_ShouldReturnSharedWindow()
+    {
+        var tz = TimeZones.Japan;
+        var a = new ZonedTimeInterval(D(0), D(12), tz);
+        var b = new ZonedTimeInterval(D(8), D(20), tz);
+        var result = a.Intersection(b);
+        result.ShouldNotBeNull();
+        result!.Value.Start.ShouldBe(new ZonedTimeInterval(D(8), D(20), tz).Start);
+        result.Value.End.ShouldBe(new ZonedTimeInterval(D(0), D(12), tz).End);
+    }
+
+    [Test]
+    public void Intersection_ShouldReturnNull_WhenDisjoint()
+    {
+        var tz = TimeZones.Japan;
+        var a = new ZonedTimeInterval(D(0), D(6), tz);
+        var b = new ZonedTimeInterval(D(6), D(12), tz);
+        a.Intersection(b).ShouldBeNull();
+    }
+
+    // Union
+
+    [Test]
+    public void Union_ShouldSpanBothIntervals()
+    {
+        var tz = TimeZones.Japan;
+        var a = new ZonedTimeInterval(D(0), D(6), tz);
+        var b = new ZonedTimeInterval(D(10), D(20), tz);
+        var u = a.Union(b);
+        u.Start.ShouldBe(new ZonedTimeInterval(D(0), D(20), tz).Start);
+        u.End.ShouldBe(new ZonedTimeInterval(D(0), D(20), tz).End);
+    }
+
+    private static DateTimeOffset D(int hours) =>
+        new DateTimeOffset(2026, 5, 11, 0, 0, 0, TimeSpan.Zero).AddHours(hours);
 }

@@ -270,4 +270,101 @@ public class TimeIntervalTests
         dates[0].ShouldBe(new DateTimeOffset(2026, 3, 28, 23, 0, 0, TimeSpan.Zero)); // March 29 00:00 CET (+1)
         dates[1].ShouldBe(new DateTimeOffset(2026, 3, 29, 22, 0, 0, TimeSpan.Zero)); // March 30 00:00 CEST (+2)
     }
+
+    // Duration
+
+    [Test]
+    public void Duration_ShouldReturnEndMinusStart()
+    {
+        var a = new TimeInterval(D(0), D(12));
+        a.Duration.ShouldBe(TimeSpan.FromHours(12));
+    }
+
+    // Overlaps
+
+    [Test]
+    public void Overlaps_ShouldReturnTrue_WhenIntervalsShare()
+    {
+        var a = new TimeInterval(D(0), D(12));
+        var b = new TimeInterval(D(10), D(20));
+        a.Overlaps(b).ShouldBeTrue();
+        b.Overlaps(a).ShouldBeTrue();
+    }
+
+    [Test]
+    public void Overlaps_ShouldReturnFalse_WhenAdjacent()
+    {
+        var a = new TimeInterval(D(0), D(6));
+        var b = new TimeInterval(D(6), D(12));
+        a.Overlaps(b).ShouldBeFalse();
+    }
+
+    [Test]
+    public void Overlaps_ShouldReturnFalse_WhenDisjoint()
+    {
+        var a = new TimeInterval(D(0), D(4));
+        var b = new TimeInterval(D(8), D(12));
+        a.Overlaps(b).ShouldBeFalse();
+    }
+
+    // Engulfs
+
+    [Test]
+    public void Engulfs_ShouldReturnTrue_WhenFullyContained()
+    {
+        var outer = new TimeInterval(D(0), D(24));
+        var inner = new TimeInterval(D(6), D(18));
+        outer.Engulfs(inner).ShouldBeTrue();
+        inner.Engulfs(outer).ShouldBeFalse();
+    }
+
+    [Test]
+    public void Engulfs_ShouldReturnTrue_WhenEqual()
+    {
+        var a = new TimeInterval(D(0), D(12));
+        a.Engulfs(a).ShouldBeTrue();
+    }
+
+    // Intersection
+
+    [Test]
+    public void Intersection_ShouldReturnOverlap()
+    {
+        var a = new TimeInterval(D(0), D(12));
+        var b = new TimeInterval(D(8), D(20));
+        var result = a.Intersection(b);
+        result.ShouldNotBeNull();
+        result!.Value.Start.ShouldBe(D(8));
+        result.Value.End.ShouldBe(D(12));
+    }
+
+    [Test]
+    public void Intersection_ShouldReturnNull_WhenDisjoint()
+    {
+        var a = new TimeInterval(D(0), D(6));
+        var b = new TimeInterval(D(6), D(12));
+        a.Intersection(b).ShouldBeNull();
+    }
+
+    // Union
+
+    [Test]
+    public void Union_ShouldSpanBothIntervals()
+    {
+        var a = new TimeInterval(D(0), D(6));
+        var b = new TimeInterval(D(10), D(20));
+        var u = a.Union(b);
+        u.Start.ShouldBe(D(0));
+        u.End.ShouldBe(D(20));
+    }
+
+    [Test]
+    public void Union_ShouldReturnSelf_WhenEqual()
+    {
+        var a = new TimeInterval(D(0), D(12));
+        a.Union(a).ShouldBe(a);
+    }
+
+    private static DateTimeOffset D(int hours) =>
+        new DateTimeOffset(2026, 5, 11, 0, 0, 0, TimeSpan.Zero).AddHours(hours);
 }
