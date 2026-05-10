@@ -47,6 +47,13 @@ versioning follows [Semantic Versioning](https://semver.org/).
 - **`DateExtensions`** — fluent month constructors on `int` (`1.January(2026)`), `.At(hour, minute)`,
   `.After(TimeSpan)`, `.Before(TimeSpan)`, `.AddNanoseconds(long)`.
 
+- **`DayOffset`** — offset-based relative date descriptor. Resolves a calendar day relative to
+  the current instant in a given time zone: `DayOffset.DayAhead.Resolve(TimeZones.CentralEuropean)`.
+  Named presets: `Yesterday` (-1), `Today` (0), `DayAhead` (+1). Optional embedded `TimeZone`
+  makes the value self-contained. JSON: plain integer (no timezone) or
+  `{ "days": 1, "timezone": "Europe/Berlin" }` (with timezone). Dual-format
+  `DayOffsetConverter` reads both.
+
 - **`TimeSpanExtensions`** — fluent constructors on `int`/`long`/`double` (`15.Minutes()`, `2.Hours()`,
   `1.Days()`), `.And(TimeSpan)`, offset overloads.
 

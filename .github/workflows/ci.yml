@@ -24,39 +24,209 @@ on:
         type: boolean
 
 jobs:
-  wiki:
-    name: Wiki
-    if: github.ref == 'refs/heads/main'
-    uses: GravionLabs/ci/.github/workflows/sync-wiki.yml@main
-    permissions:
-      contents: write
+  determine-version:
+    name: Determine Version
+    runs-on: ubuntu-latest
+    outputs:
+      semver: ${{ steps.version.outputs.semVer }}
+      nuget-version: ${{ steps.version.outputs.semVer }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-  # Build, test, pack, verify and (on main) publish the NuGet package.
-  # Versioning is handled internally by the reusable workflow via GitVersion.
-  # The publish step only runs on refs/heads/main, so PRs build and test but never publish.
-  package:
-    name: Package
+      - name: Setup GitVersion
+        uses: gittools/actions/gitversion/setup@v4.2.0
+        with:
+          versionSpec: '6.x'
+
+      - name: Determine version
+        id: version
+        uses: gittools/actions/gitversion/execute@v4.2.0
+        with:
+          configFilePath: GitVersion.yml
+
+      - name: Report version
+        run: |
+          echo "SemVer:          ${{ steps.version.outputs.semVer }}"
+          echo "NuGet version:   ${{ steps.version.outputs.semVer }}"
+          {
+            echo "## Version"
+            echo "| Output | Value |"
+            echo "| --- | --- |"
+            echo "| SemVer | \`${{ steps.version.outputs.semVer }}\` |"
+            echo "| InformationalVersion | \`${{ steps.version.outputs.informationalVersion }}\` |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  build-test-pack:
+    name: Build, Test & Pack
+    runs-on: ubuntu-latest
+    needs: determine-version
     permissions:
-      contents: write
-      packages: write
+      contents: read
       checks: write
       pull-requests: write
-    uses: GravionLabs/ci/.github/workflows/nuget-package.yml@main
-    with:
-      gitversion-config-file: GitVersion.yml
-      publish-feed-url: https://nuget.pkg.github.com/GravionLabs/index.json
-      verbosity: ${{ github.event.inputs.verbosity || 'minimal' }}
-      force-publish: ${{ github.event.inputs.force-publish == 'true' }}
-      verify-package-files: |
-        lib/net8.0/Horae.dll
-        lib/net9.0/Horae.dll
-        lib/net10.0/Horae.dll
-        lib/net8.0/Horae.xml
-        lib/net9.0/Horae.xml
-        lib/net10.0/Horae.xml
-        README.md
-        CHANGELOG.md
-      cliff-config: cliff.toml
-      update-changelog: true
-    secrets:
-      publish-api-key: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: ./.github/actions/setup-dotnet
+
+      - name: Restore & Build
+        uses: ./.github/actions/restore-build
+        with:
+          verbosity: ${{ github.event.inputs.verbosity || 'minimal' }}
+
+      - name: Test & Coverage
+        uses: ./.github/actions/test-and-coverage
+
+      - name: Pack & Verify
+        uses: ./.github/actions/pack-and-verify
+        with:
+          package-version: ${{ needs.determine-version.outputs.nuget-version }}
+
+  publish:
+    name: Publish
+    needs: [determine-version, build-test-pack]
+    if: github.ref == 'refs/heads/main' || github.event.inputs.force-publish == 'true'
+    runs-on: ubuntu-latest
+    environment: nuget-publish
+    steps:
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.x'
+
+      - name: Download nupkgs
+        uses: actions/download-artifact@v4
+        with:
+          name: nupkgs
+          path: ./nupkgs
+
+      - name: Publish to GitHub Packages
+        run: >
+          dotnet nuget push "./nupkgs/*.nupkg"
+          --source "https://nuget.pkg.github.com/GravionLabs/index.json"
+          --api-key "${{ secrets.GITHUB_TOKEN }}"
+          --skip-duplicate
+
+      - name: Report publish
+        run: |
+          {
+            echo "## NuGet Publish"
+            echo "| Item | Status |"
+            echo "| --- | --- |"
+            echo "| Feed | GitHub Packages |"
+            echo "| Status | ✅ Published |"
+            echo "| Version | ${{ needs.determine-version.outputs.semver }} |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  release:
+    name: Release
+    needs: [determine-version, publish]
+    if: github.ref == 'refs/heads/main' || github.event.inputs.force-publish == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref_name }}
+
+      - name: Generate release notes with git-cliff
+        id: cliff
+        uses: orhun/git-cliff-action@v4
+        with:
+          config: cliff.toml
+          args: --unreleased --tag v${{ needs.determine-version.outputs.semver }}
+
+      - name: Update CHANGELOG.md with git-cliff
+        uses: orhun/git-cliff-action@v4
+        with:
+          config: cliff.toml
+          args: --tag v${{ needs.determine-version.outputs.semver }}
+        env:
+          OUTPUT: CHANGELOG.md
+
+      - name: Commit updated CHANGELOG.md
+        env:
+          TAG: v${{ needs.determine-version.outputs.semver }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add CHANGELOG.md
+          if git diff --cached --quiet; then
+            echo "No changes to CHANGELOG.md — skipping commit."
+          else
+            git commit -m "docs: update CHANGELOG.md for $TAG [skip ci]"
+            git push
+          fi
+
+      - name: Create version tag
+        env:
+          TAG: v${{ needs.determine-version.outputs.semver }}
+        run: |
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "Tag $TAG already exists — skipping."
+          else
+            git tag "$TAG"
+            git push origin "$TAG"
+            echo "Created and pushed tag $TAG."
+          fi
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: v${{ needs.determine-version.outputs.semver }}
+          VERSION: ${{ needs.determine-version.outputs.semver }}
+          CLIFF_NOTES: ${{ steps.cliff.outputs.content }}
+        run: |
+          if gh release view "$TAG" &>/dev/null; then
+            echo "Release $TAG already exists — skipping."
+            exit 0
+          fi
+          if echo "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+-'; then
+            PRERELEASE_FLAG="--prerelease"
+          else
+            PRERELEASE_FLAG=""
+          fi
+          if [ -n "$CLIFF_NOTES" ]; then
+            echo "$CLIFF_NOTES" > /tmp/release_notes.md
+            gh release create "$TAG" --title "$TAG" --notes-file /tmp/release_notes.md $PRERELEASE_FLAG
+          else
+            gh release create "$TAG" --title "$TAG" --generate-notes $PRERELEASE_FLAG
+          fi
+
+      - name: Report release
+        run: |
+          {
+            echo "## GitHub Release"
+            echo "| Item | Status |"
+            echo "| --- | --- |"
+            echo "| Tag | v${{ needs.determine-version.outputs.semver }} |"
+            echo "| Release | ✅ Created |"
+            echo "| CHANGELOG | ✅ Updated |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  pages:
+    name: Pages
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build DocFX
+        uses: ./.github/actions/docfx-build
+
+      - name: Deploy to GitHub Pages
+        id: deploy
+        uses: actions/deploy-pages@v4
+

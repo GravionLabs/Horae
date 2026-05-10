@@ -1,3 +1,9 @@
+// Portions of this file are derived from FluentAssertions
+// (https://github.com/fluentassertions/fluentassertions),
+// Copyright 2010–2021 Dennis Doomen, licensed under the Apache License 2.0.
+// Changes: return type updated to DateTimeOffset (UTC midnight), Before/After and
+// At(TimeSpan) overloads added, AddNanoseconds reimplemented via tick arithmetic.
+
 namespace Horae;
 
 /// <summary>

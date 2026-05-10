@@ -6,7 +6,10 @@
         <File Path="LICENSE" />
         <File Path="README.md" />
     </Folder>
-    <Folder Name="/docs/" />
+    <Folder Name="/docs/">
+        <File Path="docs\index.md" />
+        <File Path="docs\toc.yml" />
+    </Folder>
     <Folder Name="/src/">
         <File Path="src\Directory.Build.props" />
         <Project Path="src/Horae/Horae.csproj" />

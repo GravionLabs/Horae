@@ -1,0 +1,45 @@
+name: Restore & Build
+description: Restore dependencies and build solution
+
+inputs:
+  dotnet-project:
+    description: Project or solution file
+    required: false
+    default: Horae.slnx
+  nuget-config:
+    description: NuGet config file
+    required: false
+    default: nuget.config
+  verbosity:
+    description: Build verbosity
+    required: false
+    default: minimal
+
+runs:
+  using: composite
+  steps:
+    - name: Restore
+      shell: bash
+      run: |
+        dotnet restore ${{ inputs.dotnet-project }} \
+          --configfile ${{ inputs.nuget-config }}
+
+    - name: Build
+      shell: bash
+      run: |
+        dotnet build ${{ inputs.dotnet-project }} \
+          --configuration Release \
+          --no-restore \
+          --verbosity ${{ inputs.verbosity }}
+
+    - name: Report build
+      shell: bash
+      run: |
+        {
+          echo "## Build Status"
+          echo "| Step | Result |"
+          echo "| --- | --- |"
+          echo "| Restore | ✅ Success |"
+          echo "| Build | ✅ Success |"
+          echo "| Configuration | Release |"
+        } >> "$GITHUB_STEP_SUMMARY"
