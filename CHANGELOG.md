@@ -5,10 +5,20 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.0.1] — 2026-05-10
+
+### Bug Fixes
+- Add dotnet restore to docfx-build action so Pages job succeeds
+
+
 ## [1.0.0] — 2026-05-10
 
 ### Bug Fixes
 - Add checks and pull-requests write permissions for test reporter
+
+
+### Documentation
+- Update CHANGELOG.md for v1.0.0 [skip ci]
 
 
 ### Features
