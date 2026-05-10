@@ -12,6 +12,7 @@ runs:
     - name: Build solution (for XML docs)
       shell: bash
       run: |
+        dotnet restore Horae.slnx
         dotnet build Horae.slnx \
           --configuration Release \
           --no-restore
