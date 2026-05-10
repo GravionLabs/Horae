@@ -20,6 +20,10 @@ License: Apache-2.0 · Target frameworks: net8.0 · net9.0 · net10.0
 - [Duration](#duration)
 - [TimeInterval](#timeinterval)
 - [ZonedTimeInterval](#zonedtimeinterval)
+- [Calendar Queries](#calendar-queries)
+- [ISO Week](#iso-week)
+- [DST Queries](#dst-queries)
+- [Unix Time](#unix-time)
 - [JSON Converters](#json-converters)
 - [Time Zone Constants](#time-zone-constants)
 
@@ -404,6 +408,102 @@ foreach (DateTimeOffset midnight in day.SplitByDays())
 ```
 
 > **DST note:** `SplitBy(Duration.Day)` and `SplitByDays()` use `DateOnly.AddDays()` in the stored time zone, correctly handling 23-hour and 25-hour DST transition days.
+
+---
+
+## Calendar Queries
+
+Extension methods on `DateOnly` and `DateTimeOffset` for common calendar properties. `DateTimeOffset` overloads always use the UTC date.
+
+```csharp
+var date = new DateOnly(2026, 6, 15);
+var dto  = new DateTimeOffset(2026, 6, 15, 12, 0, 0, TimeSpan.Zero);
+
+// Leap year
+bool leap1 = date.IsLeapYear();  // false
+bool leap2 = dto.IsLeapYear();   // false
+
+// Days in month / year
+int dim1 = date.DaysInMonth();   // 30
+int dim2 = dto.DaysInMonth();    // 30
+int diy1 = date.DaysInYear();    // 365
+int diy2 = dto.DaysInYear();     // 365
+
+// Quarter (1–4)
+int q1 = date.Quarter();  // 2
+int q2 = dto.Quarter();   // 2
+
+// Day of year / ordinal (1–366)
+int ord1 = date.DayOfYear();  // 166
+int ord2 = dto.DayOfYear();   // 166
+
+// Weekend / weekday
+bool we1 = date.IsWeekend();  // false (Monday)
+bool wd1 = date.IsWeekday();  // true
+
+// DateTimeOffset overloads accept an optional TimeZoneInfo
+bool we2 = dto.IsWeekend(TimeZones.CentralEuropean);
+bool wd2 = dto.IsWeekday(TimeZones.Japan);
+```
+
+---
+
+## ISO Week
+
+ISO 8601 week-calendar helpers on `DateOnly` and `DateTimeOffset`. `DateTimeOffset` overloads use the UTC date.
+
+```csharp
+var date = new DateOnly(2025, 12, 29);  // belongs to ISO week year 2026
+var dto  = new DateTimeOffset(2026, 1, 5, 0, 0, 0, TimeSpan.Zero); // Monday
+
+// Week number (1–53)
+int wn1 = date.IsoWeekNumber();  // 1
+int wn2 = dto.IsoWeekNumber();   // 2
+
+// ISO week-year (may differ from calendar year near year boundaries)
+int wy1 = date.IsoWeekYear();  // 2026
+int wy2 = dto.IsoWeekYear();   // 2026
+
+// ISO weekday: 1 = Monday … 7 = Sunday
+int wd1 = date.IsoWeekday();  // 1 (Monday)
+int wd2 = dto.IsoWeekday();   // 1 (Monday)
+```
+
+---
+
+## DST Queries
+
+DST-awareness helpers on `DateTimeOffset`.
+
+```csharp
+var summer = new DateTimeOffset(2026, 6, 15, 12, 0, 0, TimeSpan.Zero); // CEST
+var winter = new DateTimeOffset(2026, 1, 15, 12, 0, 0, TimeSpan.Zero); // CET
+
+// Is the instant in DST for a given time zone?
+bool inDst1 = summer.IsInDst(TimeZones.CentralEuropean);  // true
+bool inDst2 = winter.IsInDst(TimeZones.CentralEuropean);  // false
+
+// Is the wall-clock time ambiguous (fall-back hour)?
+// 2026-10-25 02:30 exists twice in Europe/Berlin
+var ambiguous = new DateTimeOffset(2026, 10, 25, 0, 30, 0, TimeSpan.Zero); // 02:30 UTC+2
+bool isAmbiguous = ambiguous.IsDstAmbiguous(TimeZones.CentralEuropean);    // true
+```
+
+---
+
+## Unix Time
+
+Unix epoch timestamp helpers for `DateTimeOffset`. Inspired by Luxon's `DateTime.fromSeconds()` / `DateTime.fromMillis()`.
+
+```csharp
+// Create from Unix timestamp
+DateTimeOffset dto1 = UnixTimeExtensions.FromUnixSeconds(1_750_000_000L);
+DateTimeOffset dto2 = UnixTimeExtensions.FromUnixMilliseconds(1_750_000_000_000L);
+
+// Convert to Unix timestamp (sub-second precision is truncated)
+long seconds = dto1.ToUnixSeconds();
+long millis  = dto1.ToUnixMilliseconds();
+```
 
 ---
 
