@@ -5,10 +5,20 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.0.4] — 2026-05-10
+
+### Documentation
+- Add missing Calendar Queries, ISO Week, DST Queries, Unix Time sections
+
+
 ## [1.0.3] — 2026-05-10
 
 ### Bug Fixes
 - Serve HTML instead of JSON from GitHub Pages
+
+
+### Documentation
+- Update CHANGELOG.md for v1.0.3 [skip ci]
 
 
 ## [1.0.2] — 2026-05-10
