@@ -375,3 +375,86 @@ public class IsoStringTests
         restored.Auto.ShouldBe(original.Auto);
     }
 }
+
+[TestFixture] [Category("UnitTest")]
+public class TimeOnlyIsoStringTests
+{
+    [Test]
+    public void ToIsoString_ShouldReturnSecondsFormat_ByDefault()
+    {
+        new TimeOnly(14, 30, 0).ToIsoString().ShouldBe("14:30:00");
+    }
+
+    [Test]
+    public void ToIsoString_Seconds_ShouldOmitSubSecondDigits()
+    {
+        new TimeOnly(14, 30, 0, 500).ToIsoString(IsoDateTimePrecision.Seconds).ShouldBe("14:30:00");
+    }
+
+    [Test]
+    public void ToIsoString_Auto_ShouldOmitSubSeconds_WhenZero()
+    {
+        new TimeOnly(14, 30, 0).ToIsoString(IsoDateTimePrecision.Auto).ShouldBe("14:30:00");
+    }
+
+    [Test]
+    public void ToIsoString_Auto_ShouldIncludeSubSeconds_WhenNonZero()
+    {
+        // 500 ms = 5_000_000 ticks → "14:30:00.5"
+        new TimeOnly(14, 30, 0, 500).ToIsoString(IsoDateTimePrecision.Auto).ShouldBe("14:30:00.5");
+    }
+
+    [Test]
+    public void ToIsoString_Fractional_ShouldAlwaysIncludeSevenDigits()
+    {
+        new TimeOnly(14, 30, 0).ToIsoString(IsoDateTimePrecision.Fractional).ShouldBe("14:30:00.0000000");
+    }
+
+    [Test]
+    public void ToIsoString_Nullable_ShouldReturnNull_WhenNull()
+    {
+        TimeOnly? time = null;
+        time.ToIsoString().ShouldBeNull();
+    }
+
+    [Test]
+    public void ToIsoString_Nullable_ShouldReturnString_WhenNotNull()
+    {
+        TimeOnly? time = new TimeOnly(9, 0, 0);
+        time.ToIsoString().ShouldBe("09:00:00");
+    }
+
+    [Test]
+    public void ParseIsoTime_ShouldParseSecondsFormat()
+    {
+        "14:30:00".ParseIsoTime().ShouldBe(new TimeOnly(14, 30, 0));
+    }
+
+    [Test]
+    public void ParseIsoTime_ShouldParseFractionalFormat()
+    {
+        "14:30:00.5000000".ParseIsoTime().ShouldBe(new TimeOnly(14, 30, 0, 500));
+    }
+
+    [Test]
+    public void ParseIsoTime_ShouldThrow_WhenInvalid()
+    {
+        Should.Throw<FormatException>(() => "not-a-time".ParseIsoTime());
+    }
+
+    [Test]
+    public void TryParseIsoTime_ShouldReturnTrue_WhenValid()
+    {
+        var result = "09:15:30".TryParseIsoTime(out var time);
+        result.ShouldBeTrue();
+        time.ShouldBe(new TimeOnly(9, 15, 30));
+    }
+
+    [Test]
+    public void TryParseIsoTime_ShouldReturnFalse_WhenInvalid()
+    {
+        var result = "garbage".TryParseIsoTime(out var time);
+        result.ShouldBeFalse();
+        time.ShouldBe(TimeOnly.MinValue);
+    }
+}
