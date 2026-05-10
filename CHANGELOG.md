@@ -11,6 +11,10 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 - Add dotnet restore to docfx-build action so Pages job succeeds
 
 
+### Documentation
+- Update CHANGELOG.md for v1.0.1 [skip ci]
+
+
 ## [1.0.0] — 2026-05-10
 
 ### Bug Fixes
