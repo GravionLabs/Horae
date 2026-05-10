@@ -9,6 +9,7 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ### Documentation
 - Add missing Calendar Queries, ISO Week, DST Queries, Unix Time sections
+- Update CHANGELOG.md for v1.0.4 [skip ci]
 
 
 ## [1.0.3] — 2026-05-10
