@@ -365,6 +365,72 @@ public class TimeIntervalTests
         a.Union(a).ShouldBe(a);
     }
 
+    // Week / Month / Year factories
+
+    [Test]
+    public void Week_ShouldReturnSevenDayInterval_InUtcZone()
+    {
+        // Monday May 11 UTC
+        var monday = new DateOnly(2026, 5, 11);
+        var interval = TimeInterval.Week(monday, TimeZoneInfo.Utc);
+        interval.Start.ShouldBe(new DateTimeOffset(2026, 5, 11, 0, 0, 0, TimeSpan.Zero));
+        interval.End.ShouldBe(new DateTimeOffset(2026, 5, 18, 0, 0, 0, TimeSpan.Zero));
+        interval.Duration.ShouldBe(TimeSpan.FromDays(7));
+    }
+
+    [Test]
+    public void Month_ShouldReturnFullCalendarMonth_InJapan()
+    {
+        // Japan UTC+9, no DST → February 2026 = 28 days
+        var interval = TimeInterval.Month(2026, 2, TimeZones.Japan);
+        var localStart = TimeZoneInfo.ConvertTime(interval.Start, TimeZones.Japan);
+        var localEnd   = TimeZoneInfo.ConvertTime(interval.End,   TimeZones.Japan);
+        localStart.ShouldBe(new DateTimeOffset(2026, 2, 1, 0, 0, 0, TimeSpan.FromHours(9)));
+        localEnd.ShouldBe(new DateTimeOffset(2026, 3, 1, 0, 0, 0, TimeSpan.FromHours(9)));
+        interval.Duration.ShouldBe(TimeSpan.FromDays(28));
+    }
+
+    [Test]
+    public void Year_ShouldReturnFullCalendarYear()
+    {
+        var interval = TimeInterval.Year(2025, TimeZoneInfo.Utc);
+        interval.Start.ShouldBe(new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero));
+        interval.End.ShouldBe(new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));
+        interval.Duration.ShouldBe(TimeSpan.FromDays(365));
+    }
+
+    // SplitByWeeks
+
+    [Test]
+    public void SplitByWeeks_ShouldYieldMondaysWithinInterval()
+    {
+        // Interval: May 10 (Sunday) → May 25 (Monday) UTC
+        var start = new DateTimeOffset(2026, 5, 10, 0, 0, 0, TimeSpan.Zero);
+        var end   = new DateTimeOffset(2026, 5, 25, 0, 0, 0, TimeSpan.Zero);
+        var interval = new TimeInterval(start, end);
+
+        var mondays = interval.SplitByWeeks(TimeZoneInfo.Utc).ToList();
+
+        // Mondays in range (exclusive of end=May 25): May 11, May 18
+        mondays.Count.ShouldBe(2);
+        mondays[0].ShouldBe(new DateTimeOffset(2026, 5, 11, 0, 0, 0, TimeSpan.Zero));
+        mondays[1].ShouldBe(new DateTimeOffset(2026, 5, 18, 0, 0, 0, TimeSpan.Zero));
+    }
+
+    // SplitByMonths
+
+    [Test]
+    public void SplitByMonths_ShouldYieldMonthStartsWithinInterval()
+    {
+        // Q1 2026 in UTC
+        var interval = TimeInterval.Year(2026, TimeZoneInfo.Utc);
+        var months = interval.SplitByMonths(TimeZoneInfo.Utc).ToList();
+
+        months.Count.ShouldBe(12);
+        months[0].ShouldBe(new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));
+        months[11].ShouldBe(new DateTimeOffset(2026, 12, 1, 0, 0, 0, TimeSpan.Zero));
+    }
+
     private static DateTimeOffset D(int hours) =>
         new DateTimeOffset(2026, 5, 11, 0, 0, 0, TimeSpan.Zero).AddHours(hours);
 }
