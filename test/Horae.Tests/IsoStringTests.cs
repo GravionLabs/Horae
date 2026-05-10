@@ -311,6 +311,26 @@ public class IsoStringTests
         dto.ToIsoString(IsoDateTimePrecision.Fractional).ShouldBe("2026-01-01T23:00:00.5000000Z");
     }
 
+    [Test]
+    public void ParseIsoDateTime_ShouldParseFractionalSeconds()
+    {
+        var result = "2026-01-01T23:00:00.5Z".ParseIsoDateTime();
+
+        result.Offset.ShouldBe(TimeSpan.Zero);
+        result.UtcDateTime.ShouldBe(new DateTime(2026, 1, 1, 23, 0, 0, 500, DateTimeKind.Utc));
+    }
+
+    [Test]
+    public void ParseIsoDateTime_ShouldPreserveNegativeOffset()
+    {
+        // "-05:00" offset (Eastern Standard Time) is preserved as-is.
+        var result = "2026-01-01T18:00:00-05:00".ParseIsoDateTime();
+
+        result.Offset.ShouldBe(TimeSpan.FromHours(-5));
+        result.Hour.ShouldBe(18);
+        result.UtcDateTime.ShouldBe(new DateTime(2026, 1, 1, 23, 0, 0, DateTimeKind.Utc));
+    }
+
 
     private sealed record PrecisionModel(
         [property: IsoDateTimeFormat(IsoDateTimePrecision.Fractional)]

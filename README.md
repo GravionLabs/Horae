@@ -15,7 +15,7 @@ License: Apache-2.0 · Target frameworks: net8.0 · net9.0 · net10.0
 - [DateTimeOffset Operations](#datetimeoffset-operations)
 - [Conversions](#conversions)
 - [Regional Time Zones](#regional-time-zones)
-- [ISO 8601 Formatting & Parsing](#iso-8601-formatting--parsing)
+- [ISO 8601 Formatting & Parsing](#iso-8601-formatting--parsing) *(DateTimeOffset, DateOnly, TimeOnly)*
 - [Day Offset](#day-offset)
 - [Duration](#duration)
 - [TimeInterval](#timeinterval)
@@ -182,6 +182,8 @@ DateTimeOffset back = cet.ToUtc();                  // 12:00 +00:00
 var dto  = new DateTimeOffset(2026, 1, 1, 23, 0, 0, TimeSpan.Zero);
 var dto2 = new DateTimeOffset(2026, 1, 1, 23, 0, 0, 500, TimeSpan.Zero); // 500 ms
 var date = new DateOnly(2026, 6, 15);
+var time = new TimeOnly(14, 30, 0);
+var time2 = new TimeOnly(14, 30, 0, 500); // 500 ms
 
 // Default: IsoDateTimePrecision.Seconds — sub-second digits always omitted
 dto.ToIsoString();   // "2026-01-01T23:00:00Z"
@@ -194,25 +196,39 @@ dto.ToIsoString(IsoDateTimePrecision.Fractional);   // "2026-01-01T23:00:00.0000
 
 date.ToIsoString();  // "2026-06-15"
 
+// TimeOnly — same precision control as DateTimeOffset
+time.ToIsoString();                                    // "14:30:00"
+time2.ToIsoString(IsoDateTimePrecision.Auto);          // "14:30:00.5"
+time2.ToIsoString(IsoDateTimePrecision.Fractional);    // "14:30:00.5000000"
+time.ToIsoString(IsoDateTimePrecision.Fractional);     // "14:30:00.0000000"
+
 // Nullable overloads
 DateTimeOffset? nullDto  = null;
 DateOnly?       nullDate = null;
+TimeOnly?       nullTime = null;
 nullDto.ToIsoString();   // null
 nullDate.ToIsoString();  // null
+nullTime.ToIsoString();  // null
 ```
 
 ### Parsing
 
 ```csharp
-// DateTimeOffset – accepts "Z" and "+HH:mm" offsets
+// DateTimeOffset – accepts "Z", "+HH:mm", and "-HH:mm" offsets, including fractional seconds
 DateTimeOffset dto1 = "2026-01-01T23:00:00Z".ParseIsoDateTime();
 DateTimeOffset dto2 = "2026-01-01T23:00:00+01:00".ParseIsoDateTime();
+DateTimeOffset dto3 = "2026-01-01T23:00:00.5Z".ParseIsoDateTime(); // 500 ms
 
 bool ok = "2026-01-01T23:00:00Z".TryParseIsoDateTime(out DateTimeOffset result);
 
 // DateOnly – strict "yyyy-MM-dd"
 DateOnly date = "2026-06-15".ParseIsoDate();
 bool ok2 = "2026-06-15".TryParseIsoDate(out DateOnly dateResult);
+
+// TimeOnly – accepts "HH:mm:ss", "HH:mm:ss.FFFFFFF" (trailing zeros suppressed), and "HH:mm:ss.fffffff"
+TimeOnly time  = "14:30:00".ParseIsoTime();
+TimeOnly time2 = "14:30:00.5".ParseIsoTime(); // 500 ms
+bool ok3 = "09:15:30".TryParseIsoTime(out TimeOnly timeResult);
 ```
 
 ---

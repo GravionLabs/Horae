@@ -431,6 +431,96 @@ public class TimeIntervalTests
         months[11].ShouldBe(new DateTimeOffset(2026, 12, 1, 0, 0, 0, TimeSpan.Zero));
     }
 
+    [Test]
+    public void SplitByMonths_ShouldBeDstSafe_AcrossSpringTransition()
+    {
+        // CET year: January → April crosses the CET→CEST spring transition (March 29).
+        // April 1 midnight in CEST (+02:00) = March 31 22:00 UTC, not 23:00.
+        var interval = TimeInterval.Year(2026, TimeZones.CentralEuropean);
+        var months = interval.SplitByMonths(TimeZones.CentralEuropean).ToList();
+
+        months.Count.ShouldBe(12);
+        // January 1 midnight CET (+01:00) = December 31 23:00 UTC
+        months[0].ShouldBe(new DateTimeOffset(2025, 12, 31, 23, 0, 0, TimeSpan.Zero));
+        // April 1 midnight CEST (+02:00) = March 31 22:00 UTC
+        months[3].ShouldBe(new DateTimeOffset(2026, 3, 31, 22, 0, 0, TimeSpan.Zero));
+        // November 1 midnight CET (+01:00) = October 31 23:00 UTC (after fall-back)
+        months[10].ShouldBe(new DateTimeOffset(2026, 10, 31, 23, 0, 0, TimeSpan.Zero));
+    }
+
+    // SplitByWeeks DST
+
+    [Test]
+    public void SplitByWeeks_ShouldBeDstSafe_AcrossSpringTransition()
+    {
+        // Weeks span the CET→CEST spring transition (March 29, 2026).
+        //   Monday March 23 midnight CET  (+01:00) = March 22 23:00 UTC
+        //   Monday March 30 midnight CEST (+02:00) = March 29 22:00 UTC
+        var start    = new DateTimeOffset(2026, 3, 20, 23, 0, 0, TimeSpan.Zero); // March 21 00:00 CET
+        var end      = new DateTimeOffset(2026, 4,  5, 22, 0, 0, TimeSpan.Zero); // April 6 00:00 CEST
+        var interval = new TimeInterval(start, end);
+
+        var mondays = interval.SplitByWeeks(TimeZones.CentralEuropean).ToList();
+
+        mondays.Count.ShouldBe(2);
+        mondays[0].ShouldBe(new DateTimeOffset(2026, 3, 22, 23, 0, 0, TimeSpan.Zero)); // March 23 00:00 CET (+01)
+        mondays[1].ShouldBe(new DateTimeOffset(2026, 3, 29, 22, 0, 0, TimeSpan.Zero)); // March 30 00:00 CEST (+02)
+    }
+
+    // DST fall-back: CEST → CET (October 25, 2026 — 25-hour day)
+
+    [Test]
+    public void SplitBy_ResolutionDay_ShouldBeDstSafe_AtCestToCetTransition()
+    {
+        // 2026-10-25 is the CEST → CET fall-back (clocks back, 25-hour day).
+        //   October 25 midnight CEST = 2026-10-24 22:00 UTC (+02:00)
+        //   October 26 midnight CET  = 2026-10-25 23:00 UTC (+01:00) ← only 25 h apart
+        //
+        // A naïve +24 h step would miss October 26 midnight.
+        // The DST-safe DateOnly path correctly yields 2026-10-25 23:00 UTC.
+        var start    = new DateTimeOffset(2026, 10, 24, 22, 0, 0, TimeSpan.Zero); // Oct 25 00:00 CEST
+        var end      = new DateTimeOffset(2026, 10, 25, 23, 0, 0, TimeSpan.Zero); // Oct 26 00:00 CET
+        var interval = new TimeInterval(start, end);
+
+        var slots = interval.SplitBy(Duration.Day, TimeZones.CentralEuropean).ToList();
+
+        slots.Count.ShouldBe(1);
+        slots[0].ShouldBe(new DateTimeOffset(2026, 10, 24, 22, 0, 0, TimeSpan.Zero)); // Oct 25 00:00 CEST (+02)
+    }
+
+    [Test]
+    public void SplitByDays_ShouldBeDstSafe_AtCestToCetTransition()
+    {
+        // 2026-10-25 is the CEST → CET fall-back (clocks back, 25-hour day).
+        //   Oct 25 midnight CEST = 2026-10-24 22:00 UTC (+02:00)
+        //   Oct 26 midnight CET  = 2026-10-25 23:00 UTC (+01:00)
+        //
+        // A naïve +24 h step would produce 2026-10-25 22:00 UTC for Oct 26 (wrong).
+        // The DST-safe DateOnly iteration correctly yields 2026-10-25 23:00 UTC.
+        var start    = new DateTimeOffset(2026, 10, 24, 22, 0, 0, TimeSpan.Zero); // Oct 25 00:00 CEST
+        var end      = new DateTimeOffset(2026, 10, 26, 23, 0, 0, TimeSpan.Zero); // Oct 27 00:00 CET
+        var interval = new TimeInterval(start, end);
+
+        var dates = interval.SplitByDays(TimeZones.CentralEuropean).ToList();
+
+        dates.Count.ShouldBe(2);
+        dates[0].ShouldBe(new DateTimeOffset(2026, 10, 24, 22, 0, 0, TimeSpan.Zero)); // Oct 25 00:00 CEST (+02)
+        dates[1].ShouldBe(new DateTimeOffset(2026, 10, 25, 23, 0, 0, TimeSpan.Zero)); // Oct 26 00:00 CET (+01)
+    }
+
+    // Leap year
+
+    [Test]
+    public void Year_ShouldReturnFullLeapYear()
+    {
+        // 2028 is a leap year (366 days).
+        var interval = TimeInterval.Year(2028, TimeZoneInfo.Utc);
+
+        interval.Start.ShouldBe(new DateTimeOffset(2028, 1, 1, 0, 0, 0, TimeSpan.Zero));
+        interval.End.ShouldBe(new DateTimeOffset(2029, 1, 1, 0, 0, 0, TimeSpan.Zero));
+        interval.Duration.ShouldBe(TimeSpan.FromDays(366));
+    }
+
     private static DateTimeOffset D(int hours) =>
         new DateTimeOffset(2026, 5, 11, 0, 0, 0, TimeSpan.Zero).AddHours(hours);
 }

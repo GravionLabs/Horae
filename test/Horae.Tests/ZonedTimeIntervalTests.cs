@@ -273,6 +273,62 @@ public class ZonedTimeIntervalTests
         u.End.ShouldBe(new ZonedTimeInterval(D(0), D(20), tz).End);
     }
 
+    // Create factory
+
+    [Test]
+    public void Create_ShouldReturnIntervalWithCorrectBoundaries()
+    {
+        var start = new DateTimeOffset(2026, 6, 15, 22, 0, 0, TimeSpan.Zero); // June 15 midnight CEST
+        var end   = new DateTimeOffset(2026, 6, 16, 22, 0, 0, TimeSpan.Zero); // June 16 midnight CEST
+
+        var interval = ZonedTimeInterval.Create(start, end, Cet);
+
+        interval.Start.ShouldBe(new DateTimeOffset(2026, 6, 16, 0, 0, 0, TimeSpan.FromHours(2)));
+        interval.End.ShouldBe(new DateTimeOffset(2026, 6, 17, 0, 0, 0, TimeSpan.FromHours(2)));
+        interval.TimeZone.ShouldBe(Cet);
+    }
+
+    // Adjacent (touching but not overlapping) intervals
+
+    [Test]
+    public void Overlaps_ShouldReturnFalse_WhenAdjacent()
+    {
+        var tz = TimeZones.Japan;
+        var a  = new ZonedTimeInterval(D(0), D(6),  tz);
+        var b  = new ZonedTimeInterval(D(6), D(12), tz);
+        a.Overlaps(b).ShouldBeFalse();
+        b.Overlaps(a).ShouldBeFalse();
+    }
+
+    // DST fall-back: CEST → CET (October 25, 2026 — 25-hour day)
+
+    [Test]
+    public void SplitBy_DstFallDay_ShouldReturn100Slots_ForCestToCet()
+    {
+        // 2026-10-25: CEST → CET fall-back — day is 25 hours = 100 quarter-hours.
+        var interval = ZonedTimeInterval.Day(new DateOnly(2026, 10, 25), Cet);
+
+        var slots = interval.SplitBy(Duration.QuarterHour).ToList();
+
+        slots.Count.ShouldBe(100);
+    }
+
+    [Test]
+    public void SplitByDays_DstFallTransition_ShouldHandleOffsetChange()
+    {
+        // Oct 24 midnight CEST (+02:00), Oct 25 midnight CEST (+02:00), Oct 26 midnight CET (+01:00)
+        var start    = new DateTimeOffset(2026, 10, 24, 0, 0, 0, TimeSpan.FromHours(2));
+        var end      = new DateTimeOffset(2026, 10, 27, 0, 0, 0, TimeSpan.FromHours(1));
+        var interval = new ZonedTimeInterval(start, end, Cet);
+
+        var days = interval.SplitByDays().ToList();
+
+        days.Count.ShouldBe(3);
+        days[0].ShouldBe(new DateTimeOffset(2026, 10, 24, 0, 0, 0, TimeSpan.FromHours(2))); // CEST
+        days[1].ShouldBe(new DateTimeOffset(2026, 10, 25, 0, 0, 0, TimeSpan.FromHours(2))); // CEST (start of fall-back day)
+        days[2].ShouldBe(new DateTimeOffset(2026, 10, 26, 0, 0, 0, TimeSpan.FromHours(1))); // CET
+    }
+
     private static DateTimeOffset D(int hours) =>
         new DateTimeOffset(2026, 5, 11, 0, 0, 0, TimeSpan.Zero).AddHours(hours);
 }

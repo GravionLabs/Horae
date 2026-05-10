@@ -157,4 +157,15 @@ public class TimeSpanExtensionsTests
     [Test]
     public void Seconds_NegativeInput_ShouldThrowArgumentOutOfRangeException() =>
         Should.Throw<ArgumentOutOfRangeException>(() => (-30).Seconds());
+
+    // And(TimeSpan, TimeSpan) overload — invoked when the argument is a raw TimeSpan
+
+    [Test]
+    public void And_TimeSpan_ShouldAddTwoTimeSpans()
+    {
+        // And(this TimeSpan, TimeSpan) is called when the receiver is a raw TimeSpan.
+        var result = TimeSpan.FromHours(1).And(TimeSpan.FromMilliseconds(500));
+
+        result.ShouldBe(TimeSpan.FromHours(1).Add(TimeSpan.FromMilliseconds(500)));
+    }
 }

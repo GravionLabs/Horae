@@ -542,4 +542,111 @@ public class DateTimeOffsetExtensionsTests
         result.Offset.ShouldBe(TimeSpan.Zero);
         result.ShouldBe(new DateTimeOffset(2026, 6, 30, 15, 0, 0, TimeSpan.Zero));
     }
+
+
+    // ── *Utc null-fallback: all remaining *Utc methods should use CurrentTimeZone when null ─────
+
+    [Test]
+    public void EndOfDayUtc_ShouldUseCurrentTimeZone_WhenNullIsPassed()
+    {
+        HoareSettings.CurrentTimeZone = TimeZones.Japan;
+        // EndOfDay JST = 2026-06-16 00:00 +09:00 = 2026-06-15 15:00 UTC
+        _utcRef.EndOfDayUtc().ShouldBe(new DateTimeOffset(2026, 6, 15, 15, 0, 0, TimeSpan.Zero));
+    }
+
+    [Test]
+    public void StartOfIntradayUtc_ShouldUseCurrentTimeZone_WhenNullIsPassed()
+    {
+        HoareSettings.CurrentTimeZone = TimeZones.Japan;
+        // Intraday start = StartOfDay JST = 2026-06-14 15:00 UTC
+        _utcRef.StartOfIntradayUtc().ShouldBe(new DateTimeOffset(2026, 6, 14, 15, 0, 0, TimeSpan.Zero));
+    }
+
+    [Test]
+    public void EndOfIntradayUtc_ShouldUseCurrentTimeZone_WhenNullIsPassed()
+    {
+        HoareSettings.CurrentTimeZone = TimeZones.Japan;
+        // Intraday end = EndOfDay JST = 2026-06-15 15:00 UTC
+        _utcRef.EndOfIntradayUtc().ShouldBe(new DateTimeOffset(2026, 6, 15, 15, 0, 0, TimeSpan.Zero));
+    }
+
+    [Test]
+    public void StartOfDayAheadUtc_ShouldUseCurrentTimeZone_WhenNullIsPassed()
+    {
+        HoareSettings.CurrentTimeZone = TimeZones.Japan;
+        // Day-ahead start = next midnight JST = 2026-06-15 15:00 UTC
+        _utcRef.StartOfDayAheadUtc().ShouldBe(new DateTimeOffset(2026, 6, 15, 15, 0, 0, TimeSpan.Zero));
+    }
+
+    [Test]
+    public void EndOfDayAheadUtc_ShouldUseCurrentTimeZone_WhenNullIsPassed()
+    {
+        HoareSettings.CurrentTimeZone = TimeZones.Japan;
+        // Day-ahead end = midnight two days out in JST = 2026-06-16 15:00 UTC
+        _utcRef.EndOfDayAheadUtc().ShouldBe(new DateTimeOffset(2026, 6, 16, 15, 0, 0, TimeSpan.Zero));
+    }
+
+    [Test]
+    public void StartOfWeekUtc_ShouldUseCurrentTimeZone_WhenNullIsPassed()
+    {
+        HoareSettings.CurrentTimeZone = TimeZones.Japan;
+        // June 15 is Monday → StartOfWeek = 2026-06-15 00:00 JST = 2026-06-14 15:00 UTC
+        _utcRef.StartOfWeekUtc().ShouldBe(new DateTimeOffset(2026, 6, 14, 15, 0, 0, TimeSpan.Zero));
+    }
+
+    [Test]
+    public void EndOfWeekUtc_ShouldUseCurrentTimeZone_WhenNullIsPassed()
+    {
+        HoareSettings.CurrentTimeZone = TimeZones.Japan;
+        // Next Monday = 2026-06-22 00:00 JST = 2026-06-21 15:00 UTC
+        _utcRef.EndOfWeekUtc().ShouldBe(new DateTimeOffset(2026, 6, 21, 15, 0, 0, TimeSpan.Zero));
+    }
+
+    [Test]
+    public void StartOfMonthUtc_ShouldUseCurrentTimeZone_WhenNullIsPassed()
+    {
+        HoareSettings.CurrentTimeZone = TimeZones.Japan;
+        // June 1 00:00 JST = May 31 15:00 UTC
+        _utcRef.StartOfMonthUtc().ShouldBe(new DateTimeOffset(2026, 5, 31, 15, 0, 0, TimeSpan.Zero));
+    }
+
+    [Test]
+    public void EndOfMonthUtc_ShouldUseCurrentTimeZone_WhenNullIsPassed()
+    {
+        HoareSettings.CurrentTimeZone = TimeZones.Japan;
+        // July 1 00:00 JST = June 30 15:00 UTC
+        _utcRef.EndOfMonthUtc().ShouldBe(new DateTimeOffset(2026, 6, 30, 15, 0, 0, TimeSpan.Zero));
+    }
+
+    [Test]
+    public void StartOfYearUtc_ShouldUseCurrentTimeZone_WhenNullIsPassed()
+    {
+        HoareSettings.CurrentTimeZone = TimeZones.Japan;
+        // Jan 1 2026 00:00 JST = Dec 31 2025 15:00 UTC
+        _utcRef.StartOfYearUtc().ShouldBe(new DateTimeOffset(2025, 12, 31, 15, 0, 0, TimeSpan.Zero));
+    }
+
+    [Test]
+    public void EndOfYearUtc_ShouldUseCurrentTimeZone_WhenNullIsPassed()
+    {
+        HoareSettings.CurrentTimeZone = TimeZones.Japan;
+        // Jan 1 2027 00:00 JST = Dec 31 2026 15:00 UTC
+        _utcRef.EndOfYearUtc().ShouldBe(new DateTimeOffset(2026, 12, 31, 15, 0, 0, TimeSpan.Zero));
+    }
+
+    [Test]
+    public void StartOfQuarterUtc_ShouldUseCurrentTimeZone_WhenNullIsPassed()
+    {
+        HoareSettings.CurrentTimeZone = TimeZones.Japan;
+        // June → Q2 start = Apr 1 00:00 JST = Mar 31 15:00 UTC
+        _utcRef.StartOfQuarterUtc().ShouldBe(new DateTimeOffset(2026, 3, 31, 15, 0, 0, TimeSpan.Zero));
+    }
+
+    [Test]
+    public void EndOfQuarterUtc_ShouldUseCurrentTimeZone_WhenNullIsPassed()
+    {
+        HoareSettings.CurrentTimeZone = TimeZones.Japan;
+        // June → Q2 end = Jul 1 00:00 JST = Jun 30 15:00 UTC
+        _utcRef.EndOfQuarterUtc().ShouldBe(new DateTimeOffset(2026, 6, 30, 15, 0, 0, TimeSpan.Zero));
+    }
 }

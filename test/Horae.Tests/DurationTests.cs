@@ -1,4 +1,7 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
+
+using Horae.Converters;
 
 using Shouldly;
 
@@ -199,5 +202,79 @@ public class ResolutionTests
 
         viaResolution.ShouldBe(viaTimeSpan);
         viaResolution.ShouldBe(new DateTimeOffset(2026, 6, 15, 10, 15, 0, TimeSpan.Zero));
+    }
+
+    [Test]
+    public void Parse_ShouldThrow_ForInvalidInput() =>
+        Should.Throw<FormatException>(() => Duration.Parse("invalid"));
+
+    [Test]
+    public void Parse_ShouldThrow_ForEmptyString() =>
+        Should.Throw<FormatException>(() => Duration.Parse(""));
+}
+
+/// <summary>
+///     Tests for <see cref="NullableDurationConverter" />.
+/// </summary>
+[TestFixture] [Category("UnitTest")]
+public class NullableDurationConverterTests
+{
+    private sealed record Wrapper(
+        [property: JsonConverter(typeof(NullableDurationConverter))]
+        Duration? Value);
+
+    [Test]
+    public void Serialize_ShouldWriteIso8601String_WhenValueIsNotNull()
+    {
+        var model = new Wrapper(Duration.QuarterHour);
+        var json  = JsonSerializer.Serialize(model);
+
+        json.ShouldContain("\"Value\":\"PT15M\"");
+    }
+
+    [Test]
+    public void Serialize_ShouldWriteNull_WhenValueIsNull()
+    {
+        var model = new Wrapper(null);
+        var json  = JsonSerializer.Serialize(model);
+
+        json.ShouldContain("\"Value\":null");
+    }
+
+    [Test]
+    public void Deserialize_ShouldReadIso8601String_WhenTokenIsString()
+    {
+        var model = JsonSerializer.Deserialize<Wrapper>("""{"Value":"PT30M"}""")!;
+
+        model.Value.ShouldNotBeNull();
+        model.Value.ShouldBe(Duration.HalfHour);
+    }
+
+    [Test]
+    public void Deserialize_ShouldReturnNull_WhenTokenIsNull()
+    {
+        var model = JsonSerializer.Deserialize<Wrapper>("""{"Value":null}""")!;
+
+        model.Value.ShouldBeNull();
+    }
+
+    [Test]
+    public void RoundTrip_ShouldPreserveValue()
+    {
+        var original = new Wrapper(Duration.Hour);
+        var json     = JsonSerializer.Serialize(original);
+        var restored = JsonSerializer.Deserialize<Wrapper>(json)!;
+
+        restored.Value.ShouldBe(original.Value);
+    }
+
+    [Test]
+    public void RoundTrip_ShouldPreserveNull()
+    {
+        var original = new Wrapper(null);
+        var json     = JsonSerializer.Serialize(original);
+        var restored = JsonSerializer.Deserialize<Wrapper>(json)!;
+
+        restored.Value.ShouldBeNull();
     }
 }
