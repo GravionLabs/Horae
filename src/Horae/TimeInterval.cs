@@ -126,6 +126,45 @@ public readonly record struct TimeInterval
     }
 
     /// <summary>
+    ///     Returns the duration of the interval (<see cref="End" /> − <see cref="Start" />).
+    /// </summary>
+    public TimeSpan Duration => End - Start;
+
+    /// <summary>
+    ///     Returns <see langword="true" /> if this interval overlaps <paramref name="other" />.
+    ///     Two half-open intervals overlap when neither is completely before the other.
+    /// </summary>
+    public bool Overlaps(TimeInterval other) => Start < other.End && other.Start < End;
+
+    /// <summary>
+    ///     Returns <see langword="true" /> if this interval fully contains (engulfs)
+    ///     <paramref name="other" />.
+    /// </summary>
+    public bool Engulfs(TimeInterval other) => Start <= other.Start && other.End <= End;
+
+    /// <summary>
+    ///     Returns the intersection of this interval and <paramref name="other" />,
+    ///     or <see langword="null" /> if the intervals are disjoint.
+    /// </summary>
+    public TimeInterval? Intersection(TimeInterval other)
+    {
+        var start = Start > other.Start ? Start : other.Start;
+        var end   = End   < other.End   ? End   : other.End;
+        return start < end ? new TimeInterval(start, end) : null;
+    }
+
+    /// <summary>
+    ///     Returns the smallest interval that contains both this interval and <paramref name="other" />,
+    ///     spanning any gap between disjoint intervals.
+    /// </summary>
+    public TimeInterval Union(TimeInterval other)
+    {
+        var start = Start < other.Start ? Start : other.Start;
+        var end   = End   > other.End   ? End   : other.End;
+        return new TimeInterval(start, end);
+    }
+
+    /// <summary>
     ///     Splits the interval into a sequence of UTC instants at the given resolution.
     ///     Convenience overload that accepts a <see cref="Duration" /> instead of a raw
     ///     <see cref="TimeSpan" />.

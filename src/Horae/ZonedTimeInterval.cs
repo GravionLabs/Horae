@@ -128,6 +128,46 @@ public readonly record struct ZonedTimeInterval
     }
 
     /// <summary>
+    ///     Returns the duration of the interval (<see cref="End" /> − <see cref="Start" />).
+    /// </summary>
+    public TimeSpan Duration => End - Start;
+
+    /// <summary>
+    ///     Returns <see langword="true" /> if this interval overlaps <paramref name="other" />.
+    ///     Two half-open intervals overlap when neither is completely before the other.
+    /// </summary>
+    public bool Overlaps(ZonedTimeInterval other) => Start < other.End && other.Start < End;
+
+    /// <summary>
+    ///     Returns <see langword="true" /> if this interval fully contains (engulfs)
+    ///     <paramref name="other" />.
+    /// </summary>
+    public bool Engulfs(ZonedTimeInterval other) => Start <= other.Start && other.End <= End;
+
+    /// <summary>
+    ///     Returns the intersection of this interval and <paramref name="other" />,
+    ///     or <see langword="null" /> if the intervals are disjoint.
+    ///     The result is expressed in <see cref="TimeZone" />.
+    /// </summary>
+    public ZonedTimeInterval? Intersection(ZonedTimeInterval other)
+    {
+        var start = Start > other.Start ? Start : other.Start;
+        var end   = End   < other.End   ? End   : other.End;
+        return start < end ? new ZonedTimeInterval(start, end, TimeZone) : null;
+    }
+
+    /// <summary>
+    ///     Returns the smallest interval that contains both this interval and <paramref name="other" />,
+    ///     spanning any gap between disjoint intervals. The result is expressed in <see cref="TimeZone" />.
+    /// </summary>
+    public ZonedTimeInterval Union(ZonedTimeInterval other)
+    {
+        var start = Start < other.Start ? Start : other.Start;
+        var end   = End   > other.End   ? End   : other.End;
+        return new ZonedTimeInterval(start, end, TimeZone);
+    }
+
+    /// <summary>
     ///     Returns a UTC-normalized <see cref="TimeInterval" /> with the same boundaries.
     ///     Both endpoints are converted to UTC (<c>+00:00</c> offset).
     /// </summary>
