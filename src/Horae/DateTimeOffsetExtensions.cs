@@ -303,4 +303,258 @@ public static class DateTimeOffsetExtensions
         var rounded = new DateTimeOffset(tz.Ticks + delta, tz.Offset);
         return TimeZoneInfo.ConvertTime(rounded, TimeZoneInfo.Utc);
     }
+
+
+    /// <summary>
+    ///     Gets the start of the ISO week (Monday midnight) for a <see cref="DateTimeOffset" /> value
+    ///     in the specified time zone.
+    /// </summary>
+    /// <param name="dateTimeOffset">The source value.</param>
+    /// <param name="timeZone">
+    ///     The time zone used to determine the calendar week.
+    ///     When <see langword="null" />, <see cref="HoareSettings.CurrentTimeZone" /> is used.
+    /// </param>
+    /// <returns>Midnight of the Monday that starts the ISO week containing <paramref name="dateTimeOffset" />.</returns>
+    public static DateTimeOffset StartOfWeek(this DateTimeOffset dateTimeOffset, TimeZoneInfo? timeZone = null)
+    {
+        var tz = timeZone ?? HoareSettings.CurrentTimeZone;
+        var inTz = TimeZoneInfo.ConvertTime(dateTimeOffset, tz);
+        var dow = inTz.DayOfWeek;
+        var daysFromMonday = dow == DayOfWeek.Sunday ? 6 : (int)dow - 1;
+        var monday = new DateOnly(inTz.Year, inTz.Month, inTz.Day).AddDays(-daysFromMonday);
+        return monday.AsDateTimeOffset(tz);
+    }
+
+    /// <summary>
+    ///     Gets the start of the ISO week expressed as UTC.
+    /// </summary>
+    /// <param name="dateTimeOffset">The source value.</param>
+    /// <param name="timeZone">
+    ///     The time zone used to determine the calendar week.
+    ///     When <see langword="null" />, <see cref="HoareSettings.CurrentTimeZone" /> is used.
+    /// </param>
+    /// <returns>Midnight of the Monday that starts the ISO week, expressed in UTC.</returns>
+    public static DateTimeOffset StartOfWeekUtc(this DateTimeOffset dateTimeOffset, TimeZoneInfo? timeZone = null) =>
+        TimeZoneInfo.ConvertTime(dateTimeOffset.StartOfWeek(timeZone), TimeZoneInfo.Utc);
+
+    /// <summary>
+    ///     Gets the end of the ISO week for a <see cref="DateTimeOffset" /> value in the specified
+    ///     time zone. The returned value is the exclusive upper boundary (i.e. midnight of the
+    ///     following Monday).
+    /// </summary>
+    /// <param name="dateTimeOffset">The source value.</param>
+    /// <param name="timeZone">
+    ///     The time zone used to determine the calendar week.
+    ///     When <see langword="null" />, <see cref="HoareSettings.CurrentTimeZone" /> is used.
+    /// </param>
+    /// <returns>Midnight of the Monday following the current ISO week.</returns>
+    public static DateTimeOffset EndOfWeek(this DateTimeOffset dateTimeOffset, TimeZoneInfo? timeZone = null)
+    {
+        var tz = timeZone ?? HoareSettings.CurrentTimeZone;
+        var monday = DateOnly.FromDateTime(dateTimeOffset.StartOfWeek(tz).ToTimeZone(tz).DateTime);
+        return monday.AddDays(7).AsDateTimeOffset(tz);
+    }
+
+    /// <summary>
+    ///     Gets the end of the ISO week expressed as UTC.
+    /// </summary>
+    /// <param name="dateTimeOffset">The source value.</param>
+    /// <param name="timeZone">
+    ///     The time zone used to determine the calendar week.
+    ///     When <see langword="null" />, <see cref="HoareSettings.CurrentTimeZone" /> is used.
+    /// </param>
+    /// <returns>Midnight of the Monday following the current ISO week, expressed in UTC.</returns>
+    public static DateTimeOffset EndOfWeekUtc(this DateTimeOffset dateTimeOffset, TimeZoneInfo? timeZone = null) =>
+        TimeZoneInfo.ConvertTime(dateTimeOffset.EndOfWeek(timeZone), TimeZoneInfo.Utc);
+
+
+    /// <summary>
+    ///     Gets the start of the calendar month (midnight of the first day) for a
+    ///     <see cref="DateTimeOffset" /> value in the specified time zone.
+    /// </summary>
+    /// <param name="dateTimeOffset">The source value.</param>
+    /// <param name="timeZone">
+    ///     The time zone used to determine the calendar month.
+    ///     When <see langword="null" />, <see cref="HoareSettings.CurrentTimeZone" /> is used.
+    /// </param>
+    /// <returns>Midnight of the first day of the month in the given time zone.</returns>
+    public static DateTimeOffset StartOfMonth(this DateTimeOffset dateTimeOffset, TimeZoneInfo? timeZone = null)
+    {
+        var tz = timeZone ?? HoareSettings.CurrentTimeZone;
+        var inTz = TimeZoneInfo.ConvertTime(dateTimeOffset, tz);
+        return new DateOnly(inTz.Year, inTz.Month, 1).AsDateTimeOffset(tz);
+    }
+
+    /// <summary>
+    ///     Gets the start of the calendar month expressed as UTC.
+    /// </summary>
+    /// <param name="dateTimeOffset">The source value.</param>
+    /// <param name="timeZone">
+    ///     The time zone used to determine the calendar month.
+    ///     When <see langword="null" />, <see cref="HoareSettings.CurrentTimeZone" /> is used.
+    /// </param>
+    /// <returns>Midnight of the first day of the month, expressed in UTC.</returns>
+    public static DateTimeOffset StartOfMonthUtc(this DateTimeOffset dateTimeOffset, TimeZoneInfo? timeZone = null) =>
+        TimeZoneInfo.ConvertTime(dateTimeOffset.StartOfMonth(timeZone), TimeZoneInfo.Utc);
+
+    /// <summary>
+    ///     Gets the end of the calendar month for a <see cref="DateTimeOffset" /> value in the
+    ///     specified time zone. The returned value is the exclusive upper boundary (i.e. midnight
+    ///     of the first day of the following month).
+    /// </summary>
+    /// <param name="dateTimeOffset">The source value.</param>
+    /// <param name="timeZone">
+    ///     The time zone used to determine the calendar month.
+    ///     When <see langword="null" />, <see cref="HoareSettings.CurrentTimeZone" /> is used.
+    /// </param>
+    /// <returns>Midnight of the first day of the next calendar month in the given time zone.</returns>
+    public static DateTimeOffset EndOfMonth(this DateTimeOffset dateTimeOffset, TimeZoneInfo? timeZone = null)
+    {
+        var tz = timeZone ?? HoareSettings.CurrentTimeZone;
+        var inTz = TimeZoneInfo.ConvertTime(dateTimeOffset, tz);
+        var firstOfNextMonth = inTz.Month == 12
+            ? new DateOnly(inTz.Year + 1, 1, 1)
+            : new DateOnly(inTz.Year, inTz.Month + 1, 1);
+        return firstOfNextMonth.AsDateTimeOffset(tz);
+    }
+
+    /// <summary>
+    ///     Gets the end of the calendar month expressed as UTC.
+    /// </summary>
+    /// <param name="dateTimeOffset">The source value.</param>
+    /// <param name="timeZone">
+    ///     The time zone used to determine the calendar month.
+    ///     When <see langword="null" />, <see cref="HoareSettings.CurrentTimeZone" /> is used.
+    /// </param>
+    /// <returns>Midnight of the first day of the next calendar month, expressed in UTC.</returns>
+    public static DateTimeOffset EndOfMonthUtc(this DateTimeOffset dateTimeOffset, TimeZoneInfo? timeZone = null) =>
+        TimeZoneInfo.ConvertTime(dateTimeOffset.EndOfMonth(timeZone), TimeZoneInfo.Utc);
+
+
+    /// <summary>
+    ///     Gets the start of the calendar year (midnight of 1 January) for a
+    ///     <see cref="DateTimeOffset" /> value in the specified time zone.
+    /// </summary>
+    /// <param name="dateTimeOffset">The source value.</param>
+    /// <param name="timeZone">
+    ///     The time zone used to determine the calendar year.
+    ///     When <see langword="null" />, <see cref="HoareSettings.CurrentTimeZone" /> is used.
+    /// </param>
+    /// <returns>Midnight of 1 January of the current year in the given time zone.</returns>
+    public static DateTimeOffset StartOfYear(this DateTimeOffset dateTimeOffset, TimeZoneInfo? timeZone = null)
+    {
+        var tz = timeZone ?? HoareSettings.CurrentTimeZone;
+        var inTz = TimeZoneInfo.ConvertTime(dateTimeOffset, tz);
+        return new DateOnly(inTz.Year, 1, 1).AsDateTimeOffset(tz);
+    }
+
+    /// <summary>
+    ///     Gets the start of the calendar year expressed as UTC.
+    /// </summary>
+    /// <param name="dateTimeOffset">The source value.</param>
+    /// <param name="timeZone">
+    ///     The time zone used to determine the calendar year.
+    ///     When <see langword="null" />, <see cref="HoareSettings.CurrentTimeZone" /> is used.
+    /// </param>
+    /// <returns>Midnight of 1 January of the current year, expressed in UTC.</returns>
+    public static DateTimeOffset StartOfYearUtc(this DateTimeOffset dateTimeOffset, TimeZoneInfo? timeZone = null) =>
+        TimeZoneInfo.ConvertTime(dateTimeOffset.StartOfYear(timeZone), TimeZoneInfo.Utc);
+
+    /// <summary>
+    ///     Gets the end of the calendar year for a <see cref="DateTimeOffset" /> value in the
+    ///     specified time zone. The returned value is the exclusive upper boundary (i.e. midnight
+    ///     of 1 January of the following year).
+    /// </summary>
+    /// <param name="dateTimeOffset">The source value.</param>
+    /// <param name="timeZone">
+    ///     The time zone used to determine the calendar year.
+    ///     When <see langword="null" />, <see cref="HoareSettings.CurrentTimeZone" /> is used.
+    /// </param>
+    /// <returns>Midnight of 1 January of the next year in the given time zone.</returns>
+    public static DateTimeOffset EndOfYear(this DateTimeOffset dateTimeOffset, TimeZoneInfo? timeZone = null)
+    {
+        var tz = timeZone ?? HoareSettings.CurrentTimeZone;
+        var inTz = TimeZoneInfo.ConvertTime(dateTimeOffset, tz);
+        return new DateOnly(inTz.Year + 1, 1, 1).AsDateTimeOffset(tz);
+    }
+
+    /// <summary>
+    ///     Gets the end of the calendar year expressed as UTC.
+    /// </summary>
+    /// <param name="dateTimeOffset">The source value.</param>
+    /// <param name="timeZone">
+    ///     The time zone used to determine the calendar year.
+    ///     When <see langword="null" />, <see cref="HoareSettings.CurrentTimeZone" /> is used.
+    /// </param>
+    /// <returns>Midnight of 1 January of the next year, expressed in UTC.</returns>
+    public static DateTimeOffset EndOfYearUtc(this DateTimeOffset dateTimeOffset, TimeZoneInfo? timeZone = null) =>
+        TimeZoneInfo.ConvertTime(dateTimeOffset.EndOfYear(timeZone), TimeZoneInfo.Utc);
+
+
+    /// <summary>
+    ///     Gets the start of the calendar quarter (midnight of the first day of the quarter's first
+    ///     month) for a <see cref="DateTimeOffset" /> value in the specified time zone.
+    ///     Quarters are Q1 = Jan–Mar, Q2 = Apr–Jun, Q3 = Jul–Sep, Q4 = Oct–Dec.
+    /// </summary>
+    /// <param name="dateTimeOffset">The source value.</param>
+    /// <param name="timeZone">
+    ///     The time zone used to determine the calendar quarter.
+    ///     When <see langword="null" />, <see cref="HoareSettings.CurrentTimeZone" /> is used.
+    /// </param>
+    /// <returns>Midnight of the first day of the current quarter in the given time zone.</returns>
+    public static DateTimeOffset StartOfQuarter(this DateTimeOffset dateTimeOffset, TimeZoneInfo? timeZone = null)
+    {
+        var tz = timeZone ?? HoareSettings.CurrentTimeZone;
+        var inTz = TimeZoneInfo.ConvertTime(dateTimeOffset, tz);
+        var firstMonthOfQuarter = (inTz.Month - 1) / 3 * 3 + 1;
+        return new DateOnly(inTz.Year, firstMonthOfQuarter, 1).AsDateTimeOffset(tz);
+    }
+
+    /// <summary>
+    ///     Gets the start of the calendar quarter expressed as UTC.
+    /// </summary>
+    /// <param name="dateTimeOffset">The source value.</param>
+    /// <param name="timeZone">
+    ///     The time zone used to determine the calendar quarter.
+    ///     When <see langword="null" />, <see cref="HoareSettings.CurrentTimeZone" /> is used.
+    /// </param>
+    /// <returns>Midnight of the first day of the current quarter, expressed in UTC.</returns>
+    public static DateTimeOffset StartOfQuarterUtc(this DateTimeOffset dateTimeOffset,
+        TimeZoneInfo? timeZone = null) =>
+        TimeZoneInfo.ConvertTime(dateTimeOffset.StartOfQuarter(timeZone), TimeZoneInfo.Utc);
+
+    /// <summary>
+    ///     Gets the end of the calendar quarter for a <see cref="DateTimeOffset" /> value in the
+    ///     specified time zone. The returned value is the exclusive upper boundary (i.e. midnight
+    ///     of the first day of the following quarter).
+    ///     Quarters are Q1 = Jan–Mar, Q2 = Apr–Jun, Q3 = Jul–Sep, Q4 = Oct–Dec.
+    /// </summary>
+    /// <param name="dateTimeOffset">The source value.</param>
+    /// <param name="timeZone">
+    ///     The time zone used to determine the calendar quarter.
+    ///     When <see langword="null" />, <see cref="HoareSettings.CurrentTimeZone" /> is used.
+    /// </param>
+    /// <returns>Midnight of the first day of the next quarter in the given time zone.</returns>
+    public static DateTimeOffset EndOfQuarter(this DateTimeOffset dateTimeOffset, TimeZoneInfo? timeZone = null)
+    {
+        var tz = timeZone ?? HoareSettings.CurrentTimeZone;
+        var inTz = TimeZoneInfo.ConvertTime(dateTimeOffset, tz);
+        var firstMonthOfNextQuarter = (inTz.Month - 1) / 3 * 3 + 4;
+        var (year, month) = firstMonthOfNextQuarter > 12
+            ? (inTz.Year + 1, firstMonthOfNextQuarter - 12)
+            : (inTz.Year, firstMonthOfNextQuarter);
+        return new DateOnly(year, month, 1).AsDateTimeOffset(tz);
+    }
+
+    /// <summary>
+    ///     Gets the end of the calendar quarter expressed as UTC.
+    /// </summary>
+    /// <param name="dateTimeOffset">The source value.</param>
+    /// <param name="timeZone">
+    ///     The time zone used to determine the calendar quarter.
+    ///     When <see langword="null" />, <see cref="HoareSettings.CurrentTimeZone" /> is used.
+    /// </param>
+    /// <returns>Midnight of the first day of the next quarter, expressed in UTC.</returns>
+    public static DateTimeOffset EndOfQuarterUtc(this DateTimeOffset dateTimeOffset, TimeZoneInfo? timeZone = null) =>
+        TimeZoneInfo.ConvertTime(dateTimeOffset.EndOfQuarter(timeZone), TimeZoneInfo.Utc);
 }

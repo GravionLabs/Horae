@@ -295,4 +295,251 @@ public class DateTimeOffsetExtensionsTests
 
         result.ShouldBe(new DateTimeOffset(2026, 6, 15, 10, 0, 0, TimeSpan.Zero));
     }
+
+
+    // ── StartOfWeek / EndOfWeek ───────────────────────────────────────────────
+
+    [Test]
+    public void StartOfWeek_ShouldReturnMondayMidnight_InExplicitTimeZone()
+    {
+        // 2026-06-15 (Monday) 10:00 UTC = 2026-06-15 19:00 JST → Monday midnight JST
+        var result = _utcRef.StartOfWeek(TimeZones.Japan);
+
+        result.ShouldBe(new DateTimeOffset(2026, 6, 15, 0, 0, 0, TimeSpan.FromHours(9)));
+    }
+
+    [Test]
+    public void StartOfWeek_ShouldGoBackToMonday_WhenMidWeek()
+    {
+        // 2026-06-18 (Thursday) 10:00 UTC = 2026-06-18 19:00 JST → Monday = 2026-06-15
+        var thursday = new DateTimeOffset(2026, 6, 18, 10, 0, 0, TimeSpan.Zero);
+        var result = thursday.StartOfWeek(TimeZones.Japan);
+
+        result.ShouldBe(new DateTimeOffset(2026, 6, 15, 0, 0, 0, TimeSpan.FromHours(9)));
+    }
+
+    [Test]
+    public void StartOfWeek_ShouldGoBackToMonday_WhenSunday()
+    {
+        // 2026-06-21 (Sunday) → ISO week starts on Monday 2026-06-15
+        var sunday = new DateTimeOffset(2026, 6, 21, 10, 0, 0, TimeSpan.Zero);
+        var result = sunday.StartOfWeek(TimeZones.Japan);
+
+        result.ShouldBe(new DateTimeOffset(2026, 6, 15, 0, 0, 0, TimeSpan.FromHours(9)));
+    }
+
+    [Test]
+    public void StartOfWeek_ShouldUseCurrentTimeZone_WhenNullIsPassed()
+    {
+        HoareSettings.CurrentTimeZone = TimeZones.Japan;
+
+        var result = _utcRef.StartOfWeek();
+
+        result.ShouldBe(new DateTimeOffset(2026, 6, 15, 0, 0, 0, TimeSpan.FromHours(9)));
+    }
+
+    [Test]
+    public void StartOfWeekUtc_ShouldReturnMondayMidnightAsUtc()
+    {
+        // Monday midnight JST = 2026-06-14 15:00 UTC
+        var result = _utcRef.StartOfWeekUtc(TimeZones.Japan);
+
+        result.Offset.ShouldBe(TimeSpan.Zero);
+        result.ShouldBe(new DateTimeOffset(2026, 6, 14, 15, 0, 0, TimeSpan.Zero));
+    }
+
+    [Test]
+    public void EndOfWeek_ShouldReturnFollowingMondayMidnight()
+    {
+        // Week of 2026-06-15 → end = 2026-06-22 00:00 JST
+        var result = _utcRef.EndOfWeek(TimeZones.Japan);
+
+        result.ShouldBe(new DateTimeOffset(2026, 6, 22, 0, 0, 0, TimeSpan.FromHours(9)));
+    }
+
+    [Test]
+    public void EndOfWeekUtc_ShouldReturnFollowingMondayMidnightAsUtc()
+    {
+        // 2026-06-22 00:00 JST = 2026-06-21 15:00 UTC
+        var result = _utcRef.EndOfWeekUtc(TimeZones.Japan);
+
+        result.Offset.ShouldBe(TimeSpan.Zero);
+        result.ShouldBe(new DateTimeOffset(2026, 6, 21, 15, 0, 0, TimeSpan.Zero));
+    }
+
+
+    // ── StartOfMonth / EndOfMonth ─────────────────────────────────────────────
+
+    [Test]
+    public void StartOfMonth_ShouldReturnFirstDayMidnight_InExplicitTimeZone()
+    {
+        // 2026-06-15 10:00 UTC = 2026-06-15 19:00 JST → start of June JST = 2026-06-01 00:00 +09:00
+        var result = _utcRef.StartOfMonth(TimeZones.Japan);
+
+        result.ShouldBe(new DateTimeOffset(2026, 6, 1, 0, 0, 0, TimeSpan.FromHours(9)));
+    }
+
+    [Test]
+    public void StartOfMonth_ShouldUseCurrentTimeZone_WhenNullIsPassed()
+    {
+        HoareSettings.CurrentTimeZone = TimeZones.Dubai;
+
+        var result = _utcRef.StartOfMonth();
+
+        result.ShouldBe(new DateTimeOffset(2026, 6, 1, 0, 0, 0, TimeSpan.FromHours(4)));
+    }
+
+    [Test]
+    public void StartOfMonthUtc_ShouldReturnFirstDayMidnightAsUtc()
+    {
+        // 2026-06-01 00:00 JST = 2026-05-31 15:00 UTC
+        var result = _utcRef.StartOfMonthUtc(TimeZones.Japan);
+
+        result.Offset.ShouldBe(TimeSpan.Zero);
+        result.ShouldBe(new DateTimeOffset(2026, 5, 31, 15, 0, 0, TimeSpan.Zero));
+    }
+
+    [Test]
+    public void EndOfMonth_ShouldReturnFirstDayOfNextMonthMidnight()
+    {
+        // June → July 1 midnight JST
+        var result = _utcRef.EndOfMonth(TimeZones.Japan);
+
+        result.ShouldBe(new DateTimeOffset(2026, 7, 1, 0, 0, 0, TimeSpan.FromHours(9)));
+    }
+
+    [Test]
+    public void EndOfMonth_ShouldWrapToJanuary_WhenInDecember()
+    {
+        // 2026-12-15 10:00 UTC = 2026-12-15 19:00 JST → end of December = 2027-01-01 00:00 JST
+        var december = new DateTimeOffset(2026, 12, 15, 10, 0, 0, TimeSpan.Zero);
+        var result = december.EndOfMonth(TimeZones.Japan);
+
+        result.ShouldBe(new DateTimeOffset(2027, 1, 1, 0, 0, 0, TimeSpan.FromHours(9)));
+    }
+
+    [Test]
+    public void EndOfMonthUtc_ShouldReturnFirstDayOfNextMonthAsUtc()
+    {
+        // 2026-07-01 00:00 JST = 2026-06-30 15:00 UTC
+        var result = _utcRef.EndOfMonthUtc(TimeZones.Japan);
+
+        result.Offset.ShouldBe(TimeSpan.Zero);
+        result.ShouldBe(new DateTimeOffset(2026, 6, 30, 15, 0, 0, TimeSpan.Zero));
+    }
+
+
+    // ── StartOfYear / EndOfYear ───────────────────────────────────────────────
+
+    [Test]
+    public void StartOfYear_ShouldReturnJanuaryFirstMidnight_InExplicitTimeZone()
+    {
+        // 2026-06-15 → 2026-01-01 00:00 JST
+        var result = _utcRef.StartOfYear(TimeZones.Japan);
+
+        result.ShouldBe(new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.FromHours(9)));
+    }
+
+    [Test]
+    public void StartOfYear_ShouldUseCurrentTimeZone_WhenNullIsPassed()
+    {
+        HoareSettings.CurrentTimeZone = TimeZones.Dubai;
+
+        var result = _utcRef.StartOfYear();
+
+        result.ShouldBe(new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.FromHours(4)));
+    }
+
+    [Test]
+    public void StartOfYearUtc_ShouldReturnJanuaryFirstMidnightAsUtc()
+    {
+        // 2026-01-01 00:00 JST = 2025-12-31 15:00 UTC
+        var result = _utcRef.StartOfYearUtc(TimeZones.Japan);
+
+        result.Offset.ShouldBe(TimeSpan.Zero);
+        result.ShouldBe(new DateTimeOffset(2025, 12, 31, 15, 0, 0, TimeSpan.Zero));
+    }
+
+    [Test]
+    public void EndOfYear_ShouldReturnJanuaryFirstOfNextYearMidnight()
+    {
+        // 2026 → 2027-01-01 00:00 JST
+        var result = _utcRef.EndOfYear(TimeZones.Japan);
+
+        result.ShouldBe(new DateTimeOffset(2027, 1, 1, 0, 0, 0, TimeSpan.FromHours(9)));
+    }
+
+    [Test]
+    public void EndOfYearUtc_ShouldReturnJanuaryFirstOfNextYearMidnightAsUtc()
+    {
+        // 2027-01-01 00:00 JST = 2026-12-31 15:00 UTC
+        var result = _utcRef.EndOfYearUtc(TimeZones.Japan);
+
+        result.Offset.ShouldBe(TimeSpan.Zero);
+        result.ShouldBe(new DateTimeOffset(2026, 12, 31, 15, 0, 0, TimeSpan.Zero));
+    }
+
+
+    // ── StartOfQuarter / EndOfQuarter ─────────────────────────────────────────
+
+    [Test]
+    [TestCase(1, 2026, 1)]   // Q1: Jan 1
+    [TestCase(2, 2026, 1)]   // Q1: Jan 1
+    [TestCase(5, 2026, 4)]   // Q2: Apr 1
+    [TestCase(7, 2026, 7)]   // Q3: Jul 1
+    [TestCase(10, 2026, 10)] // Q4: Oct 1
+    [TestCase(12, 2026, 10)] // Q4: Oct 1
+    public void StartOfQuarter_ShouldReturnFirstDayOfQuarter(int refMonth, int expectedYear, int expectedMonth)
+    {
+        var dto = new DateTimeOffset(2026, refMonth, 15, 10, 0, 0, TimeSpan.Zero);
+        var result = dto.StartOfQuarter(TimeZones.Japan);
+
+        result.ShouldBe(new DateTimeOffset(expectedYear, expectedMonth, 1, 0, 0, 0, TimeSpan.FromHours(9)));
+    }
+
+    [Test]
+    public void StartOfQuarter_ShouldUseCurrentTimeZone_WhenNullIsPassed()
+    {
+        // June → Q2, start = April 1
+        HoareSettings.CurrentTimeZone = TimeZones.Dubai;
+
+        var result = _utcRef.StartOfQuarter();
+
+        result.ShouldBe(new DateTimeOffset(2026, 4, 1, 0, 0, 0, TimeSpan.FromHours(4)));
+    }
+
+    [Test]
+    public void StartOfQuarterUtc_ShouldReturnFirstDayOfQuarterAsUtc()
+    {
+        // Q2 start: 2026-04-01 00:00 JST = 2026-03-31 15:00 UTC
+        var result = _utcRef.StartOfQuarterUtc(TimeZones.Japan);
+
+        result.Offset.ShouldBe(TimeSpan.Zero);
+        result.ShouldBe(new DateTimeOffset(2026, 3, 31, 15, 0, 0, TimeSpan.Zero));
+    }
+
+    [Test]
+    [TestCase(1, 2026, 4)]    // Q1 ends → Q2 starts Apr 1
+    [TestCase(3, 2026, 4)]    // Q1 ends → Apr 1
+    [TestCase(4, 2026, 7)]    // Q2 ends → Jul 1
+    [TestCase(9, 2026, 10)]   // Q3 ends → Oct 1
+    [TestCase(10, 2027, 1)]   // Q4 ends → next year Jan 1
+    [TestCase(12, 2027, 1)]   // Q4 ends → next year Jan 1
+    public void EndOfQuarter_ShouldReturnFirstDayOfNextQuarter(int refMonth, int expectedYear, int expectedMonth)
+    {
+        var dto = new DateTimeOffset(2026, refMonth, 15, 10, 0, 0, TimeSpan.Zero);
+        var result = dto.EndOfQuarter(TimeZones.Japan);
+
+        result.ShouldBe(new DateTimeOffset(expectedYear, expectedMonth, 1, 0, 0, 0, TimeSpan.FromHours(9)));
+    }
+
+    [Test]
+    public void EndOfQuarterUtc_ShouldReturnFirstDayOfNextQuarterAsUtc()
+    {
+        // Q2 end: 2026-07-01 00:00 JST = 2026-06-30 15:00 UTC
+        var result = _utcRef.EndOfQuarterUtc(TimeZones.Japan);
+
+        result.Offset.ShouldBe(TimeSpan.Zero);
+        result.ShouldBe(new DateTimeOffset(2026, 6, 30, 15, 0, 0, TimeSpan.Zero));
+    }
 }
