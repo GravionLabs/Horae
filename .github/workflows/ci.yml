@@ -96,6 +96,13 @@ jobs:
           api-key: ${{ secrets.GITHUB_TOKEN }}
           download-artifact: 'true'
 
+      - name: Publish to NuGet.org
+        uses: GravionLabs/ci/dotnet/nuget/publish@main
+        with:
+          feed-url: 'https://api.nuget.org/v3/index.json'
+          api-key: ${{ secrets.NUGET_API_KEY }}
+          download-artifact: 'false'
+
   release:
     name: Release
     needs: [determine-version, publish]
