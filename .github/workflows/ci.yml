@@ -213,7 +213,11 @@ jobs:
 
   pages:
     name: Pages
+    needs: [build-test-pack]
     if: github.ref == 'refs/heads/main'
+    concurrency:
+      group: pages
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     permissions:
       contents: read
