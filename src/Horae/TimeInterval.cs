@@ -104,6 +104,56 @@ public readonly record struct TimeInterval
         new(now.StartOfDayAheadUtc(timeZone), now.EndOfDayAheadUtc(timeZone));
 
     /// <summary>
+    ///     Creates a <see cref="TimeInterval" /> spanning an ISO week (Monday midnight to Monday midnight)
+    ///     in the given time zone.
+    /// </summary>
+    /// <param name="weekStart">The Monday that starts the week.</param>
+    /// <param name="timeZone">
+    ///     The time zone used to determine midnight boundaries.
+    ///     When <see langword="null" />, <see cref="HoareSettings.CurrentTimeZone" /> is used.
+    /// </param>
+    public static TimeInterval Week(DateOnly weekStart, TimeZoneInfo? timeZone = null)
+    {
+        var tz = timeZone ?? HoareSettings.CurrentTimeZone ?? TimeZoneInfo.Utc;
+        var start = weekStart.AsDateTimeOffset(tz);
+        var end   = weekStart.AddDays(7).AsDateTimeOffset(tz);
+        return new TimeInterval(start, end);
+    }
+
+    /// <summary>
+    ///     Creates a <see cref="TimeInterval" /> spanning the full calendar month in the given time zone.
+    /// </summary>
+    /// <param name="year">The calendar year.</param>
+    /// <param name="month">The calendar month (1–12).</param>
+    /// <param name="timeZone">
+    ///     The time zone used to determine midnight boundaries.
+    ///     When <see langword="null" />, <see cref="HoareSettings.CurrentTimeZone" /> is used.
+    /// </param>
+    public static TimeInterval Month(int year, int month, TimeZoneInfo? timeZone = null)
+    {
+        var tz    = timeZone ?? HoareSettings.CurrentTimeZone ?? TimeZoneInfo.Utc;
+        var start = new DateOnly(year, month, 1).AsDateTimeOffset(tz);
+        var end   = new DateOnly(year, month, 1).AddMonths(1).AsDateTimeOffset(tz);
+        return new TimeInterval(start, end);
+    }
+
+    /// <summary>
+    ///     Creates a <see cref="TimeInterval" /> spanning the full calendar year in the given time zone.
+    /// </summary>
+    /// <param name="year">The calendar year.</param>
+    /// <param name="timeZone">
+    ///     The time zone used to determine midnight boundaries.
+    ///     When <see langword="null" />, <see cref="HoareSettings.CurrentTimeZone" /> is used.
+    /// </param>
+    public static TimeInterval Year(int year, TimeZoneInfo? timeZone = null)
+    {
+        var tz    = timeZone ?? HoareSettings.CurrentTimeZone ?? TimeZoneInfo.Utc;
+        var start = new DateOnly(year, 1, 1).AsDateTimeOffset(tz);
+        var end   = new DateOnly(year + 1, 1, 1).AsDateTimeOffset(tz);
+        return new TimeInterval(start, end);
+    }
+
+    /// <summary>
     ///     Determines whether the interval contains the given instant.
     ///     Uses a half-open interval check: <c>Start &lt;= value &lt; End</c>.
     /// </summary>
@@ -218,6 +268,66 @@ public readonly record struct TimeInterval
         {
             for (var current = start; current < end; current = current.Add(resolution))
                 yield return current;
+        }
+    }
+
+    /// <summary>
+    ///     Splits the interval into a sequence of UTC instants representing ISO Monday boundaries
+    ///     (Monday midnight) within the interval.
+    ///     Iteration uses calendar-date arithmetic so DST transitions are handled correctly.
+    /// </summary>
+    /// <param name="timeZone">
+    ///     The time zone used to determine Monday midnight boundaries.
+    ///     When <see langword="null" />, <see cref="HoareSettings.CurrentTimeZone" /> is used.
+    /// </param>
+    /// <returns>
+    ///     A sequence of UTC <see cref="DateTimeOffset" /> values, one per ISO Monday within the interval.
+    /// </returns>
+    public IEnumerable<DateTimeOffset> SplitByWeeks(TimeZoneInfo? timeZone = null)
+    {
+        var tz = timeZone ?? HoareSettings.CurrentTimeZone ?? TimeZoneInfo.Utc;
+
+        var startInTz = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(Start, tz).DateTime);
+
+        // Advance to the Monday of the week containing startInTz.
+        // DayOfWeek: Sunday=0, Monday=1, ..., Saturday=6
+        // Days to the Monday of this week: Mon→0, Tue→6, Wed→5, ..., Sun→1 — i.e., (8 - (int)dow) % 7
+        var dow           = startInTz.DayOfWeek;
+        var daysToMonday  = (8 - (int)dow) % 7;
+        var firstMonday   = startInTz.AddDays(daysToMonday);
+
+        for (var monday = firstMonday; ; monday = monday.AddDays(7))
+        {
+            var mondayUtc = monday.AsDateTimeOffset(tz).ToUniversalTime();
+            if (mondayUtc >= End) break;
+            yield return mondayUtc;
+        }
+    }
+
+    /// <summary>
+    ///     Splits the interval into a sequence of UTC instants representing calendar-month start
+    ///     boundaries (the first day of each month at midnight) within the interval.
+    ///     Iteration uses calendar-date arithmetic so DST transitions are handled correctly.
+    /// </summary>
+    /// <param name="timeZone">
+    ///     The time zone used to determine midnight boundaries.
+    ///     When <see langword="null" />, <see cref="HoareSettings.CurrentTimeZone" /> is used.
+    /// </param>
+    /// <returns>
+    ///     A sequence of UTC <see cref="DateTimeOffset" /> values, one per month start within the interval.
+    /// </returns>
+    public IEnumerable<DateTimeOffset> SplitByMonths(TimeZoneInfo? timeZone = null)
+    {
+        var tz = timeZone ?? HoareSettings.CurrentTimeZone ?? TimeZoneInfo.Utc;
+
+        var startInTz  = TimeZoneInfo.ConvertTime(Start, tz);
+        var firstMonth = new DateOnly(startInTz.Year, startInTz.Month, 1);
+
+        for (var month = firstMonth; ; month = month.AddMonths(1))
+        {
+            var monthUtc = month.AsDateTimeOffset(tz).ToUniversalTime();
+            if (monthUtc >= End) break;
+            yield return monthUtc;
         }
     }
 
