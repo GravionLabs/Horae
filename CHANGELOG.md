@@ -5,6 +5,12 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.0.6] — 2026-05-10
+
+### Documentation
+- Update CHANGELOG.md for v1.0.6 [skip ci]
+
+
 ## [1.0.5] — 2026-05-10
 
 ### Documentation
