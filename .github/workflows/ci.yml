@@ -111,6 +111,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      issues: write
+      pull-requests: read
     steps:
       - name: Create release
         uses: GravionLabs/ci/versioning/gh-release@main
