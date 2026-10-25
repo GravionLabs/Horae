@@ -1,0 +1,374 @@
+lockfile_version: '1'
+apm_version: 0.35.0
+dependencies:
+- repo_url: gravionlabs/apm-hub
+  materialization_repo_url: GravionLabs/apm-hub
+  name: dotnet
+  host: github.com
+  resolved_commit: 62d7efa8d0004b71bbb5d0914b2af6f87adb4256
+  resolved_ref: v2.4.0
+  version: 2.4.0
+  virtual_path: packages/dotnet
+  is_virtual: true
+  package_type: apm_package
+  deployed_files:
+  - .claude/skills/dotnet-create-solution
+  - .claude/skills/dotnet-create-solution/SKILL.md
+  - .claude/skills/dotnet-create-solution/scripts/New-Solution.ps1
+  - .claude/skills/dotnet-create-solution/templates/.editorconfig
+  - .claude/skills/dotnet-create-solution/templates/.github/workflows/ci-app.yml
+  - .claude/skills/dotnet-create-solution/templates/.github/workflows/ci-library.yml
+  - .claude/skills/dotnet-create-solution/templates/Directory.Build.props
+  - .claude/skills/dotnet-create-solution/templates/Directory.Packages.props
+  - .claude/skills/dotnet-create-solution/templates/src/Directory.Build.props
+  - .claude/skills/dotnet-create-solution/templates/test/Directory.Build.props
+  - .claude/skills/dotnet-implementation
+  - .claude/skills/dotnet-implementation/SKILL.md
+  - .claude/skills/dotnet-mcp-server-generator
+  - .claude/skills/dotnet-mcp-server-generator/SKILL.md
+  - .claude/skills/dotnet-mcp-server-generator/templates/Program.cs
+  - .claude/skills/dotnet-mcp-server-generator/templates/Prompts.cs
+  - .claude/skills/dotnet-mcp-server-generator/templates/Tools.cs
+  - .claude/skills/dotnet-test
+  - .claude/skills/dotnet-test/SKILL.md
+  deployed_file_hashes:
+    .claude/skills/dotnet-create-solution/SKILL.md: sha256:c76a6fded5dd8f064ffc6f9a16e7b2f003c4a0023f3698a7a30bcae06c590bc9
+    .claude/skills/dotnet-create-solution/scripts/New-Solution.ps1: sha256:13eb12f43d1039d18a364223c0ca5a1180b109df5c293801fed57d5c9a6bd6ec
+    .claude/skills/dotnet-create-solution/templates/.editorconfig: sha256:1ef65a0f316b6012b51f524bc62b33631f6e75281058acd58e37e71313acaba9
+    .claude/skills/dotnet-create-solution/templates/.github/workflows/ci-app.yml: sha256:cc886213de639319c13106b45b7831e6b70a479fd2f31616e2309685f852cfd2
+    .claude/skills/dotnet-create-solution/templates/.github/workflows/ci-library.yml: sha256:7b220fadaa6fd3ebcbdcbbd1dc2fb2b14f2d66425f913f5bd5391032f2cc67a7
+    .claude/skills/dotnet-create-solution/templates/Directory.Build.props: sha256:4d493175a312115fd8791741dd0e8e414d6438923203375312a922276c82878a
+    .claude/skills/dotnet-create-solution/templates/Directory.Packages.props: sha256:f091a3d039fc58c25d029bfa04d89651f96b99bb386c1128a19f6aec317891a5
+    .claude/skills/dotnet-create-solution/templates/src/Directory.Build.props: sha256:4890a8c497abb5082a7f1de55229dc8a268b381660e9584cc3d2aa9bae9155ee
+    .claude/skills/dotnet-create-solution/templates/test/Directory.Build.props: sha256:110280ab2f724bd8ab7c588ae099fd2b003ef75c91398dcac3a2116c34a2bad0
+    .claude/skills/dotnet-implementation/SKILL.md: sha256:48af0987cc2db88225c5080c93b8f1efd9ce7c9e9c946ac27fb2e1c93c29fc9c
+    .claude/skills/dotnet-mcp-server-generator/SKILL.md: sha256:4cedb8acc1ef3a4c3c65c112e35397d53464c15f8c9c0ad8b8c54bdf16ff0cc5
+    .claude/skills/dotnet-mcp-server-generator/templates/Program.cs: sha256:f408ce28bdef8c2425195120df79f3668183213d3ee83c40a642ad9401a4e5b7
+    .claude/skills/dotnet-mcp-server-generator/templates/Prompts.cs: sha256:75a4e17d20fffc31dde0786e60fc675d913f3f1e87bf51b6d00c5ecf1fbe2a7f
+    .claude/skills/dotnet-mcp-server-generator/templates/Tools.cs: sha256:4a9fd883dd68bd1d3bdae7eb8df7aca7c260761622949c22178e49718508f90a
+    .claude/skills/dotnet-test/SKILL.md: sha256:b55d2648f35fb93115606a3aad4d3843aef6f0c77d8093dc45cccea7d6551222
+  content_hash: sha256:fb5a0c17329b5540a5fede57f7b2e20cb98c301cf864dff390d9f5ce9c2844e7
+  declared_license: MIT
+- repo_url: dotnet/skills
+  name: dotnet
+  host: github.com
+  resolved_commit: cb7c10bd32b250459632df9e6fa1350cdaf00b18
+  resolved_ref: cb7c10bd32b250459632df9e6fa1350cdaf00b18
+  version: 0.1.0
+  virtual_path: plugins/dotnet
+  is_virtual: true
+  depth: 2
+  resolved_by: GravionLabs/apm-hub
+  package_type: skill_bundle
+  deployed_files:
+  - .claude/skills/csharp-scripts
+  - .claude/skills/csharp-scripts/SKILL.md
+  - .claude/skills/dotnet-pinvoke
+  - .claude/skills/dotnet-pinvoke/SKILL.md
+  - .claude/skills/dotnet-pinvoke/references/diagnostics.md
+  - .claude/skills/dotnet-pinvoke/references/type-mapping.md
+  - .claude/skills/nuget-trusted-publishing
+  - .claude/skills/nuget-trusted-publishing/SKILL.md
+  - .claude/skills/nuget-trusted-publishing/references/package-types.md
+  - .claude/skills/nuget-trusted-publishing/references/publish-workflow.md
+  deployed_file_hashes:
+    .claude/skills/csharp-scripts/SKILL.md: sha256:584bffea933d882183c7b418248a81eb2f62a21307e5b08cffb3c1333ad2b442
+    .claude/skills/dotnet-pinvoke/SKILL.md: sha256:879a80c625f7f5eb6b2ef0edff8e55f119ea19f5b5f83df3277fee272c7364ea
+    .claude/skills/dotnet-pinvoke/references/diagnostics.md: sha256:5c3596bc66f89a20dc1216d133fda6cdcf3af951e8ce41bc35c4fc90861528a7
+    .claude/skills/dotnet-pinvoke/references/type-mapping.md: sha256:b8987c9264dc44704dbfdcfe8071f702c7d976cf3aabb6b686850df600c36d7c
+    .claude/skills/nuget-trusted-publishing/SKILL.md: sha256:2d262f9c301c4633f49b2f4f2f29444673501fb03b0f707f80a556e4debc686f
+    .claude/skills/nuget-trusted-publishing/references/package-types.md: sha256:f413d6ee9fc24c5b886dfcb0f7063b2bfa16bd8e6a5c938ca103ffd001b4f3b6
+    .claude/skills/nuget-trusted-publishing/references/publish-workflow.md: sha256:632b8e8db22115237ce305ddbca00a41d3cbb10869f1cdc3116e329a35ab70df
+  content_hash: sha256:d3f064c939fd1174ba261fa0ef38dba1185158988e8f016b12b704326008597e
+deployments:
+- kind: project-relative
+  target: claude
+  value: .claude/skills/csharp-scripts
+  runtime: null
+  scope: project
+  owners:
+  - dotnet/skills/plugins/dotnet
+  active_owner: dotnet/skills/plugins/dotnet
+  content_hash: null
+- kind: project-relative
+  target: claude
+  value: .claude/skills/csharp-scripts/SKILL.md
+  runtime: null
+  scope: project
+  owners:
+  - dotnet/skills/plugins/dotnet
+  active_owner: dotnet/skills/plugins/dotnet
+  content_hash: sha256:584bffea933d882183c7b418248a81eb2f62a21307e5b08cffb3c1333ad2b442
+- kind: project-relative
+  target: claude
+  value: .claude/skills/dotnet-create-solution
+  runtime: null
+  scope: project
+  owners:
+  - gravionlabs/apm-hub/packages/dotnet
+  active_owner: gravionlabs/apm-hub/packages/dotnet
+  content_hash: null
+- kind: project-relative
+  target: claude
+  value: .claude/skills/dotnet-create-solution/SKILL.md
+  runtime: null
+  scope: project
+  owners:
+  - gravionlabs/apm-hub/packages/dotnet
+  active_owner: gravionlabs/apm-hub/packages/dotnet
+  content_hash: sha256:c76a6fded5dd8f064ffc6f9a16e7b2f003c4a0023f3698a7a30bcae06c590bc9
+- kind: project-relative
+  target: claude
+  value: .claude/skills/dotnet-create-solution/scripts/New-Solution.ps1
+  runtime: null
+  scope: project
+  owners:
+  - gravionlabs/apm-hub/packages/dotnet
+  active_owner: gravionlabs/apm-hub/packages/dotnet
+  content_hash: sha256:13eb12f43d1039d18a364223c0ca5a1180b109df5c293801fed57d5c9a6bd6ec
+- kind: project-relative
+  target: claude
+  value: .claude/skills/dotnet-create-solution/templates/.editorconfig
+  runtime: null
+  scope: project
+  owners:
+  - gravionlabs/apm-hub/packages/dotnet
+  active_owner: gravionlabs/apm-hub/packages/dotnet
+  content_hash: sha256:1ef65a0f316b6012b51f524bc62b33631f6e75281058acd58e37e71313acaba9
+- kind: project-relative
+  target: claude
+  value: .claude/skills/dotnet-create-solution/templates/.github/workflows/ci-app.yml
+  runtime: null
+  scope: project
+  owners:
+  - gravionlabs/apm-hub/packages/dotnet
+  active_owner: gravionlabs/apm-hub/packages/dotnet
+  content_hash: sha256:cc886213de639319c13106b45b7831e6b70a479fd2f31616e2309685f852cfd2
+- kind: project-relative
+  target: claude
+  value: .claude/skills/dotnet-create-solution/templates/.github/workflows/ci-library.yml
+  runtime: null
+  scope: project
+  owners:
+  - gravionlabs/apm-hub/packages/dotnet
+  active_owner: gravionlabs/apm-hub/packages/dotnet
+  content_hash: sha256:7b220fadaa6fd3ebcbdcbbd1dc2fb2b14f2d66425f913f5bd5391032f2cc67a7
+- kind: project-relative
+  target: claude
+  value: .claude/skills/dotnet-create-solution/templates/Directory.Build.props
+  runtime: null
+  scope: project
+  owners:
+  - gravionlabs/apm-hub/packages/dotnet
+  active_owner: gravionlabs/apm-hub/packages/dotnet
+  content_hash: sha256:4d493175a312115fd8791741dd0e8e414d6438923203375312a922276c82878a
+- kind: project-relative
+  target: claude
+  value: .claude/skills/dotnet-create-solution/templates/Directory.Packages.props
+  runtime: null
+  scope: project
+  owners:
+  - gravionlabs/apm-hub/packages/dotnet
+  active_owner: gravionlabs/apm-hub/packages/dotnet
+  content_hash: sha256:f091a3d039fc58c25d029bfa04d89651f96b99bb386c1128a19f6aec317891a5
+- kind: project-relative
+  target: claude
+  value: .claude/skills/dotnet-create-solution/templates/src/Directory.Build.props
+  runtime: null
+  scope: project
+  owners:
+  - gravionlabs/apm-hub/packages/dotnet
+  active_owner: gravionlabs/apm-hub/packages/dotnet
+  content_hash: sha256:4890a8c497abb5082a7f1de55229dc8a268b381660e9584cc3d2aa9bae9155ee
+- kind: project-relative
+  target: claude
+  value: .claude/skills/dotnet-create-solution/templates/test/Directory.Build.props
+  runtime: null
+  scope: project
+  owners:
+  - gravionlabs/apm-hub/packages/dotnet
+  active_owner: gravionlabs/apm-hub/packages/dotnet
+  content_hash: sha256:110280ab2f724bd8ab7c588ae099fd2b003ef75c91398dcac3a2116c34a2bad0
+- kind: project-relative
+  target: claude
+  value: .claude/skills/dotnet-implementation
+  runtime: null
+  scope: project
+  owners:
+  - gravionlabs/apm-hub/packages/dotnet
+  active_owner: gravionlabs/apm-hub/packages/dotnet
+  content_hash: null
+- kind: project-relative
+  target: claude
+  value: .claude/skills/dotnet-implementation/SKILL.md
+  runtime: null
+  scope: project
+  owners:
+  - gravionlabs/apm-hub/packages/dotnet
+  active_owner: gravionlabs/apm-hub/packages/dotnet
+  content_hash: sha256:48af0987cc2db88225c5080c93b8f1efd9ce7c9e9c946ac27fb2e1c93c29fc9c
+- kind: project-relative
+  target: claude
+  value: .claude/skills/dotnet-mcp-server-generator
+  runtime: null
+  scope: project
+  owners:
+  - gravionlabs/apm-hub/packages/dotnet
+  active_owner: gravionlabs/apm-hub/packages/dotnet
+  content_hash: null
+- kind: project-relative
+  target: claude
+  value: .claude/skills/dotnet-mcp-server-generator/SKILL.md
+  runtime: null
+  scope: project
+  owners:
+  - gravionlabs/apm-hub/packages/dotnet
+  active_owner: gravionlabs/apm-hub/packages/dotnet
+  content_hash: sha256:4cedb8acc1ef3a4c3c65c112e35397d53464c15f8c9c0ad8b8c54bdf16ff0cc5
+- kind: project-relative
+  target: claude
+  value: .claude/skills/dotnet-mcp-server-generator/templates/Program.cs
+  runtime: null
+  scope: project
+  owners:
+  - gravionlabs/apm-hub/packages/dotnet
+  active_owner: gravionlabs/apm-hub/packages/dotnet
+  content_hash: sha256:f408ce28bdef8c2425195120df79f3668183213d3ee83c40a642ad9401a4e5b7
+- kind: project-relative
+  target: claude
+  value: .claude/skills/dotnet-mcp-server-generator/templates/Prompts.cs
+  runtime: null
+  scope: project
+  owners:
+  - gravionlabs/apm-hub/packages/dotnet
+  active_owner: gravionlabs/apm-hub/packages/dotnet
+  content_hash: sha256:75a4e17d20fffc31dde0786e60fc675d913f3f1e87bf51b6d00c5ecf1fbe2a7f
+- kind: project-relative
+  target: claude
+  value: .claude/skills/dotnet-mcp-server-generator/templates/Tools.cs
+  runtime: null
+  scope: project
+  owners:
+  - gravionlabs/apm-hub/packages/dotnet
+  active_owner: gravionlabs/apm-hub/packages/dotnet
+  content_hash: sha256:4a9fd883dd68bd1d3bdae7eb8df7aca7c260761622949c22178e49718508f90a
+- kind: project-relative
+  target: claude
+  value: .claude/skills/dotnet-pinvoke
+  runtime: null
+  scope: project
+  owners:
+  - dotnet/skills/plugins/dotnet
+  active_owner: dotnet/skills/plugins/dotnet
+  content_hash: null
+- kind: project-relative
+  target: claude
+  value: .claude/skills/dotnet-pinvoke/SKILL.md
+  runtime: null
+  scope: project
+  owners:
+  - dotnet/skills/plugins/dotnet
+  active_owner: dotnet/skills/plugins/dotnet
+  content_hash: sha256:879a80c625f7f5eb6b2ef0edff8e55f119ea19f5b5f83df3277fee272c7364ea
+- kind: project-relative
+  target: claude
+  value: .claude/skills/dotnet-pinvoke/references/diagnostics.md
+  runtime: null
+  scope: project
+  owners:
+  - dotnet/skills/plugins/dotnet
+  active_owner: dotnet/skills/plugins/dotnet
+  content_hash: sha256:5c3596bc66f89a20dc1216d133fda6cdcf3af951e8ce41bc35c4fc90861528a7
+- kind: project-relative
+  target: claude
+  value: .claude/skills/dotnet-pinvoke/references/type-mapping.md
+  runtime: null
+  scope: project
+  owners:
+  - dotnet/skills/plugins/dotnet
+  active_owner: dotnet/skills/plugins/dotnet
+  content_hash: sha256:b8987c9264dc44704dbfdcfe8071f702c7d976cf3aabb6b686850df600c36d7c
+- kind: project-relative
+  target: claude
+  value: .claude/skills/dotnet-test
+  runtime: null
+  scope: project
+  owners:
+  - gravionlabs/apm-hub/packages/dotnet
+  active_owner: gravionlabs/apm-hub/packages/dotnet
+  content_hash: null
+- kind: project-relative
+  target: claude
+  value: .claude/skills/dotnet-test/SKILL.md
+  runtime: null
+  scope: project
+  owners:
+  - gravionlabs/apm-hub/packages/dotnet
+  active_owner: gravionlabs/apm-hub/packages/dotnet
+  content_hash: sha256:b55d2648f35fb93115606a3aad4d3843aef6f0c77d8093dc45cccea7d6551222
+- kind: project-relative
+  target: claude
+  value: .claude/skills/nuget-trusted-publishing
+  runtime: null
+  scope: project
+  owners:
+  - dotnet/skills/plugins/dotnet
+  active_owner: dotnet/skills/plugins/dotnet
+  content_hash: null
+- kind: project-relative
+  target: claude
+  value: .claude/skills/nuget-trusted-publishing/SKILL.md
+  runtime: null
+  scope: project
+  owners:
+  - dotnet/skills/plugins/dotnet
+  active_owner: dotnet/skills/plugins/dotnet
+  content_hash: sha256:2d262f9c301c4633f49b2f4f2f29444673501fb03b0f707f80a556e4debc686f
+- kind: project-relative
+  target: claude
+  value: .claude/skills/nuget-trusted-publishing/references/package-types.md
+  runtime: null
+  scope: project
+  owners:
+  - dotnet/skills/plugins/dotnet
+  active_owner: dotnet/skills/plugins/dotnet
+  content_hash: sha256:f413d6ee9fc24c5b886dfcb0f7063b2bfa16bd8e6a5c938ca103ffd001b4f3b6
+- kind: project-relative
+  target: claude
+  value: .claude/skills/nuget-trusted-publishing/references/publish-workflow.md
+  runtime: null
+  scope: project
+  owners:
+  - dotnet/skills/plugins/dotnet
+  active_owner: dotnet/skills/plugins/dotnet
+  content_hash: sha256:632b8e8db22115237ce305ddbca00a41d3cbb10869f1cdc3116e329a35ab70df
+- kind: uri
+  target: lsp
+  value: csharp
+  runtime: claude
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: null
+lsp_servers:
+- csharp
+lsp_configs:
+  csharp:
+    name: csharp
+    command: dotnet
+    args:
+    - dnx
+    - roslyn-language-server
+    - --yes
+    - --prerelease
+    - --
+    - --stdio
+    - --autoLoadProjects
+    extensionToLanguage:
+      .cs: csharp
+lsp_target_servers:
+  claude:
+  - csharp
+lsp_config_provenance:
+  csharp: package:dotnet/skills/plugins/dotnet

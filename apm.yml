@@ -1,0 +1,14 @@
+name: Horae
+version: 1.0.0
+description: APM project for Horae
+author: Jérôme Kaufmann
+# Which agent platforms to deploy to.
+# Resolution order: --target flag > this field > auto-detect from filesystem.
+targets:
+  - claude
+dependencies:
+  apm:
+    - GravionLabs/apm-hub/packages/dotnet#v2.4.0
+  mcp: []
+includes: auto
+scripts: {}

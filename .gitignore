@@ -57,3 +57,5 @@ nunit-*.xml
 _site/
 api/*.yml
 api/.manifest
+# APM dependencies
+apm_modules/
