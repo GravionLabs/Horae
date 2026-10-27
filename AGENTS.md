@@ -54,3 +54,6 @@
 - Re-run restore/build/test after dependency or framework edits to catch NU1010/NU1504 regressions early.
 - For timezone features, consider DST and Linux/Windows timezone ID portability in tests.
 
+
+## Issue Conventions
+- The title of an issue starts with its level: `[Epic]`, `[Feature]`, `[PBI]`, `[Task]` or `[Bug]`, then the summary (`[PBI] feat: short summary`). The shared `issues.yml` workflow of `GravionLabs/ci` sets the prefix from the level label.
